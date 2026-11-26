@@ -30,7 +30,7 @@ import { BadgeComponent, ButtonComponent, DetailFieldComponent, DetailGridCompon
 export class RayonDetailPanelComponent {
   readonly rayon = input.required<IRayon>();
 
-  readonly closed = output<void>();
+  readonly closed = output();
   readonly edited = output<IRayon>();
   readonly deleteRequested = output<IRayon>();
 

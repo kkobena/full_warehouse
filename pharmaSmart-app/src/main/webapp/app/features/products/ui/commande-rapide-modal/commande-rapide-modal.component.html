@@ -5,7 +5,7 @@
   <button type="button" class="btn-close" (click)="cancel()" aria-label="Fermer"></button>
 </div>
 
-<div class="modal-body">
+<div class="modal-body" [formGroup]="form">
 <app-card [variant]="'form'">
 
   @if (loading()) {
@@ -51,7 +51,7 @@
       <label class="form-label cr-label">Fournisseur <span class="text-danger">*</span></label>
       <app-select
         [items]="fournisseurs()"
-        [ngModel]="selectedFournisseurProduit()" (ngModelChange)="selectedFournisseurProduit.set($event)"
+        formControlName="fournisseurProduit"
         bindLabel="fournisseurLibelle"
         (selectionChange)="onFournisseurChange()"
         placeholder="Sélectionner un fournisseur..."
@@ -89,7 +89,7 @@
     <div class="mb-3">
       <label class="form-label cr-label">Quantité <span class="text-danger">*</span></label>
       <app-input-number #quantiteInput
-        [ngModel]="quantite()" (ngModelChange)="quantite.set($event)"
+        formControlName="quantite"
         [min]="1"
         [showButtons]="true"
       />

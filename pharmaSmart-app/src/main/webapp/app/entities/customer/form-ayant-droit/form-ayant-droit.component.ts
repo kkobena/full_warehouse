@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
+import { afterNextRender, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { Customer, ICustomer } from "app/shared/model/customer.model";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { ErrorService } from "app/shared/error.service";
@@ -32,7 +32,7 @@ import {
     RadioComponent
   ]
 })
-export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FormAyantDroitComponent implements OnInit, OnDestroy {
   title: string;
   entity?: ICustomer;
   assure?: ICustomer;
@@ -53,6 +53,12 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
   private readonly activeModal = inject(NgbActiveModal);
   private destroy$ = new Subject<void>();
   private readonly notificationService = inject(NotificationService);
+
+  constructor() {
+    afterNextRender(() => {
+      this.firstName().nativeElement.focus();
+    });
+  }
 
   ngOnInit(): void {
     if (this.entity) {
@@ -88,12 +94,6 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
 
   cancel(): void {
     this.activeModal.dismiss();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.firstName().nativeElement.focus();
-    }, 100);
   }
 
   protected createFromForm(): ICustomer {

@@ -61,7 +61,7 @@ export class NavFlyoutComponent implements AfterViewInit, OnDestroy {
   readonly navigate = output<NavItem>();
 
   /** Émis quand le panneau demande sa fermeture. */
-  readonly close = output<void>();
+  readonly close = output();
 
   /** Lignes à rendre, arbre aplati. */
   readonly rows = computed<FlyoutRow[]>(() => this.flatten(this.item().children ?? []));

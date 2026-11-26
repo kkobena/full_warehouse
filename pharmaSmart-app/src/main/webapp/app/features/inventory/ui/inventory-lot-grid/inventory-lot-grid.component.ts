@@ -60,7 +60,7 @@ export class InventoryLotGridComponent {
     search: string;
   }>();
   readonly storageChange = output<number | null>();
-  readonly nextPage = output<void>();
+  readonly nextPage = output();
 
   readonly editorFacade = inject(InventoryEditorFacade);
   readonly store = inject(InventoryStore);
@@ -151,7 +151,7 @@ export class InventoryLotGridComponent {
       // à la saisie, et la valeur tapée était silencieusement rejetée.
       editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
-      cellStyle: params => {
+      cellStyle(params) {
         if (params.data?.updated) {
           return {backgroundColor: '#f0fff4', fontWeight: 'bold'};
         }
@@ -167,7 +167,7 @@ export class InventoryLotGridComponent {
       type: 'numericColumn',
       // L'écart se déduit directement du stock théorique : même privilège que lui
       hide: this.blindMode(),
-      cellStyle: params => {
+      cellStyle(params) {
         const val = params.value;
         if (val == null) return null;
         if (val < 0) return {color: '#dc3545', backgroundColor: '#fde8ea', fontWeight: 'bold'};

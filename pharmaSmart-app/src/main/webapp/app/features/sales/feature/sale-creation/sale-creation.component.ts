@@ -103,8 +103,8 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   });
   paymentMode = viewChild<PaymentModeComponent>('paymentMode');
   initSaleForEditInfo = model<SaleForEditInfo>(null);
-  productAddedSuccess = output<void>();
-  cashRegisterOpened = output<void>();
+  productAddedSuccess = output();
+  cashRegisterOpened = output();
   // Modal and responsive state
   readonly isCashRegisterOpen = input(false);
   readonly isSmallScreen = input(false);
@@ -202,7 +202,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
-      focusCustomer: () => {
+      focusCustomer() {
         // TODO: ouvrir overlay client si nécessaire
       },
       addProduct: () => {
@@ -484,7 +484,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
 
   onRemoveRemise(): void {
     const currentSale = this.currentSale();
-    if (!currentSale || !currentSale.remise) {
+    if (!currentSale?.remise) {
       return;
     }
 
@@ -581,7 +581,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
             this.resetForNewSale();
           }
         },
-        error: () => {
+        error() {
           // L'erreur est déjà gérée par le facade
         },
       });
@@ -608,7 +608,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
             this.resetForNewSale();
           }
         },
-        error: () => {
+        error() {
           // L'erreur est déjà gérée par le facade
         },
       });
@@ -657,7 +657,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.facade.putOnStandby();
   }
 
-  onSaveAsPresale(transform: boolean = true): void {
+  onSaveAsPresale(transform = true): void {
     const sale = this.currentSale();
     if (!sale) {
       this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
@@ -897,7 +897,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     );
   }
 
-  private doFinalizePresale(transform: boolean = true): void {
+  private doFinalizePresale(transform = true): void {
     const sale = this.currentSale();
     if (!sale) {
       return;

@@ -1,12 +1,14 @@
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild, signal } from '@angular/core';
+  viewChild,
+  signal,
+} from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {FamilleProduit} from '../../../shared/model/famille-produit.model';
@@ -25,7 +27,7 @@ import {NotificationService} from "../../../shared/services/notification.service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent],
 })
-export class FormFormeProduitComponent implements OnInit, AfterViewInit {
+export class FormFormeProduitComponent implements OnInit {
   entity: IFormProduit | null = null;
   header = '';
   protected readonly isSaving = signal(false);
@@ -41,16 +43,16 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly libelle = viewChild.required<ElementRef>('libelle');
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelle().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.libelle().nativeElement.focus();
-    }, 100);
   }
 
   protected updateForm(entity: IFormProduit): void {

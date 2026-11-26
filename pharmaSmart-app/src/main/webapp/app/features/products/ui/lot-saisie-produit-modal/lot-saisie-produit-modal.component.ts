@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnInit, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +26,7 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
     CardComponent,
   ],
 })
-export class LotSaisieProduitModalComponent implements OnInit, AfterViewInit {
+export class LotSaisieProduitModalComponent implements OnInit {
   /** Produit cible — à définir avant l'ouverture du modal */
   produit!: IProduit;
 
@@ -51,6 +51,7 @@ export class LotSaisieProduitModalComponent implements OnInit, AfterViewInit {
     const now = new Date();
     this.todayStruct.set({ year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() });
     this.todayMaxStruct.set({ ...this.todayStruct() });
+    afterNextRender(() => this.numLotInput?.nativeElement?.focus());
   }
 
   ngOnInit(): void {
@@ -71,10 +72,6 @@ export class LotSaisieProduitModalComponent implements OnInit, AfterViewInit {
     this.form.get('storageId')?.valueChanges.subscribe(() => {
       this.form.get('quantityReceived')?.updateValueAndValidity();
     });
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => this.numLotInput?.nativeElement?.focus(), 100);
   }
 
   /** Stock disponible pour le storage sélectionné (ou total si aucun sélectionné). */

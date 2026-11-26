@@ -201,7 +201,7 @@ export class InventoryEditorFacade {
         this.store.setProgress(resp.body ?? null);
         this.store.emitEvent('PROGRESS_UPDATED', resp.body);
       },
-      error: () => {
+      error() {
         // Silent fail for progress refresh
       },
     });

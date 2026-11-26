@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -23,12 +23,18 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./assured-customer-list-modal.component.scss'],
 })
-export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit {
+export class AssuredCustomerListModalComponent implements OnInit {
   /** Titre du modal - défini par le parent via componentInputs */
   headerLibelle = 'Sélection client assuré';
 
   /** Terme de recherche initial - peut être prérempli */
   protected readonly searchString = signal('');
+
+  constructor() {
+    afterNextRender(() => {
+      this.searchInput()?.nativeElement.focus();
+    });
+  }
 
   /** `showCommonModal` affecte les proprietes de l'instance : il ne peut pas ecrire dans un signal. */
   set search(valeur: string) {
@@ -74,12 +80,6 @@ export class AssuredCustomerListModalComponent implements OnInit, AfterViewInit 
       // Si un searchTerm est fourni sans preload, lancer la recherche
       this.loadPage(1);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.searchInput()?.nativeElement.focus();
-    }, 100);
   }
 
   protected onSearchInput(): void {

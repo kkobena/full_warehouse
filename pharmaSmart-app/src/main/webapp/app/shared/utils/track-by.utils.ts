@@ -71,7 +71,7 @@ export function trackByUuid<T extends { uuid: any }>(index: number, item: T): an
  * 
  * <tr *ngFor="let product of products; trackBy: trackByComposite">
  */
-export function trackByMultipleProps<T>(props: Array<keyof T>) {
+export function trackByMultipleProps<T>(props: (keyof T)[]) {
   return (index: number, item: T): string => {
     return props.map(prop => item[prop]).join('-');
   };

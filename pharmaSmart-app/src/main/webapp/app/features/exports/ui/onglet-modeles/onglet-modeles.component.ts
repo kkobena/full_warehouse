@@ -20,7 +20,7 @@ export class OngletModelesComponent {
   /** Modèle préparé depuis le catalogue, à compléter puis enregistrer. */
   readonly aPreparer = input<ExportModele | null>(null);
   /** Un modèle vient d'être lancé : la page bascule sur l'historique. */
-  readonly execution = output<void>();
+  readonly execution = output();
 
   private readonly api = inject(ExportsApiService);
 

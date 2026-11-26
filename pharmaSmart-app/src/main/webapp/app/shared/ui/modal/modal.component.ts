@@ -58,7 +58,7 @@ export class ModalComponent {
   readonly keyboard = input<boolean>(true);
 
   readonly onHide = output<unknown>();
-  readonly onShow = output<void>();
+  readonly onShow = output();
 
   open(): Promise<unknown> {
     const content = this.modalContent();

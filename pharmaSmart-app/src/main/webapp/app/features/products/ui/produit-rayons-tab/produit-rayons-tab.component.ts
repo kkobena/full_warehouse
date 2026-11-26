@@ -28,7 +28,7 @@ import {ErrorService} from '../../../../shared/error.service';
 })
 export class ProduitRayonsTabComponent {
   readonly produit = input.required<IProduit>();
-  readonly refreshRequested = output<void>();
+  readonly refreshRequested = output();
 
   /** Un produit désactivé ne doit plus être modifiable (emplacement...). */
   protected readonly isDisabled = computed(() => this.produit().status === 'DISABLE');

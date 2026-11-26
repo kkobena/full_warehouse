@@ -1,12 +1,14 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnDestroy,
   OnInit,
-  viewChild, signal } from "@angular/core";
+  viewChild,
+  signal,
+} from "@angular/core";
 import {LowerCasePipe} from "@angular/common";
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {ErrorService} from "app/shared/error.service";
@@ -52,7 +54,7 @@ import {
     SwitchComponent
   ]
 })
-export class FormTiersPayantComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FormTiersPayantComponent implements OnInit, OnDestroy {
   entity?: ITiersPayant;
   title?: string;
   categorie?: string | null = null;
@@ -112,6 +114,12 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit, OnDestro
   private readonly notificationService = inject(NotificationService);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.name().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.saisieGroupe$.pipe(takeUntil(this.destroy$)).subscribe();
     if (this.entity) {
@@ -140,12 +148,6 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit, OnDestro
   private avecGroupeCourant(groupes: IGroupeTiersPayant[]): IGroupeTiersPayant[] {
     const courant = this.groupeCourant;
     return courant && !groupes.some(groupe => groupe.id === courant.id) ? [courant, ...groupes] : groupes;
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.name().nativeElement.focus();
-    }, 100);
   }
 
   async populate(): Promise<IGroupeTiersPayant[]> {

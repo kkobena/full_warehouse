@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -7,7 +7,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import {ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {DateNaissDirective} from '../../../shared/date-naiss.directive';
@@ -53,7 +53,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./customer-carnet-component.scss'],
 })
-export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CustomerCarnetComponent implements OnInit, OnDestroy {
   title: string | null = null;
   entity?: ICustomer;
   categorie: string | null = null;
@@ -86,6 +86,12 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   private readonly tiersPayantService = inject(TiersPayantService);
   private destroy$ = new Subject<void>();
 
+  constructor() {
+    afterNextRender(() => {
+      this.firstName().nativeElement.focus();
+    });
+  }
+
   cancel(): void {
     this.activeModal.dismiss();
   }
@@ -107,12 +113,6 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.firstName().nativeElement.focus();
-    }, 100);
   }
 
   addTiersPayantAssurance(): void {

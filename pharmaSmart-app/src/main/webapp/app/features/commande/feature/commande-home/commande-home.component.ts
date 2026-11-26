@@ -64,7 +64,7 @@ export class CommandeHomeComponent implements OnInit {
   protected readonly showBed = this.ability.canSignal('display', 'commande.bed');
 
   constructor() {
-    //inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());
+    // inject(DestroyRef).onDestroy(() => this.breadcrumbService.clearTabCrumb());
 
     effect(() => {
       const nav = this.commandCommonService.commandPreviousActiveNav();

@@ -28,7 +28,7 @@ export class SuggestionCommanderModalComponent implements OnInit {
   private readonly fournisseurApi = inject(FournisseurApiService);
 
   // ─── Propriétés injectées via componentInstance ──────────────────────────
-  fournisseurLibelle: string = "";
+  fournisseurLibelle = "";
   /** ID du fournisseur principal de la suggestion. */
   fournisseurId?: number;
   lignes: SuggestionLigneEnrichie[] = [];
@@ -59,7 +59,7 @@ export class SuggestionCommanderModalComponent implements OnInit {
     if (this.fournisseurId != null) {
       this.fournisseurApi.findAgences(this.fournisseurId).subscribe({
         next: list => this.agences.set(list),
-        error: () => {}
+        error() {}
       });
     }
   }

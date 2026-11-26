@@ -118,11 +118,11 @@ export class SalesKpiDashboardComponent implements OnInit {
 
   private buildChart(monthData: IDailySalesSummary[]): void {
     const ds = getComputedStyle(document.documentElement);
-    const byType = monthData.reduce((acc, row) => {
+    const byType = monthData.reduce<Record<string, number>>((acc, row) => {
       const key = row.typeVente ?? 'Autre';
       acc[key] = (acc[key] ?? 0) + (row.caTotal ?? 0);
       return acc;
-    }, {} as Record<string, number>);
+    }, {});
 
     const labels = Object.keys(byType);
     const values = labels.map(k => byType[k]);

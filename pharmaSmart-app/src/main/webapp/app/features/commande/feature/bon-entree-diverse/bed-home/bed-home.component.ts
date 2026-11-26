@@ -124,7 +124,7 @@ export class BedHomeComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => this.countBrouillon.set(Number(res.headers.get("X-Total-Count")) || 0),
-        error: () => {
+        error() {
         }
       });
   }

@@ -1,4 +1,4 @@
-import {signal, AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import {signal, afterNextRender, AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
@@ -50,6 +50,10 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
     regularUnitPrice: [null as number | null, [Validators.required, Validators.min(0)]]
   });
 
+  constructor() {
+    afterNextRender(() => this.itemQtyInput().nativeElement.querySelector("input")?.focus());
+  }
+
   ngOnInit(): void {
     if (this.entity) {
       this.editForm.patchValue({
@@ -71,8 +75,6 @@ export class ProduitDetailFormModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.itemQtyInput().nativeElement.querySelector("input")?.focus(), 100);
-
     this.editForm.get("itemQty")!.valueChanges.subscribe(val => this.recalcPrices(val));
   }
 

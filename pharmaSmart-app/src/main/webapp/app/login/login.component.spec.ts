@@ -2,7 +2,7 @@ jest.mock('app/core/auth/account.service');
 jest.mock('app/login/login.service');
 
 import { ElementRef, signal } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { Navigation, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -84,22 +84,22 @@ describe('LoginComponent', () => {
     });
   });
 
-  describe('ngAfterViewInit', () => {
-    it('should set focus to username input after the view has been initialized', fakeAsync(() => {
-      // GIVEN
+  describe('focus', () => {
+    it('should set focus to username input after the first render', () => {
+      // GIVEN : le gabarit est vidé, le champ est donc simulé.
       const node = {
         focus: jest.fn(),
       };
       comp.username = signal<ElementRef>(new ElementRef(node));
+      mockAccountService.identity = jest.fn(() => of(null));
+      mockAccountService.getAuthenticationState = jest.fn(() => of(null));
 
       // WHEN
-      comp.ngAfterViewInit();
-      // Le focus est différé de 100 ms : posé tout de suite, il est repris par le rendu.
-      tick(100);
+      fixture.detectChanges();
 
       // THEN
       expect(node.focus).toHaveBeenCalled();
-    }));
+    });
   });
 
   describe('login', () => {

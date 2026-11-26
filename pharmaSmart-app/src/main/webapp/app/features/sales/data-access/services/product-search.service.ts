@@ -18,7 +18,7 @@ export class ProductSearchService {
    * @param size Nombre maximum de résultats
    * @param searchByStorage Si true, recherche uniquement dans le magasin actuel
    */
-  search(query: string, size: number = 10, searchByStorage: boolean = false): Observable<ProduitSearch[]> {
+  search(query: string, size = 10, searchByStorage = false): Observable<ProduitSearch[]> {
     if (!query || query.trim().length === 0) {
       return of([]);
     }
@@ -44,7 +44,7 @@ export class ProductSearchService {
    * Crée un opérateur RxJS pour recherche avec debounce
    * Utile pour les champs de recherche en temps réel
    */
-  createDebouncedSearch(size: number = 10, searchByStorage: boolean = true) {
+  createDebouncedSearch(size = 10, searchByStorage = true) {
     return (source: Observable<string>) =>
       source.pipe(
         debounceTime(300),

@@ -94,7 +94,7 @@ export class AppSuggestionReassortComponent {
       field: 'storageName',
       width: 140,
       minWidth: 120,
-      cellRenderer: (params: ICellRendererParams) => {
+      cellRenderer(params: ICellRendererParams) {
         return `<span class="p-tag p-tag-secondary">${params.value ?? ''}</span>`;
       },
     },
@@ -106,7 +106,7 @@ export class AppSuggestionReassortComponent {
       type: 'numericColumn',
       valueFormatter: (params: ValueFormatterParams) => this.formatNumber(params.value),
       cellClass: 'text-right',
-      cellStyle: (params: CellClassParams) => {
+      cellStyle(params: CellClassParams) {
         const stockActuel = params.data?.stockActuel ?? 0;
         const seuilMini = params.data?.seuilMini ?? 0;
         if (stockActuel <= 0) {
@@ -120,7 +120,7 @@ export class AppSuggestionReassortComponent {
         }
         return { color: '#16a34a' };
       },
-      tooltipValueGetter: (params: any) => {
+      tooltipValueGetter(params: any) {
         const stockActuel = params.data?.stockActuel ?? 0;
         const seuilMini = params.data?.seuilMini ?? 0;
         if (stockActuel <= 0) return '⛔ Rupture de stock';
@@ -137,7 +137,7 @@ export class AppSuggestionReassortComponent {
       type: 'numericColumn',
       valueFormatter: (params: ValueFormatterParams) => this.formatNumber(params.value),
       cellClass: 'text-right',
-      cellStyle: (params: CellClassParams) => {
+      cellStyle(params: CellClassParams) {
         const stockActuel = params.data?.stockActuel ?? 0;
         const seuilMini = params.data?.seuilMini ?? 0;
         if (seuilMini > 0 && stockActuel < seuilMini) {
@@ -177,7 +177,7 @@ export class AppSuggestionReassortComponent {
       maxWidth: 90,
       pinned: 'right',
       suppressSizeToFit: false,
-      cellRenderer: (_params: ICellRendererParams) => {
+      cellRenderer(_params: ICellRendererParams) {
         return `
           <div class="flex justify-content-center">
             <button class="delete-btn p-button p-button-rounded p-button-text p-button-danger p-button-sm">
@@ -218,7 +218,7 @@ export class AppSuggestionReassortComponent {
     tooltipShowDelay: 300,
     singleClickEdit: true,
     stopEditingWhenCellsLoseFocus: true,
-    navigateToNextCell: params => {
+    navigateToNextCell(params) {
       const previousCell = params.previousCellPosition;
       const suggestedNextCell = params.nextCellPosition;
       if (!suggestedNextCell) {

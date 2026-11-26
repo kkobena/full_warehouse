@@ -90,9 +90,9 @@ import { CustomerAvoirsTabComponent } from "./avoirs-tab/customer-avoirs-tab.com
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   /** Renseigné quand la fiche est le panneau de détail de la liste ; sinon, lue sur la route. */
   readonly customerInput = input<ICustomer | null>(null, { alias: "customer" });
-  readonly closePanel = output<void>();
+  readonly closePanel = output();
   /** La fiche a modifié le client : la liste se recharge. */
-  readonly customerChanged = output<void>();
+  readonly customerChanged = output();
   protected readonly panelMode = computed(() => this.customerInput() !== null);
 
   protected readonly devise = currencySymbol();

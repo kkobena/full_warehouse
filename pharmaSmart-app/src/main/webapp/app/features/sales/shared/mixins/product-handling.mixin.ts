@@ -285,7 +285,7 @@ export function createProductHandling(context: ProductHandlingContext) {
     });
 
     // Si pas de vente en cours, créer avec ce premier produit
-    if (!sale || !sale.saleId) {
+    if (!sale?.saleId) {
       context.createSale(salesLine);
     } else {
       // Sinon ajouter à la vente existante

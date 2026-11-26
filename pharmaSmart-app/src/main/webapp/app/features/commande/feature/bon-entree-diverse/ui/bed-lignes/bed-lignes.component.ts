@@ -32,8 +32,8 @@ export class BedLignesComponent {
   readonly isBrouillon = input(false);
 
   readonly bedUpdated = output<IBed>();
-  readonly validated = output<void>();
-  readonly retour = output<void>();
+  readonly validated = output();
+  readonly retour = output();
 
   readonly selectedProduit = signal<ProduitSearch | null>(null);
   protected readonly ligneQuantite = signal(1);

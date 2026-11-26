@@ -215,7 +215,7 @@ export class AjustementFacade {
   private loadMotifs(): void {
     this.api.listMotifs().subscribe({
       next: motifs => this.store.setMotifs(motifs),
-      error: () => {},
+      error() {},
     });
   }
 
@@ -230,7 +230,7 @@ export class AjustementFacade {
         const principal = all.find(s => s.type === 'PRINCIPAL') ?? all[0] ?? null;
         if (principal) this.store.setStorage(principal);
       },
-      error: () => {},
+      error() {},
     });
   }
 
@@ -245,7 +245,7 @@ export class AjustementFacade {
   private checkGestionLot(): void {
     this.config.find(Params.APP_GESTION_LOT).subscribe({
       next: res => this.store.setGestionLot(res.body?.value === '1'),
-      error: () => {},
+      error() {},
     });
   }
 

@@ -477,7 +477,7 @@ export class SalesJournalComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: total => this.totalSalesAmount.set(total),
-        error: () => {
+        error() {
         }
       });
   }

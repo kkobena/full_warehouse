@@ -194,11 +194,11 @@ export class AuthorizationModalComponent {
   // Inputs (set by parent when opening modal)
   saleId?: number;
   saleType: 'COMPTANT' | 'ASSURANCE' | 'CARNET' = 'COMPTANT';
-  privilege: string = '';
+  privilege = '';
 
   // Form state
-  securityKey: string = '';
-  comment: string = '';
+  securityKey = '';
+  comment = '';
   protected readonly isSaving = signal(false);
   protected readonly errorMessage = signal('');
 

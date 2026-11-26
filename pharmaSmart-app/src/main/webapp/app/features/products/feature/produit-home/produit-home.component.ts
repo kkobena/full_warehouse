@@ -438,7 +438,7 @@ export class ProduitHomeComponent implements OnInit {
           );
           termine();
         },
-        error: () => {
+        error() {
           repondus++;
           echecs.push(produit.libelle ?? `#${produit.id}`);
           termine();

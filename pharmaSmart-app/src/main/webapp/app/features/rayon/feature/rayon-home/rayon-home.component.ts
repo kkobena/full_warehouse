@@ -292,7 +292,7 @@ export class RayonHomeComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => this.loading.set(false)))
       .subscribe({
         next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body ?? [], res.headers),
-        error: () => {},
+        error() {},
       });
   }
 

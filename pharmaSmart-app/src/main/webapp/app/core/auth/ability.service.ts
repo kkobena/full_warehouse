@@ -51,7 +51,7 @@ export class AbilityService {
   }
 
   /** Vérifie si au moins une des abilities correspond. */
-  canAny(checks: Array<{ action: NavAbilityAction; subject: string }>): boolean {
+  canAny(checks: { action: NavAbilityAction; subject: string }[]): boolean {
     return checks.some(c => this.can(c.action, c.subject));
   }
 

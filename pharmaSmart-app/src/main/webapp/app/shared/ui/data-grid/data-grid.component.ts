@@ -817,7 +817,7 @@ export class DataGridComponent<T = Record<string, unknown>> {
     sequential = false,
   ): void {
     const editing = this.editingCell();
-    if (!editing || !editing.column.field) {
+    if (!editing?.column.field) {
       return;
     }
     const value = this.parseEditorValue(editing.column);

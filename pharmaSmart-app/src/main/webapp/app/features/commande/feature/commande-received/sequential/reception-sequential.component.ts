@@ -44,7 +44,7 @@ export class ReceptionSequentialComponent {
   lastScanResult = input<IReceptionScanResult | null>(null);
 
   lineChanged = output<IOrderLine>();
-  allLinesProcessed = output<void>();
+  allLinesProcessed = output();
   /** AX-23g — Émis quand le CIP d'une ligne est mis à jour manuellement. */
   cipUpdated = output<number>();
   /** Rejoue un scan après mémorisation d'un code : la quantité et le lot suivent le chemin normal. */

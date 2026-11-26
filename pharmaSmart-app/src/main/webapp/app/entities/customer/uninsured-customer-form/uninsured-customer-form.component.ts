@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
 import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormBuilder, ValidationErrors, Validators } from '@angular/forms';
@@ -25,7 +25,7 @@ const nonVide = (control: AbstractControl): ValidationErrors | null =>
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, CheckboxComponent, DateNaissDirective, FormFieldComponent, KeyFilterDirective, RadioComponent],
 })
-export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
+export class UninsuredCustomerFormComponent implements OnInit, OnDestroy {
   title: string | null = null;
   entity?: ICustomer;
   protected readonly isSaving = signal(false);
@@ -60,6 +60,12 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   private readonly modalService = inject(NgbModal);
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private readonly notificationService = inject(NotificationService);
+
+  constructor() {
+    afterNextRender(() => {
+      this.firstName().nativeElement.focus();
+    });
+  }
 
   ngOnInit(): void {
     if (this.entity) {
@@ -98,12 +104,6 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
     this.destroy$.next();
     this.destroy$.complete();
     this.controle$.complete();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.firstName().nativeElement.focus();
-    }, 100);
   }
 
   /** Message d'erreur d'un champ ; vide tant qu'il n'a pas été touché ou qu'il est valide. */

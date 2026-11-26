@@ -172,7 +172,7 @@ export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
         this.evolution.set(evo);
         if (evo) setTimeout(() => this.createEvolutionChart(evo), 50);
       },
-      error: () => {},
+      error() {},
     });
   }
 
@@ -205,7 +205,7 @@ export default class ConcentrationPayersComponent implements OnInit, OnDestroy {
           legend: { position: 'bottom', labels: { padding: 14 } },
           tooltip: {
             callbacks: {
-              label: ctx => {
+              label(ctx) {
                 const total = (evo.series ?? []).reduce((s, serie) =>
                   s + ((serie.caValues ?? [])[ctx.dataIndex] ?? 0), 0);
                 const pct = total > 0 ? Math.round((ctx.parsed.y / total) * 100) : 0;

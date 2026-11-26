@@ -1,11 +1,13 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild, signal } from '@angular/core';
+  viewChild,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -29,7 +31,7 @@ import {ITva, Tva} from '../../../shared/model/tva.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./form-tva.scss'],
 })
-export class FormTvaComponent implements OnInit, AfterViewInit {
+export class FormTvaComponent implements OnInit {
   header = '';
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
@@ -46,13 +48,13 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
   private readonly tvaService = inject(TvaService);
   private readonly activeModal = inject(NgbActiveModal);
 
-  ngOnInit(): void {
+  constructor() {
+    afterNextRender(() => {
+      this.taux().nativeElement.focus();
+    });
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.taux().nativeElement.focus();
-    }, 100);
+  ngOnInit(): void {
   }
 
   protected cancel(): void {

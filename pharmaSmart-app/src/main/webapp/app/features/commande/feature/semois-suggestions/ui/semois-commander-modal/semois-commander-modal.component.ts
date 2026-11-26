@@ -37,7 +37,7 @@ export class SemoisCommanderModalComponent {
     return map;
   }
 
-  get fournisseurEntries(): Array<{ label: string; lignes: SemoisCommandeLine[] }> {
+  get fournisseurEntries(): { label: string; lignes: SemoisCommandeLine[] }[] {
     return Array.from(this.lignesParFournisseur.entries()).map(([label, lignes]) => ({
       label,
       lignes

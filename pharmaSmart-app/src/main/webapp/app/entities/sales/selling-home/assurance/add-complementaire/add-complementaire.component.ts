@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -7,7 +7,7 @@ import {
   inject,
   OnInit,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import {
   ClientTiersPayant,
@@ -48,7 +48,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./add-complementaire.component.scss'],
 })
-export class AddComplementaireComponent implements OnInit, AfterViewInit {
+export class AddComplementaireComponent implements OnInit {
   tiersPayant = viewChild.required('tiersPayant', {read: ElementRef<HTMLElement>});
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
@@ -89,17 +89,17 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   private readonly customerService = inject(CustomerService);
   private readonly destroyRef = inject(DestroyRef);
 
+  constructor() {
+    afterNextRender(() => {
+      this.tiersPayant().nativeElement.querySelector('input')?.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.tiersPayantsDisponibles.set(this.calculerTiersPayantsDisponibles());
     this.editForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.checkForChanges();
     });
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.tiersPayant().nativeElement.querySelector('input')?.focus();
-    }, 100);
   }
 
   cancel(): void {

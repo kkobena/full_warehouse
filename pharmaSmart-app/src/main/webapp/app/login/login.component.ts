@@ -1,12 +1,12 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router, RouterModule} from '@angular/router';
@@ -32,7 +32,7 @@ import {CommonModule} from "@angular/common";
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./login.component.scss'],
 })
-export default class LoginComponent implements OnInit, AfterViewInit {
+export default class LoginComponent implements OnInit {
   username = viewChild.required<ElementRef>('username');
 
   authenticationError = signal(false);
@@ -50,6 +50,12 @@ export default class LoginComponent implements OnInit, AfterViewInit {
   private readonly modalService = inject(NgbModal);
   private readonly tauriPrinterService = inject(TauriPrinterService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.username().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.accountService.identity().subscribe(() => {
       if (this.accountService.isAuthenticated()) {
@@ -57,12 +63,6 @@ export default class LoginComponent implements OnInit, AfterViewInit {
       }
     });
     this.isTauri.set(this.tauriPrinterService.isRunningInTauri());
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.username().nativeElement.focus();
-    }, 100);
   }
 
   login(): void {

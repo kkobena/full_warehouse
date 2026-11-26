@@ -34,7 +34,7 @@ export class SuiviObjectifsComponent {
     const suivi = this.suivi();
     const premier = suivi?.indicateurs[0];
     const projection = premier?.projection;
-    if (!suivi || !premier || !projection || projection.objectif == null || projection.atteinteProjetee == null) {
+    if (!suivi || !premier || projection?.objectif == null || projection.atteinteProjetee == null) {
       return '';
     }
     return `Au ${formatDateFR(suivi.jusquAu)}, ${premier.indicateur.libelle.charAt(0).toLowerCase()}${premier.indicateur.libelle.slice(1)} projeté à ${Math.round(projection.atteinteProjetee)} % de l'objectif du mois.`;

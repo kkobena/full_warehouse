@@ -90,7 +90,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
    * SalesScannerService fourni par SalesHomeComponent (parent dans la hiérarchie DI).
    * null si le composant est utilisé hors du contexte vente.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   private readonly salesScanner: SalesScannerService | null = inject(SalesScannerService as any, { optional: true }) as SalesScannerService | null;
   private readonly searchTrigger$ = new Subject<string>();
   /**

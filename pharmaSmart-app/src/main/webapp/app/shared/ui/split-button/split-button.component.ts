@@ -129,7 +129,7 @@ export class SplitButtonComponent {
   /** Ombre portée, calquée sur l'élévation de `p-splitbutton`. */
   readonly raised = input<boolean>(false);
   /** Clic sur l'action principale. Les entrées du menu passent par leur `command`. */
-  readonly clicked = output<void>();
+  readonly clicked = output();
   protected readonly groupClasses = computed(() => ['btn-group', this.raised() ? 'app-btn-raised' : ''].filter(Boolean).join(' '));
 
   // `app-btn-normal` : voir ButtonComponent. Aura ne fixe pas de taille de police

@@ -1,4 +1,4 @@
-import {signal, AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { afterNextRender, signal, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { CommonModule } from "@angular/common";
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
@@ -26,7 +26,7 @@ import { DeviseDirective } from 'app/shared/utils/devise';
     CardComponent
   ]
 })
-export class FournisseurFormComponent implements OnInit, AfterViewInit {
+export class FournisseurFormComponent implements OnInit {
   fournisseur: IFournisseur | null = null;
   presetParentId: number | null = null;
   title = "Fournisseur";
@@ -65,6 +65,12 @@ export class FournisseurFormComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly libelleInput = viewChild.required<ElementRef>("libelleInput");
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelleInput().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.isAgenceMode.set(this.presetParentId != null || (this.fournisseur?.parentId != null));
     this.loadParents();
@@ -73,10 +79,6 @@ export class FournisseurFormComponent implements OnInit, AfterViewInit {
     } else if (this.presetParentId != null) {
       this.editForm.patchValue({ parentId: this.presetParentId });
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => this.libelleInput().nativeElement.focus(), 100);
   }
 
   protected save(): void {

@@ -121,7 +121,7 @@ export class SuggestionsUnifiedComponent implements OnInit {
 
   get semoisFraicheurSeverity(): "success" | "warn" | "danger" | "secondary" {
     const f = this.semoisFraicheur();
-    if (!f || !f.dernierCalcul) {
+    if (!f?.dernierCalcul) {
       return "danger";
     }
     return f.calculeRecent ? "success" : "warn";

@@ -22,7 +22,7 @@ export interface PaymentEntry {
  * Interface pour le composant de mode de paiement
  */
 export interface PaymentModeHost {
-  selectedModes(): Array<{ mode: IPaymentMode; amount: number; amountEntered?: number }>;
+  selectedModes(): { mode: IPaymentMode; amount: number; amountEntered?: number }[];
 
   totalPaid(): number;
 
@@ -238,14 +238,14 @@ export function createPaymentHandling(context: PaymentHandlingContext) {
     const saveObservable = context.customSaveSale ? context.customSaveSale(payments) : facade.saveSale();
 
     saveObservable.subscribe({
-      next: result => {
+      next(result) {
         if (result) {
           customerDisplay.clear();
           context.resetForNewSale();
           context.onPaymentSuccess?.();
         }
       },
-      error: () => {
+      error() {
         // L'erreur est déjà gérée par le facade
       },
     });

@@ -5,7 +5,7 @@
   <button type="button" class="btn-close" (click)="cancel()" aria-label="Fermer"></button>
 </div>
 
-<div class="modal-body">
+<div class="modal-body" [formGroup]="form">
 <app-card [variant]="'form'">
   <div class="et-produit-info mb-1">
     <div class="fw-semibold" style="font-size: 0.88rem">{{ produit.libelle }}</div>
@@ -24,7 +24,7 @@
     <div>
       <app-pill-selector
         [items]="typeOptions"
-        [ngModel]="typeEtiquette()"
+        formControlName="typeEtiquette"
         (selectionChange)="onTypeChange($event)"
         ariaLabel="Type d'étiquette"
       />
@@ -58,8 +58,7 @@
           bindValue="id"
           appendTo="body"
           placeholder="Sélectionner un lot"
-          [ngModel]="lotId()"
-          (ngModelChange)="lotId.set($event)"
+          formControlName="lotId"
         />
       } @else if (etatLots() === 'PRET') {
         <div class="alert alert-warning py-1 px-2 mb-0" style="font-size: 0.75rem">
@@ -72,40 +71,40 @@
   }
 
   @if (typeEtiquette() === 'PREPARATION') {
-    <div class="mb-3">
+    <div class="mb-3" formGroupName="preparation">
       <label class="form-label et-label" for="prepLibelle">Nom de la préparation <span class="text-danger">*</span></label>
-      <input id="prepLibelle" class="form-control form-control-sm" [(ngModel)]="preparation.libelle" autocomplete="off" />
+      <input id="prepLibelle" class="form-control form-control-sm" formControlName="libelle" autocomplete="off" />
 
       <label class="form-label et-label mt-2" for="prepComposition">Composition <span class="text-danger">*</span></label>
       <textarea id="prepComposition" class="form-control form-control-sm" rows="2"
-                [(ngModel)]="preparation.composition"
+                formControlName="composition"
                 placeholder="Acide salicylique 5 g, vaseline qsp 100 g"></textarea>
 
       <div class="row g-2 mt-1">
         <div class="col-6">
           <label class="form-label et-label" for="prepPatient">Patient</label>
-          <input id="prepPatient" class="form-control form-control-sm" [(ngModel)]="preparation.patient" autocomplete="off" />
+          <input id="prepPatient" class="form-control form-control-sm" formControlName="patient" autocomplete="off" />
         </div>
         <div class="col-6">
           <label class="form-label et-label" for="prepPrescripteur">Prescripteur</label>
-          <input id="prepPrescripteur" class="form-control form-control-sm" [(ngModel)]="preparation.prescripteur" autocomplete="off" />
+          <input id="prepPrescripteur" class="form-control form-control-sm" formControlName="prescripteur" autocomplete="off" />
         </div>
       </div>
 
       <label class="form-label et-label mt-2" for="prepPosologie">Posologie</label>
-      <textarea id="prepPosologie" class="form-control form-control-sm" rows="2" [(ngModel)]="preparation.posologie"></textarea>
+      <textarea id="prepPosologie" class="form-control form-control-sm" rows="2" formControlName="posologie"></textarea>
 
       <div class="row g-2 mt-1">
         <div class="col-6">
-          <pharma-date-picker id="prepDate" label="Préparé le" labelPosition="top" [(ngModel)]="datePreparation" />
+          <pharma-date-picker id="prepDate" label="Préparé le" labelPosition="top" formControlName="datePreparation" />
         </div>
         <div class="col-6">
-          <pharma-date-picker id="prepPeremption" label="À utiliser avant le" labelPosition="top" [(ngModel)]="peremption" [minDate]="datePreparation" />
+          <pharma-date-picker id="prepPeremption" label="À utiliser avant le" labelPosition="top" formControlName="peremption" [minDate]="form.controls.preparation.controls.datePreparation.value" />
         </div>
       </div>
 
       <label class="form-label et-label mt-2" for="prepMention">Mention</label>
-      <input id="prepMention" class="form-control form-control-sm" [(ngModel)]="preparation.mention"
+      <input id="prepMention" class="form-control form-control-sm" formControlName="mention"
              placeholder="À usage externe" autocomplete="off" />
     </div>
   }
@@ -121,8 +120,8 @@
         groupBy="supportLibelle"
         appendTo="body"
         placeholder="Sélectionner un format"
-        [ngModel]="formatCode()"
-        (ngModelChange)="onFormatChange($event)"
+        formControlName="formatCode"
+        (selectionChange)="onFormatChange($event)"
       />
       @if (formatChoisi()) {
         <small class="text-muted" style="font-size: 0.7rem">
@@ -143,7 +142,7 @@
       <div>
         <app-pill-selector
           [items]="modeOptions"
-          [ngModel]="modeImpression()"
+          formControlName="modeImpression"
           (selectionChange)="onModeChange($event)"
           ariaLabel="Chemin d'impression"
         />
@@ -168,8 +167,7 @@
             bindValue="name"
             appendTo="body"
             placeholder="Imprimante d'étiquettes"
-            [ngModel]="imprimante()"
-            (ngModelChange)="imprimante.set($event)"
+            formControlName="imprimante"
           />
         </div>
         <div class="col-5">
@@ -180,8 +178,7 @@
             bindLabel="libelle"
             bindValue="code"
             appendTo="body"
-            [ngModel]="resolution()"
-            (ngModelChange)="resolution.set($event)"
+            formControlName="resolution"
           />
         </div>
       </div>
@@ -194,7 +191,7 @@
         class="text-danger">*</span></label>
       <app-input-number #qtyInput
         inputId="etiquetteQty"
-        [(ngModel)]="qty"
+        formControlName="qty"
         [min]="1"
         [max]="qtyMax()"
         [showButtons]="true"
@@ -206,7 +203,7 @@
         <label class="form-label et-label" for="etiquetteStartAt">Position de départ</label>
         <app-input-number
           inputId="etiquetteStartAt"
-          [(ngModel)]="startAt"
+          formControlName="startAt"
           [min]="1"
           [max]="capacite()"
           [showButtons]="true"

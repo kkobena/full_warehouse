@@ -1,4 +1,4 @@
-import {signal, AfterViewInit, Component, DestroyRef, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, signal, Component, DestroyRef, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
@@ -17,7 +17,7 @@ import { ProductsApiService } from '../../data-access/services/products-api.serv
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, InputNumberComponent, ButtonComponent, CardComponent],
 })
-export class ProduitDeconditionModalComponent implements AfterViewInit {
+export class ProduitDeconditionModalComponent {
   produit!: IProduit;
 
   activeModal = inject(NgbActiveModal);
@@ -32,23 +32,22 @@ export class ProduitDeconditionModalComponent implements AfterViewInit {
   private readonly api = inject(ProductsApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly itemQty = viewChild.required<ElementRef<HTMLElement>>('qtyMvt');
+  // #qtyMvt porte sur <app-input-number> : sans `read: ElementRef`, viewChild rend l'instance du
+  // composant, dont nativeElement est undefined.
+  private readonly itemQty = viewChild.required<unknown, ElementRef<HTMLElement>>('qtyMvt', { read: ElementRef });
 
   constructor() {
     this.editForm
       .get('qtyMvt')!
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => this.onQuantitySoldBoxChanged(value));
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
+    afterNextRender(() => {
       const input = this.itemQty()?.nativeElement.querySelector('input');
       if (input) {
         input.focus();
         input.select();
       }
-    }, 100);
+    });
   }
 
   save(): void {

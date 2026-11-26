@@ -63,7 +63,7 @@ export class ProduitDetailPanelComponent {
   readonly produit = input.required<IProduit>();
   readonly canEdit = input<boolean>(true);
 
-  readonly closePanel = output<void>();
+  readonly closePanel = output();
   readonly editRequested = output<IProduit>();
 
   /** Données complètes (avec stockProduits + fournisseurProduits) chargées au clic */

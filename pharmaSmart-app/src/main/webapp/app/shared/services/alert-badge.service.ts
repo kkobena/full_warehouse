@@ -73,7 +73,7 @@ export class AlertBadgeService {
         this.facturationOverdueCount.set(d.facturationOverdueCount ?? 0);
         this.comptesFournisseursOverdueCount.set(d.comptesFournisseursOverdueCount ?? 0);
       },
-      error: () => {
+      error() {
         // Silencieux — les compteurs restent à leur dernière valeur connue
       },
     });

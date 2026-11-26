@@ -85,7 +85,7 @@ export class SalesManagementHomeComponent implements OnInit {
         this.active.set("en-cours");
       } else {
 
-        //TODO: handle no access to any tab ajout d'un tab commun Access denied
+        // TODO: handle no access to any tab ajout d'un tab commun Access denied
       }
 
     } else {

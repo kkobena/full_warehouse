@@ -1,4 +1,4 @@
-import {signal, computed, AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, signal, computed, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { IDelivery } from 'app/shared/model/delevery.model';
 import { saveAs } from 'file-saver';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from 'app/shared/util/warehouse-util';
@@ -27,7 +27,7 @@ type ModeImpression = 'PDF' | 'ZPL';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, KeyFilterDirective, ButtonComponent, FormsModule, CardComponent, PillSelectorComponent, SelectComponent],
 })
-export class EtiquetteComponent implements AfterViewInit, OnDestroy, OnInit {
+export class EtiquetteComponent implements OnDestroy, OnInit {
   protected readonly isSaving = signal(false);
   entity?: IDelivery;
   header = 'Impression des étiquettes';
@@ -77,6 +77,12 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy, OnInit {
   // Optionnel : le champ disparait du gabarit des qu'un rouleau est choisi.
   private readonly startInput = viewChild<ElementRef>('startInput');
 
+  constructor() {
+    afterNextRender(() => {
+      this.startInput()?.nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.produitsApi
       .listerFormatsEtiquette()
@@ -88,12 +94,6 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy, OnInit {
         },
         error: () => this.formats.set([]),
       });
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.startInput()?.nativeElement.focus();
-    }, 100);
   }
 
   ngOnDestroy(): void {

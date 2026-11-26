@@ -152,7 +152,7 @@ export class CommandeRequestedComponent implements OnInit {
       headerTooltip: "Code CIP — italique = code provisoire, cliquez pour saisir le CIP",
       editable: (p: any) => !!p.data?.provisionalCode,
       cellEditor: "agTextCellEditor",
-      cellRenderer: (p: any) => {
+      cellRenderer(p: any) {
         if (!p.data) {
           return "";
         }
@@ -201,7 +201,7 @@ export class CommandeRequestedComponent implements OnInit {
       type: "numericColumn",
       headerTooltip: "Couverture stock en jours",
       valueFormatter: (p: any) => p.value != null ? `${p.value}j` : "—",
-      cellStyle: (p: any) => {
+      cellStyle(p: any) {
         if (p.value == null) {
           return {color: "#9ca3af"};
         }
@@ -223,7 +223,7 @@ export class CommandeRequestedComponent implements OnInit {
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
       cellEditorParams: {preventStepping: true},
-      cellRenderer: (p: any) => {
+      cellRenderer(p: any) {
         if (!p.data) {
           return "";
         }
@@ -250,7 +250,7 @@ export class CommandeRequestedComponent implements OnInit {
       cellEditor: "agNumberCellEditor",
       headerTooltip: "Prix unitaire commandé — ⚠ indique un écart avec le tarif catalogue",
       cellEditorParams: {preventStepping: true},
-      cellRenderer: (p: any) => {
+      cellRenderer(p: any) {
         if (!p.data) {
           return "";
         }
@@ -276,7 +276,7 @@ export class CommandeRequestedComponent implements OnInit {
       cellEditorParams: {preventStepping: true},
       type: "numericColumn",
       cellEditor: "agNumberCellEditor",
-      cellRenderer: (p: any) => {
+      cellRenderer(p: any) {
         if (!p.data) {
           return "";
         }
@@ -458,7 +458,7 @@ export class CommandeRequestedComponent implements OnInit {
     } else {
       this.selectedProvider.set(null);
     }
-    //this.loadSeuilMontant();
+    // this.loadSeuilMontant();
   }
 
   protected readonly getRowId: GetRowIdFunc<IOrderLine> = p => String(p.data.id);

@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { LaboratoireProduitService } from '../laboratoire-produit.service';
@@ -17,7 +17,7 @@ import { finalize } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent],
 })
-export class FormLaboratoireComponent implements OnInit, AfterViewInit {
+export class FormLaboratoireComponent implements OnInit {
   header = '';
   laboratoire: ILaboratoire | null = null;
   protected fb = inject(UntypedFormBuilder);
@@ -32,16 +32,16 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly libelle = viewChild.required<ElementRef>('libelle');
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelle().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     if (this.laboratoire) {
       this.updateForm(this.laboratoire);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.libelle().nativeElement.focus();
-    }, 100);
   }
 
   protected updateForm(entity: ILaboratoire): void {

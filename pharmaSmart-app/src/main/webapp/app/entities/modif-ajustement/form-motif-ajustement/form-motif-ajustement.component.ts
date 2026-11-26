@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModifAjustementService } from '../motif-ajustement.service';
 import { IMotifAjustement, MotifAjustement } from '../../../shared/model/motif-ajustement.model';
@@ -17,7 +17,7 @@ import { finalize } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent],
 })
-export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
+export class FormMotifAjustementComponent implements OnInit {
   header: string;
   entity?: IMotifAjustement;
   private readonly entityService = inject(ModifAjustementService);
@@ -32,16 +32,16 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly libelle = viewChild.required<ElementRef>('libelle');
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelle().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.libelle().nativeElement.focus();
-    }, 100);
   }
 
   protected updateForm(entity: IMotifAjustement): void {

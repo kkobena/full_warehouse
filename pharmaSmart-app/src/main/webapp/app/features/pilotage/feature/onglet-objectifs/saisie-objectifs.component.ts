@@ -24,7 +24,7 @@ const HAUSSE_PAR_DEFAUT = 5;
 })
 export class SaisieObjectifsComponent {
   readonly annee = input.required<number>();
-  readonly enregistre = output<void>();
+  readonly enregistre = output();
 
   private readonly api = inject(PilotageApiService);
 

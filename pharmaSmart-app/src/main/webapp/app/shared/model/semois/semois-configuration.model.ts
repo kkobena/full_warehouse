@@ -29,7 +29,7 @@ export interface ISemoisConfiguration {
   updatedAt?: Date;
 }
 
-//Exclusion temporaire ──────────────────────────────────────────────
+// Exclusion temporaire ──────────────────────────────────────────────
 
 /**
  * Représente une exclusion temporaire d'un produit du batch SEMOIS.

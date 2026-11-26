@@ -33,7 +33,7 @@ export class ProduitStockTabComponent {
   readonly produit = input.required<IProduit>();
   readonly indicateurs = input<IProduitIndicateurs | null>(null);
   readonly lots = input<ILotProduit[]>([]);
-  readonly refreshRequested = output<void>();
+  readonly refreshRequested = output();
   /** Un produit désactivé ne doit plus être modifiable (stock, lots...). */
   protected readonly isDisabled = computed(() => this.produit().status === "DISABLE");
   protected stockPrincipal = computed<IStockProduit | undefined>(

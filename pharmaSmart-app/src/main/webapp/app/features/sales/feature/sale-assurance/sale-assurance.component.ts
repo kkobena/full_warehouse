@@ -132,8 +132,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   initSaleForEditInfo = model<SaleForEditInfo>(null);
   showStock = input(false);
   // Outputs
-  productAddedSuccess = output<void>();
-  switchToComptant = output<void>();
+  productAddedSuccess = output();
+  switchToComptant = output();
   selectedLineId = signal<number | null>(null);
 
   // Modal and responsive state
@@ -281,7 +281,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
 
-    onPaymentSuccess: () => {
+    onPaymentSuccess() {
     },
     // Fonction de sauvegarde personnalisée pour ASSURANCE
     customSaveSale: payments => this.facade.saveAssuranceSale(payments),
@@ -305,8 +305,8 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     customerFormComponent: AssureFormStepComponent,
     onCustomerSelectedCallback: customer => {
       // Créer la vente si elle n'existe pas
-      let currentSale = this.currentSale();
-      if (!currentSale || !currentSale.saleId) {
+      const currentSale = this.currentSale();
+      if (!currentSale?.saleId) {
         this.facade.initializeAssuranceSale();
         // Définir le client après l'initialisation
         this.facade.setCustomer(customer);
@@ -746,7 +746,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
 
   onRemoveRemise(): void {
     const currentSale = this.currentSale();
-    if (!currentSale || !currentSale.remise) {
+    if (!currentSale?.remise) {
       return;
     }
 
@@ -837,7 +837,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
   // Handlers pour remise globale (depuis ProductListComponent caption)
   // ============================================
 
-  onSaveAsPresale(transform: boolean = true): void {
+  onSaveAsPresale(transform = true): void {
     if (!this.validateAssuranceSale()) {
       return;
     }

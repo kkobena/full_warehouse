@@ -78,22 +78,22 @@ export class SuggestionProduitPanelComponent {
   /** Clients en attente, par identifiant de produit. Chargé par le parent. */
   clientsEnAttente = input<Record<number, IClientsEnAttente>>({});
   // ─── Outputs ─────────────────────────────────────────────────────────────────
-  commander = output<void>();
-  commanderSelection = output<void>();
+  commander = output();
+  commanderSelection = output();
   /** Émet les lignes visibles après filtrage urgence — pour "Commander les filtrés". */
   commanderFiltre = output<SuggestionLigneEnrichie[]>();
   quantiteChanged = output<{ ligne: SuggestionLigneEnrichie; qte: number }>();
   selectionChanged = output<SuggestionLigneEnrichie[]>();
   resetQte = output<SuggestionLigneEnrichie>();
-  sanitizeRequest = output<void>();
+  sanitizeRequest = output();
   filterChange = output<{ search: string; urgence: string }>();
   pageChange = output<{ page: number; rows: number }>();
-  validerRequest = output<void>();
-  rejeterRequest = output<void>();
+  validerRequest = output();
+  rejeterRequest = output();
   comparerRequest = output<SuggestionLigneEnrichie>();
-  exportPdfRequest = output<void>();
-  exportCsvRequest = output<void>();
-  dispoRequest = output<void>();
+  exportPdfRequest = output();
+  exportCsvRequest = output();
+  dispoRequest = output();
   ligneSupprimer = output<SuggestionLigneEnrichie>();
   lignesSupprimer = output<SuggestionLigneEnrichie[]>();
   ajouterProduit = output<{ produitId: number; fournisseurProduitId: number; quantite: number }>();
@@ -194,7 +194,7 @@ export class SuggestionProduitPanelComponent {
       editable: true,
       type: 'numericColumn',
       cellEditor: 'agNumberCellEditor',
-      cellRenderer: (params: any) => {
+      cellRenderer(params: any) {
         const ligne: SuggestionLigneEnrichie = params.data;
         if (!ligne) {
           return String(params.value ?? 0);
@@ -221,7 +221,7 @@ export class SuggestionProduitPanelComponent {
 
         return `<div class="ag-qty-cell">${lock}${qty}${colisWarn}${minWarn}${colisBadge}</div>`;
       },
-      cellStyle: (params: any) => {
+      cellStyle(params: any) {
         const ligne: SuggestionLigneEnrichie = params.data;
         if (!ligne) {
           return null;
@@ -245,7 +245,7 @@ export class SuggestionProduitPanelComponent {
             ? {backgroundColor: '#eff6ff', fontWeight: 600}
             : null;
       },
-      tooltipValueGetter: (params: any) => {
+      tooltipValueGetter(params: any) {
         const ligne: SuggestionLigneEnrichie = params.data;
         if (!ligne) {
           return null;
@@ -271,7 +271,7 @@ export class SuggestionProduitPanelComponent {
       sortable: true,
       width: 110,
       type: 'numericColumn',
-      valueFormatter: (params: any) => {
+      valueFormatter(params: any) {
         const ligne: SuggestionLigneEnrichie = params.data;
         // Stock négatif ou nul → rupture confirmée, afficher "Rupture" plutôt que "0j"
         if (ligne && ligne.currentStock <= 0) {
@@ -279,7 +279,7 @@ export class SuggestionProduitPanelComponent {
         }
         return params.value != null ? `${params.value}j` : '—';
       },
-      cellStyle: (params: any) => {
+      cellStyle(params: any) {
         const ligne: SuggestionLigneEnrichie = params.data;
         if (ligne && ligne.currentStock <= 0) {
           return {color: '#dc3545', fontWeight: 700};
@@ -304,9 +304,9 @@ export class SuggestionProduitPanelComponent {
       width: 110,
       type: 'numericColumn',
       tooltipValueGetter: () => 'Couverture estimée si la commande est reçue',
-      valueGetter: (params: any) => {
+      valueGetter(params: any) {
         const l: SuggestionLigneEnrichie = params.data;
-        if (!l || !l.consommationMensuelle) {
+        if (!l?.consommationMensuelle) {
           return null;
         }
         const vals = Object.values(l.consommationMensuelle);
@@ -323,7 +323,7 @@ export class SuggestionProduitPanelComponent {
         return Math.round((stockApres / vmm) * 30);
       },
       valueFormatter: (params: any) => params.value != null ? `${params.value}j` : '—',
-      cellStyle: (params: any) => {
+      cellStyle(params: any) {
         if (params.value == null) {
           return {color: '#9ca3af'};
         }
@@ -404,7 +404,7 @@ export class SuggestionProduitPanelComponent {
       const color = diff > 1 ? '#16a34a' : diff < -1 ? '#dc2626' : '#6b7280';
       return `<span style="color:${color};font-weight:600">${params.value} ${arrow}</span>`;
     },
-    tooltipValueGetter: (params: any) => {
+    tooltipValueGetter(params: any) {
       if (params.value == null) {
         return 'Données insuffisantes';
       }

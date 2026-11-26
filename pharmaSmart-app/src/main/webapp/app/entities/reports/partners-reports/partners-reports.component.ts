@@ -32,7 +32,7 @@ export default class PartnersReportsComponent implements OnInit {
         this.active.set("supplier-performance");
       } else {
 
-        //TODO: handle no access to any tab ajout d'un tab commun Access denied
+        // TODO: handle no access to any tab ajout d'un tab commun Access denied
       }
 
     }

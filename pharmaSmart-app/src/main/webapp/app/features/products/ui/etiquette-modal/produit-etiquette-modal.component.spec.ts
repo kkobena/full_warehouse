@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { AbstractControl } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { of, throwError } from "rxjs";
 import { ProduitEtiquetteModalComponent } from "./produit-etiquette-modal.component";
@@ -50,6 +51,8 @@ describe("ProduitEtiquetteModalComponent", () => {
 
   /** Accès aux membres protégés : le test juge le comportement, pas la visibilité. */
   const interne = (): any => composant as any;
+  const champ = (nom: string): AbstractControl => interne().form.controls[nom];
+  const preparation = (nom: string): AbstractControl => interne().form.controls.preparation.controls[nom];
 
   async function monter(lotsDuProduit: ILotProduit[] = lots): Promise<void> {
     api.getLots.mockReturnValue(of(lotsDuProduit));
@@ -78,6 +81,16 @@ describe("ProduitEtiquetteModalComponent", () => {
     TestBed.resetTestingModule();
   });
 
+  it("ouvre le curseur sur le nombre d'étiquettes, valeur sélectionnée pour être remplacée", async () => {
+    await monter();
+
+    const champQty = fixture.nativeElement.querySelector("#etiquetteQty") as HTMLInputElement;
+    expect(document.activeElement).toBe(champQty);
+    expect(champQty.value).toBe("1");
+    expect(champQty.selectionStart).toBe(0);
+    expect(champQty.selectionEnd).toBe(champQty.value.length);
+  });
+
   it("imprime l'étiquette standard par défaut", async () => {
     await monter();
 
@@ -91,7 +104,7 @@ describe("ProduitEtiquetteModalComponent", () => {
     await monter();
 
     interne().onTypeChange("LOT");
-    interne().lotId.set(8);
+    champ("lotId").setValue(8);
     interne().onPrint();
 
     expect(api.getEtiquettesLot).toHaveBeenCalledWith(500, 8, 1, 1, "A4_65_HISTORIQUE");
@@ -179,7 +192,7 @@ describe("ProduitEtiquetteModalComponent", () => {
     await monter();
 
     interne().onTypeChange("LOT");
-    interne().lotId.set(7);
+    champ("lotId").setValue(7);
     interne().onPrint();
 
     expect(blobDownload.downloadPdf).toHaveBeenCalledWith(expect.anything(), "etiquettes-lot-1234567");
@@ -202,20 +215,20 @@ describe("ProduitEtiquetteModalComponent", () => {
 
   it("ramène la case de départ à 1 si la nouvelle planche est plus petite", async () => {
     await monter();
-    interne().startAt = 40;
+    champ("startAt").setValue(40);
 
     interne().onFormatChange("A4_21_63X38");
 
-    expect(interne().startAt).toBe(1);
+    expect(champ("startAt").value).toBe(1);
   });
 
   it("refuse une case de départ hors de la planche", async () => {
     await monter();
 
-    interne().startAt = 65;
+    champ("startAt").setValue(65);
     expect(interne().peutImprimer()).toBe(true);
 
-    interne().startAt = 66;
+    champ("startAt").setValue(66);
     expect(interne().peutImprimer()).toBe(false);
   });
 
@@ -242,13 +255,13 @@ describe("ProduitEtiquetteModalComponent", () => {
 
   it("un rouleau n'a pas de case de départ, et la quantité n'est plus bornée par la planche", async () => {
     await monter();
-    interne().startAt = 40;
+    champ("startAt").setValue(40);
 
     interne().onFormatChange("ROULEAU_40X30");
 
     expect(interne().estRouleau()).toBe(true);
     // Une case de départ y ferait dérouler des étiquettes blanches.
-    expect(interne().startAt).toBe(1);
+    expect(champ("startAt").value).toBe(1);
     expect(interne().capacite()).toBe(1);
     expect(interne().qtyMax()).toBe(500);
   });
@@ -257,7 +270,7 @@ describe("ProduitEtiquetteModalComponent", () => {
     await monter();
 
     interne().onFormatChange("ROULEAU_40X30");
-    interne().qty = 24;
+    champ("qty").setValue(24);
 
     expect(interne().peutImprimer()).toBe(true);
     interne().onPrint();
@@ -298,7 +311,7 @@ describe("ProduitEtiquetteModalComponent", () => {
     interne().onFormatChange("ROULEAU_40X30");
     interne().onModeChange("ZPL");
     await Promise.resolve();
-    interne().qty = 12;
+    champ("qty").setValue(12);
     interne().onPrint();
     await Promise.resolve();
 
@@ -315,8 +328,8 @@ describe("ProduitEtiquetteModalComponent", () => {
     interne().onFormatChange("ROULEAU_40X30");
     interne().onModeChange("ZPL");
     interne().onTypeChange("LOT");
-    interne().lotId.set(8);
-    interne().resolution.set("DPI_300");
+    champ("lotId").setValue(8);
+    champ("resolution").setValue("DPI_300");
     interne().onPrint();
     await Promise.resolve();
 
@@ -357,7 +370,7 @@ describe("ProduitEtiquetteModalComponent", () => {
     await monter();
 
     interne().onTypeChange("REGLETTE");
-    interne().qty = 3;
+    champ("qty").setValue(3);
     interne().onPrint();
 
     expect(api.getReglettes).toHaveBeenCalledWith(500, 3, 1, "A4_65_HISTORIQUE");
@@ -369,12 +382,12 @@ describe("ProduitEtiquetteModalComponent", () => {
     await monter();
 
     interne().onTypeChange("PREPARATION");
-    expect(interne().preparation.libelle).toBe("DOLIPRANE 1000MG");
+    expect(preparation("libelle").value).toBe("DOLIPRANE 1000MG");
 
-    interne().preparation.libelle = "Pommade salicylée 5 %";
+    preparation("libelle").setValue("Pommade salicylée 5 %");
     interne().onTypeChange("STANDARD");
     interne().onTypeChange("PREPARATION");
-    expect(interne().preparation.libelle).toBe("Pommade salicylée 5 %");
+    expect(preparation("libelle").value).toBe("Pommade salicylée 5 %");
   });
 
   it("refuse une préparation sans composition", async () => {
@@ -385,7 +398,7 @@ describe("ProduitEtiquetteModalComponent", () => {
     // Le nom vient de l'article, mais une étiquette de préparation sans composition n'en est pas une.
     expect(interne().peutImprimer()).toBe(false);
 
-    interne().preparation.composition = "Acide salicylique 5 g, vaseline qsp 100 g";
+    preparation("composition").setValue("Acide salicylique 5 g, vaseline qsp 100 g");
     expect(interne().peutImprimer()).toBe(true);
   });
 
@@ -393,9 +406,9 @@ describe("ProduitEtiquetteModalComponent", () => {
     await monter();
 
     interne().onTypeChange("PREPARATION");
-    interne().preparation.composition = "Acide salicylique 5 g, vaseline qsp 100 g";
-    interne().preparation.mention = "À usage externe";
-    interne().datePreparation = { year: 2026, month: 10, day: 16 };
+    preparation("composition").setValue("Acide salicylique 5 g, vaseline qsp 100 g");
+    preparation("mention").setValue("À usage externe");
+    preparation("datePreparation").setValue({ year: 2026, month: 10, day: 16 });
     interne().onPrint();
 
     expect(api.imprimerPreparation).toHaveBeenCalledWith(

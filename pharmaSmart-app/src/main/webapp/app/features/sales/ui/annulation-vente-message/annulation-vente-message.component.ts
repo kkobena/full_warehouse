@@ -1,4 +1,4 @@
-import {signal, AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy} from '@angular/core';
+import { afterNextRender, signal, Component, DestroyRef, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgxSpinnerService} from "ngx-spinner";
@@ -21,7 +21,7 @@ import {ButtonComponent, CardComponent} from "../../../../shared/ui";
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './annulation-vente-message.component.scss',
 })
-export class AnnulationVenteMessageComponent implements OnInit, AfterViewInit {
+export class AnnulationVenteMessageComponent implements OnInit {
   readonly activeModal = inject(NgbActiveModal);
   form!: FormGroup;
   sale: ISales;
@@ -34,15 +34,15 @@ export class AnnulationVenteMessageComponent implements OnInit, AfterViewInit {
   private readonly notificationService = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.cancelCommentInput().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.buildForm();
 
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.cancelCommentInput().nativeElement.focus();
-    }, 100);
   }
 
   save(): void {

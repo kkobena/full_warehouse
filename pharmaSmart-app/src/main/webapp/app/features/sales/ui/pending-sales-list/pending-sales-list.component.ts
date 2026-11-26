@@ -60,7 +60,7 @@ export class PendingSalesListComponent implements OnInit {
 
   // ===== Outputs =====
   readonly saleResumed = output<ISales>();
-  readonly closed = output<void>();
+  readonly closed = output();
 
   // ===== State from Facade =====
   readonly pendingSales = this.facade.pendingSales;

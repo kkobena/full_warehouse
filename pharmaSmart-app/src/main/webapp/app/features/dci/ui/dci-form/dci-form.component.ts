@@ -1,11 +1,11 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import {form, FormField, FormRoot, maxLength, required, submit} from '@angular/forms/signals';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -35,7 +35,7 @@ import {FormsModule} from "@angular/forms";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormField, FormRoot, ButtonComponent, CardComponent, FormsModule],
 })
-export class DciFormComponent implements AfterViewInit {
+export class DciFormComponent {
   /** Renseigné par l'appelant avant ouverture ; absent en création. */
   dci?: IDci;
   header = '';
@@ -58,8 +58,8 @@ export class DciFormComponent implements AfterViewInit {
   private readonly notification = inject(NotificationService);
   private readonly errorService = inject(ErrorService);
 
-  ngAfterViewInit(): void {
-    setTimeout(() => this.libelleInput().nativeElement.focus(), 100);
+  constructor() {
+    afterNextRender(() => this.libelleInput().nativeElement.focus());
   }
 
   /** Appelé par l'ouvrant après instanciation, avant affichage. */

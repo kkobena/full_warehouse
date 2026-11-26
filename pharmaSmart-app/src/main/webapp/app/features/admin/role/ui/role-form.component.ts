@@ -1,4 +1,4 @@
-import {signal, AfterViewInit, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { afterNextRender, signal, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import {
   AbstractControl,
   FormBuilder,
@@ -21,7 +21,7 @@ const ROLE_PATTERN = /^[A-Z][A-Z0-9_]*$/;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent, CardComponent, KeyFilterDirective]
 })
-export class RoleFormComponent implements AfterViewInit {
+export class RoleFormComponent {
   /** Existing role names — set by parent for uniqueness check. */
   existingNames: string[] = [];
 
@@ -38,8 +38,10 @@ export class RoleFormComponent implements AfterViewInit {
     libelle: ["",[Validators.required]],
   });
 
-  ngAfterViewInit(): void {
-    setTimeout(() => this.suffixInput()?.nativeElement.focus(), 100);
+  constructor() {
+    afterNextRender(() => {
+      this.suffixInput()?.nativeElement.focus();
+    });
   }
 
   cancel(): void {

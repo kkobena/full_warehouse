@@ -70,7 +70,7 @@ export class InventoryImportModalComponent implements OnInit {
                 this.store.setProgress(progressResp.body ?? null);
                 this.store.emitEvent("PROGRESS_UPDATED", progressResp.body);
               },
-              error: () => {
+              error() {
               }
             });
         },

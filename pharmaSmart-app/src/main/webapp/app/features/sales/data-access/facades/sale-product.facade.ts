@@ -30,7 +30,7 @@ export class SaleProductFacade {
 
   addProductToSale(product: ProduitSearch, quantity: number): void {
     const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
+    if (!currentSale?.saleId) {
       console.error('No current sale to add product to');
       return;
     }
@@ -295,7 +295,7 @@ export class SaleProductFacade {
 
   private addProductWithStockHandling(salesLine: ISalesLine, addApiCall$: Observable<any>): void {
     const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
+    if (!currentSale?.saleId) {
       console.error('No current sale to add product to');
       return;
     }
@@ -373,7 +373,7 @@ export class SaleProductFacade {
 
   private executeQtyUpdate(isAjoutProduit: boolean, apiCall$: Observable<any>): void {
     const currentSale = this.store.currentSale();
-    if (!currentSale || !currentSale.saleId) {
+    if (!currentSale?.saleId) {
       console.error('No current sale to update product');
       return;
     }

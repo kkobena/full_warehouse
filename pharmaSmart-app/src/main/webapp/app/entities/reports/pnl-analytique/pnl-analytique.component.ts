@@ -283,7 +283,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createFamilleEvolutionChart(data), 50);
         }
       },
-      error: () => {
+      error() {
       },
     });
   }
@@ -298,7 +298,7 @@ export default class PnlAnalytiqueComponent implements OnInit, OnDestroy {
           setTimeout(() => this.createSegmentEvolutionChart(data), 50);
         }
       },
-      error: () => {
+      error() {
       },
     });
   }

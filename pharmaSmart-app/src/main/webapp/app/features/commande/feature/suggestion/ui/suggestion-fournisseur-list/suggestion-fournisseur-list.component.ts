@@ -29,7 +29,7 @@ import { DevisePipe } from 'app/shared/utils/devise';
 })
 export class SuggestionFournisseurListComponent {
   // ── Row styling ────────────────────────────────────────────────────────────
-  private static readonly STATUT_STYLES: Record<string, { [k: string]: string }> = {
+  private static readonly STATUT_STYLES: Record<string, Record<string, string>> = {
     VALIDEE: {background: "#d1fae5", color: "#065f46"},
     EN_ATTENTE_VALIDATION: {background: "#fef3c7", color: "#92400e"},
     COMMANDEE: {background: "#dbeafe", color: "#1e40af"},
@@ -81,7 +81,7 @@ export class SuggestionFournisseurListComponent {
     };
   }
 
-  getStatutStyle(statut: string | null | undefined): { [key: string]: string } {
+  getStatutStyle(statut: string | null | undefined): Record<string, string> {
     if (!statut) {
       return {};
     }

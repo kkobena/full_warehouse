@@ -72,7 +72,7 @@ export class SalesApiService {
   /**
    * Finalize a presale (comptant)
    */
-  finalizePresaleComptant(sales: ISales, transform: boolean = true): Observable<void> {
+  finalizePresaleComptant(sales: ISales, transform = true): Observable<void> {
     if (transform) {
       return this.http.put<void>(`${this.resourceUrl}/comptant/finalize-prevente-and-transform`, sales, {observe: 'response'}).pipe(map((): void => undefined));
     }
@@ -82,7 +82,7 @@ export class SalesApiService {
   /**
    * Finalize a presale (assurance/carnet)
    */
-  finalizePresaleAssurance(sales: ISales, transform: boolean = true): Observable<void> {
+  finalizePresaleAssurance(sales: ISales, transform = true): Observable<void> {
     if (transform) {
       return this.http.put<void>(`${this.resourceUrl}/assurance/finalize-prevente-and-transform`, sales, {observe: 'response'}).pipe(map((): void => undefined));
     }
@@ -190,7 +190,7 @@ export class SalesApiService {
     return this.http.get<void>(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, {observe: 'response'});
   }
 
-  /*** Get ESC/POS receipt data for Tauri integration * Returns raw ESC/POS byte array to be sent directly to printer */
+  /** * Get ESC/POS receipt data for Tauri integration * Returns raw ESC/POS byte array to be sent directly to printer */
   getEscPosReceiptForTauri(id: SaleId, isEdition = false): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
       params: {isEdition},

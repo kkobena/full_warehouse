@@ -309,14 +309,14 @@ export class AppRetourFournisseurComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countEnAttente.set(count),
-        error: () => {
+        error() {
         }
       });
     this.avoirFournisseurService.countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countAvoirs.set(count),
-        error: () => {
+        error() {
         }
       });
   }

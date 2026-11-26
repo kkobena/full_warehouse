@@ -60,7 +60,7 @@ export class NavManagerComponent implements OnInit {
   private readonly rawTree = signal<INavNode[]>([]);
   protected readonly availableRoles = signal<IAuthority[]>([]);
   protected readonly selectedRole = signal<IAuthority | null>(null);
-  //La fonctionnalité pas totalement OK
+  // La fonctionnalité pas totalement OK
   protected showTabReorder=false;
 
   /**

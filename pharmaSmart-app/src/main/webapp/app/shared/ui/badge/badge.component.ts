@@ -108,7 +108,7 @@ export class BadgeComponent {
 
   readonly dismissAriaLabel = input<string>('Retirer');
 
-  readonly dismissed = output<void>();
+  readonly dismissed = output();
 
   protected readonly hostClasses = computed(() => {
     const classes = ['app-badge', `app-badge--${this.severity()}`];

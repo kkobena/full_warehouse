@@ -9,17 +9,17 @@ export class ConcentrationPayersService {
   private readonly resourceUrl = SERVER_API_URL + 'api/concentration-payers';
   private readonly http = inject(HttpClient);
 
-  getSummary(periode: string, topN: number = 10): Observable<HttpResponse<IConcentrationSummary>> {
+  getSummary(periode: string, topN = 10): Observable<HttpResponse<IConcentrationSummary>> {
     const params = new HttpParams().set('periode', periode).set('topN', topN);
     return this.http.get<IConcentrationSummary>(`${this.resourceUrl}/summary`, { params, observe: 'response' });
   }
 
-  getOrganismes(periode: string, topN: number = 10): Observable<HttpResponse<IConcentrationOrganisme[]>> {
+  getOrganismes(periode: string, topN = 10): Observable<HttpResponse<IConcentrationOrganisme[]>> {
     const params = new HttpParams().set('periode', periode).set('topN', topN);
     return this.http.get<IConcentrationOrganisme[]>(`${this.resourceUrl}/organismes`, { params, observe: 'response' });
   }
 
-  getEvolution(topN: number = 10): Observable<HttpResponse<IConcentrationEvolution>> {
+  getEvolution(topN = 10): Observable<HttpResponse<IConcentrationEvolution>> {
     const params = new HttpParams().set('topN', topN);
     return this.http.get<IConcentrationEvolution>(`${this.resourceUrl}/evolution`, { params, observe: 'response' });
   }

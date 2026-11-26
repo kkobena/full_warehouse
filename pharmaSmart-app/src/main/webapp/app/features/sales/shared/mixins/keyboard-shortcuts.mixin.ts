@@ -160,7 +160,7 @@ function buildShortcuts(
     description: 'Aide raccourcis',
     category: 'Aide',
     badge: 'Essentiel',
-    action: () => {
+    action() {
       /* handled inline below */
     },
   });
@@ -227,7 +227,7 @@ function buildShortcuts(
     description: isPresale() ? 'Enregistrer prévente' : 'Finaliser (Payer)',
     category: 'Finalisation',
     badge: 'Important',
-    action: () => {
+    action() {
       if (isPresale() && cb.saveAsPresale) {
         cb.saveAsPresale();
       } else {
@@ -306,7 +306,7 @@ function buildShortcuts(
     alt: true,
     description: 'Finaliser',
     category: 'Navigation Rapide',
-    action: () => {
+    action() {
       if (isPresale() && cb.saveAsPresale) {
         cb.saveAsPresale();
       } else {

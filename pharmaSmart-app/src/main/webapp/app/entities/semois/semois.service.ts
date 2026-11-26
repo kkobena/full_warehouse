@@ -65,13 +65,13 @@ export class SemoisService {
    * Magasins entre lesquels l'écran peut choisir. Un seul : pas de sélecteur à afficher.
    * Les dépôts n'y sont pas — ils ne commandent pas.
    */
-  listerLesMagasinsDuReassort(): Observable<HttpResponse<Array<{ id: number; name: string }>>> {
-    return this.http.get<Array<{ id: number; name: string }>>(`${this.resourceUrl}/magasins`, { observe: 'response' });
+  listerLesMagasinsDuReassort(): Observable<HttpResponse<{ id: number; name: string }[]>> {
+    return this.http.get<{ id: number; name: string }[]>(`${this.resourceUrl}/magasins`, { observe: 'response' });
   }
 
   /** Fournisseurs distincts ayant des produits SEMOIS configurés. */
-  getSemoisFournisseurs(magasinId?: number): Observable<HttpResponse<Array<{ fournisseurId: number; fournisseurLibelle: string }>>> {
-    return this.http.get<Array<{ fournisseurId: number; fournisseurLibelle: string }>>(
+  getSemoisFournisseurs(magasinId?: number): Observable<HttpResponse<{ fournisseurId: number; fournisseurLibelle: string }[]>> {
+    return this.http.get<{ fournisseurId: number; fournisseurLibelle: string }[]>(
       `${this.resourceUrl}/suggestions/fournisseurs`, {
         params: createRequestOptions({ magasinId }),
         observe: 'response',
@@ -173,7 +173,7 @@ export class SemoisService {
    * Crée des commandes groupées par fournisseur depuis des suggestions SEMOIS sélectionnées.
    * @param lignes Liste de {produitId, fournisseurId, quantite}
    */
-  commanderSemois(lignes: Array<{ produitId: number; fournisseurId: number; quantite: number }>): Observable<HttpResponse<void>> {
+  commanderSemois(lignes: { produitId: number; fournisseurId: number; quantite: number }[]): Observable<HttpResponse<void>> {
     return this.http.post<void>(`${this.resourceUrl}/commander`, { lignes }, { observe: 'response' });
   }
 
@@ -187,7 +187,7 @@ export class SemoisService {
     });
   }
 
-  //Exclusion temporaire ────────────────────────────────────────────
+  // Exclusion temporaire ────────────────────────────────────────────
 
   /** Exclut temporairement un produit du batch SEMOIS. */
   exclureProduit(produitId: number, request: IExclusionRequest): Observable<HttpResponse<void>> {

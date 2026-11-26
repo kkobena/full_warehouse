@@ -52,7 +52,7 @@ export class BedDetailComponent implements OnInit {
   protected readonly localeFr = AG_GRID_LOCALE_FR;
 
   readonly bed = input.required<IBed>();
-  readonly retour = output<void>();
+  readonly retour = output();
   readonly bedChange = output<IBed>();
 
   readonly isBrouillon = computed(() => !this.bed()?.id || this.bed()?.orderStatus === "REQUESTED");

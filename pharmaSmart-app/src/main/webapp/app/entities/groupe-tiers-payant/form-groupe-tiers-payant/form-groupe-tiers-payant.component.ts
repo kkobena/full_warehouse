@@ -1,11 +1,13 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild, signal } from "@angular/core";
+  viewChild,
+  signal,
+} from "@angular/core";
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {GroupeTiersPayant, IGroupeTiersPayant} from "app/shared/model/groupe-tierspayant.model";
 import {ErrorService} from "app/shared/error.service";
@@ -45,7 +47,7 @@ import {
     SwitchComponent
   ]
 })
-export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
+export class FormGroupeTiersPayantComponent implements OnInit {
   header = "";
   entity?: IGroupeTiersPayant;
   protected readonly ordreTrisFacture = signal<OrdreTrisFacture[]>([]);
@@ -77,17 +79,17 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   private readonly activeModal = inject(NgbActiveModal);
   private readonly notificationService = inject(NotificationService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.name().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
     }
     this.loadOrdreTrisFacture();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.name().nativeElement.focus();
-    }, 100);
   }
 
   loadOrdreTrisFacture(): void {

@@ -52,7 +52,7 @@ import { DashboardContext } from '../../data-access/dashboard-context';
 export class DashboardContextBarComponent {
   protected readonly context = inject(DashboardContext);
   /** La période ou le rafraîchissement a changé (l'éditeur le compte comme une modification). */
-  readonly changed = output<void>();
+  readonly changed = output();
 
   protected readonly periodOptions = PERIOD_OPTIONS;
   protected readonly refreshOptions = REFRESH_OPTIONS;

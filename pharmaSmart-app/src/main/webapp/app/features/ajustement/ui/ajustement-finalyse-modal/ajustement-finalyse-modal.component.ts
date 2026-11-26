@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy} from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {ButtonComponent} from '../../../../shared/ui';
@@ -10,15 +10,15 @@ import {ButtonComponent} from '../../../../shared/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonComponent],
 })
-export class AjustementFinalyseModalComponent implements AfterViewInit {
+export class AjustementFinalyseModalComponent {
   readonly activeModal = inject(NgbActiveModal);
   private commentaireInput = viewChild.required<ElementRef>('commentaireInput');
   protected commentaire = '';
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
+  constructor() {
+    afterNextRender(() => {
       this.commentaireInput().nativeElement.focus();
-    }, 100);
+    });
   }
 
   protected confirm(): void {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnInit, viewChild, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -20,7 +20,7 @@ import { ButtonComponent, CardComponent, SelectComponent, ToolbarComponent } fro
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['./depot-form.component.scss'],
 })
-export class DepotFormComponent implements OnInit, AfterViewInit {
+export class DepotFormComponent implements OnInit {
   protected depotForm!: FormGroup;
   protected readonly isEditMode = signal(false);
   protected readonly isSaving = signal(false);
@@ -37,6 +37,12 @@ export class DepotFormComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly name = viewChild.required<ElementRef>('name');
 
+  constructor() {
+    afterNextRender(() => {
+      this.name().nativeElement.focus();
+    });
+  }
+
   get formControls() {
     return this.depotForm.controls;
   }
@@ -51,12 +57,6 @@ export class DepotFormComponent implements OnInit, AfterViewInit {
         this.loadDepot(this.depotId);
       }
     });
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.name().nativeElement.focus();
-    }, 100);
   }
 
   createForm(): void {

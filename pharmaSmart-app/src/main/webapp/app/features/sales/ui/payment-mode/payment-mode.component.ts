@@ -566,11 +566,11 @@ export interface PaymentModeEntry {
 }
 
 export interface PaymentCompleteEvent {
-  payments: Array<{
+  payments: {
     mode: IPaymentMode;
     amount: number;
     amountEntered?: number;
-  }>;
+  }[];
   totalPaid: number;
   change: number; // Monnaie arrondie affichée
   changeExact: number; // Monnaie exacte pour comptabilité

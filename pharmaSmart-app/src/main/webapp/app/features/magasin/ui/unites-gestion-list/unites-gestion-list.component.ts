@@ -19,6 +19,6 @@ export class UnitesGestionListComponent {
   readonly unites = input<IMagasin[]>([]);
   readonly loading = input(false);
 
-  readonly creer = output<void>();
+  readonly creer = output();
   readonly modifier = output<IMagasin>();
 }

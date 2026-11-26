@@ -47,7 +47,7 @@ export class ProduitSyntheseTabComponent {
   readonly loadingIndicateurs = input<boolean>(false);
   readonly canEdit = input<boolean>(false);
 
-  readonly refreshRequested = output<void>();
+  readonly refreshRequested = output();
 
   /** Un produit désactivé ne doit plus être modifiable (flags, tarifs...). */
   protected readonly isDisabled = computed(() => this.produit().status === 'DISABLE');

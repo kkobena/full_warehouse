@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
+import { afterNextRender, Component, ElementRef, inject, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy, signal } from "@angular/core";
 import { HttpResponse } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
 import { Observable, Subject } from "rxjs";
@@ -17,7 +17,7 @@ import { NotificationService } from "../../shared/services/notification.service"
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ReactiveFormsModule, ButtonComponent]
 })
-export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ModePaymentUpdateComponent implements OnInit, OnDestroy {
   title: string | null = null;
   entity?: IPaymentMode;
   qrCodeFile: File | null = null;
@@ -37,6 +37,12 @@ export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDest
   private destroy$ = new Subject<void>();
   private readonly notificationService = inject(NotificationService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.codeField().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
@@ -46,12 +52,6 @@ export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDest
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.codeField().nativeElement.focus();
-    }, 100);
   }
 
   updateForm(paymentMode: IPaymentMode): void {

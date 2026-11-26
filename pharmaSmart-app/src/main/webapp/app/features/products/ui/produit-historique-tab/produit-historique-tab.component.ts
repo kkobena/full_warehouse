@@ -66,7 +66,7 @@ export class ProduitHistoriqueTabComponent implements OnDestroy {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              afterLabel: (ctx) => {
+              afterLabel(ctx) {
                 const vente = ventes[ctx.dataIndex];
                 const ca = formatNumber(vente.montantCa / 100);
                 return `CA : ${ca} XOF  |  ${vente.nombreVentes} vente(s)`;

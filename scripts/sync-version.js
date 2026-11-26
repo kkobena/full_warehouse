@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 /**
  * Synchronise la version de l'application depuis la source unique de vérité
  * (pom.xml → <revision>) vers :

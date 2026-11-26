@@ -119,8 +119,8 @@ export class ProductListComponent {
   discountChanged = output<{ line: ISalesLine; newDiscount: number }>();
   authorizationRequired = output<{ line: ISalesLine; action: 'delete' | 'discount' }>();
   remiseSelected = output<IRemise>();
-  removeRemise = output<void>();
-  remiseActionCancelled = output<void>();
+  removeRemise = output();
+  remiseActionCancelled = output();
   /** Case « non remboursé » cochée ou décochée sur une ligne (ventes assurance et carnet). */
   nonRembourseChanged = output<{ line: ISalesLine; nonRembourse: boolean }>();
   /** Un prix négocié vient d'être enregistré pour le produit d'une ligne : la vente est à recalculer. */
@@ -230,7 +230,7 @@ export class ProductListComponent {
       `Voulez-vous supprimer ${line.produitLibelle || 'ce produit'} ?`,
       undefined,
       () => {
-        //TODO: Action on reject , le champ produitSearch reçoit le focus
+        // TODO: Action on reject , le champ produitSearch reçoit le focus
       },
     );
   }
@@ -493,7 +493,7 @@ export class ProductListComponent {
     const attendue = this.demandeEnAttente;
     if (attendue) {
       const ligne = lignes.find(l => l.id === attendue.lineId);
-      if (ligne && ligne.quantitySold != null) {
+      if (ligne?.quantitySold != null) {
         this.demandeEnAttente = null;
         if (ligne.quantitySold < attendue.quantite) {
           this.notificationService.warning(

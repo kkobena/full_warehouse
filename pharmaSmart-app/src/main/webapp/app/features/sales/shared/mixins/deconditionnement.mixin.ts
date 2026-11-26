@@ -186,12 +186,12 @@ export function createDeconditionnementHandling(context: DeconditionnementHandli
     };
 
     deconditionService.create(decondition).subscribe({
-      next: () => {
+      next() {
         releaseHandling();
         facade.clearError();
         retryOperation(line);
       },
-      error: () => {
+      error() {
         releaseHandling();
         facade.clearError();
         notificationService.error('Erreur lors du déconditionnement');

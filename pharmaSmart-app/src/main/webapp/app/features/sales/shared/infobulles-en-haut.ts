@@ -9,7 +9,7 @@ import { NgbTooltipConfig } from '@ng-bootstrap/ng-bootstrap';
 export function fournirInfobullesEnHaut(): Provider {
   return {
     provide: NgbTooltipConfig,
-    useFactory: (): NgbTooltipConfig => {
+    useFactory(): NgbTooltipConfig {
       const config = new NgbTooltipConfig();
       config.placement = ['top', 'bottom', 'start', 'end'];
       // Dans le `body` : insérée à côté de son bouton, l'infobulle est rognée par les cartes à `overflow: hidden`

@@ -26,7 +26,7 @@ export class CustomerCouvertureTabComponent {
   readonly customer = input.required<ICustomer>();
   readonly canEdit = input<boolean>(false);
   /** La fiche a été modifiée (tiers payant ou ayant droit) : le parent recharge le client. */
-  readonly changed = output<void>();
+  readonly changed = output();
 
   /** Tiers payants par priorité : le premier est la couverture principale. */
   protected readonly tiersPayants = computed<IClientTiersPayant[]>(() =>

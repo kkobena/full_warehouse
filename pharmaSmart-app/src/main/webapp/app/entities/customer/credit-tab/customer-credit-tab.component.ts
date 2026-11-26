@@ -1,19 +1,35 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { NgbDateStruct, NgbPagination, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, DataTableComponent, DetailFieldComponent, DetailGridComponent, DetailSectionComponent } from 'app/shared/ui';
-import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
-import { RouterLink } from '@angular/router';
-import { ErrorService } from 'app/shared/error.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { BlobDownloadService } from 'app/shared/services/blob-download.service';
-import { NGB_DATE_OFFSET_MONTHS, NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
-import { IDiffere, IReglementDiffere } from 'app/features/differes/data-access/models/differe.model';
-import { IRelanceDiffere, ISituationCredit } from '../customer-fiche.model';
-import { CustomerService } from '../customer.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HttpErrorResponse} from '@angular/common/http';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormsModule} from '@angular/forms';
+import {NgbDateStruct, NgbPagination} from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  DetailFieldComponent,
+  DetailGridComponent,
+  DetailSectionComponent
+} from 'app/shared/ui';
+import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
+import {RouterLink} from '@angular/router';
+import {ErrorService} from 'app/shared/error.service';
+import {NotificationService} from 'app/shared/services/notification.service';
+import {BlobDownloadService} from 'app/shared/services/blob-download.service';
+import {NGB_DATE_OFFSET_MONTHS, NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
+import {IDiffere, IReglementDiffere} from 'app/features/differes/data-access/models/differe.model';
+import {IRelanceDiffere, ISituationCredit} from '../customer-fiche.model';
+import {CustomerService} from '../customer.service';
 
 /** Onglet « Crédit » de la fiche client : différés non soldés, relances et règlements. */
 @Component({
@@ -25,7 +41,6 @@ import { CustomerService } from '../customer.service';
     CommonModule,
     FormsModule,
     NgbPagination,
-    NgbTooltip,
     RouterLink,
     ButtonComponent,
     DataTableComponent,
@@ -105,21 +120,30 @@ export class CustomerCreditTabComponent {
     this.customerService
       .differes(customerId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: differe => this.differe.set(differe), error: this.signaler("Les différés n'ont pas pu être chargés") });
+      .subscribe({
+        next: differe => this.differe.set(differe),
+        error: this.signaler("Les différés n'ont pas pu être chargés")
+      });
     this.customerService
       .situationCredit(customerId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: situation => this.situationCredit.set(situation), error: this.signaler("La limite de crédit n'a pas pu être chargée") });
+      .subscribe({
+        next: situation => this.situationCredit.set(situation),
+        error: this.signaler("La limite de crédit n'a pas pu être chargée")
+      });
     this.customerService
       .relancesDifferes(customerId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({ next: relances => this.relances.set(relances), error: this.signaler("Les relances n'ont pas pu être chargées") });
+      .subscribe({
+        next: relances => this.relances.set(relances),
+        error: this.signaler("Les relances n'ont pas pu être chargées")
+      });
     this.loadReglements(customerId);
   }
 
   private loadReglements(customerId: number): void {
     this.customerService
-      .reglementsDifferes(customerId, { page: this.reglementsPage() - 1, size: this.pageSize })
+      .reglementsDifferes(customerId, {page: this.reglementsPage() - 1, size: this.pageSize})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: res => {

@@ -132,7 +132,7 @@ export class CommandeReceivedComponent implements OnInit {
   private static readonly SCAN_RECEPTION_TIMEOUT_MS = 3000;
   commande = input.required<ICommande>();
   commandeChange = output<ICommande | null>();
-  retour = output<void>();
+  retour = output();
   showLotBtn = input(false);
   readonly scanInputRef = viewChild<ElementRef>("scanInputRef");
   protected readonly orderLines = signal<IOrderLine[]>([]);
@@ -152,13 +152,13 @@ export class CommandeReceivedComponent implements OnInit {
   protected readonly sorts = SORT;
   // ── AG Grid ───────────────────────────────────────────────────────────────
   protected readonly theme = themeAlpine;
-  protected readonly defaultColDef: ColDef<any> = {
+  protected readonly defaultColDef: ColDef = {
     resizable: true,
     sortable: false,
     suppressHeaderMenuButton: true
   };
 
-  protected readonly rowClassRules: RowClassRules<any> = {
+  protected readonly rowClassRules: RowClassRules = {
     "pharma-row-danger": p => !p.data?.__type && !!p.data && p.data.costAmount !== p.data.orderCostAmount,
     "pharma-row-warning": p =>
       !p.data?.__type && !!p.data &&
@@ -167,7 +167,7 @@ export class CommandeReceivedComponent implements OnInit {
     "pharma-row-provisional": p => !p.data?.__type && !!p.data?.provisionalCode,
     "cr-lot-editor-row": p => p.data?.__type === "lot-editor"
   };
-  protected readonly columnDefs = signal<ColDef<any>[]>([]);
+  protected readonly columnDefs = signal<ColDef[]>([]);
   protected readonly gridContext: {
     componentParent: CommandeReceivedComponent
   } = {componentParent: this};
@@ -178,7 +178,7 @@ export class CommandeReceivedComponent implements OnInit {
   /** Pré-remplissage lot transmis au composant séquentiel après un scan DataMatrix sans lot auto-créé. */
   protected readonly scanLotPrefill = signal<{ numLot: string; expiry: string } | null>(null);
   private conformeSansLot = false;
-  private gridApi: GridApi<any> | null = null;
+  private gridApi: GridApi | null = null;
   // ── Lot inline expand ──────────────────────────────────────────────────────
   private expandedLineIds = new Set<number>();
   private scanFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
@@ -272,7 +272,7 @@ export class CommandeReceivedComponent implements OnInit {
     return this.orderLines().filter(l => (l.lots?.length ?? 0) === 0).length;
   }
 
-  //Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
+  // Taux de service : lignes où quantityReceivedTmp >= quantityRequested / total
   protected get tauxService(): number {
     if (!this.orderLines().length) {
       return 0;
@@ -338,7 +338,7 @@ export class CommandeReceivedComponent implements OnInit {
     localStorage.setItem("reception-view-mode", mode);
   }
 
-  protected readonly getRowId: GetRowIdFunc<any> = p => {
+  protected readonly getRowId: GetRowIdFunc = p => {
     if (p.data?.__type === "lot-editor") {
       return `lot-editor-${p.data.__line.id}`;
     }
@@ -426,7 +426,7 @@ export class CommandeReceivedComponent implements OnInit {
     });
   }
 
-  protected onGridReady(event: GridReadyEvent<any>): void {
+  protected onGridReady(event: GridReadyEvent): void {
     this.gridApi = event.api;
   }
 
@@ -559,7 +559,7 @@ export class CommandeReceivedComponent implements OnInit {
     );
   }
 
-  //Lien vers le module de rapprochement facture fournisseur
+  // Lien vers le module de rapprochement facture fournisseur
   protected onRapprocher(): void {
     const ref = this.modalService.open(ReconciliationFactureComponent, {
       size: "lg",
@@ -1190,7 +1190,7 @@ export class CommandeReceivedComponent implements OnInit {
         headerTooltip: "Code CIP — italique = code provisoire, cliquez pour saisir le CIP",
         editable: (p: any) => !!p.data?.provisionalCode,
         cellEditor: "agTextCellEditor",
-        cellRenderer: (p: any) => {
+        cellRenderer(p: any) {
           if (!p.data) {
             return "";
           }
@@ -1222,7 +1222,7 @@ export class CommandeReceivedComponent implements OnInit {
         width: 95,
         type: "numericColumn",
         headerTooltip: "Prix d'achat commandé — ⚠ indique un écart avec le tarif catalogue",
-        cellRenderer: (p: any) => {
+        cellRenderer(p: any) {
           if (!p.data) {
             return "";
           }
@@ -1246,7 +1246,7 @@ export class CommandeReceivedComponent implements OnInit {
         width: 95,
         type: "numericColumn",
         headerTooltip: "Prix de vente commandé — ⚠ indique un écart avec le tarif catalogue",
-        cellRenderer: (p: any) => {
+        cellRenderer(p: any) {
           if (!p.data) {
             return "";
           }
@@ -1269,7 +1269,7 @@ export class CommandeReceivedComponent implements OnInit {
         headerName: "Qté.cmdée",
         width: 100,
         type: "numericColumn",
-        cellRenderer: (p: any) => {
+        cellRenderer(p: any) {
           if (!p.data) {
             return "";
           }
@@ -1291,7 +1291,7 @@ export class CommandeReceivedComponent implements OnInit {
         editable: true,
         cellEditor: "agNumberCellEditor",
         cellEditorParams: {preventStepping: true},
-        cellRenderer: (p: any) => {
+        cellRenderer(p: any) {
           if (!p.data) {
             return "";
           }
@@ -1321,7 +1321,7 @@ export class CommandeReceivedComponent implements OnInit {
         width: 105,
         type: "numericColumn",
         valueGetter: p => p.data ? this.computeAfterStock(p.data) : null,
-        cellStyle: (p: any) => {
+        cellStyle(p: any) {
           if (p.value == null) {
             return {};
           }
@@ -1370,7 +1370,7 @@ export class CommandeReceivedComponent implements OnInit {
       width: 100,
       type: "numericColumn",
       headerTooltip: "Jours de couverture stock estimés",
-      cellRenderer: (p: any) => {
+      cellRenderer(p: any) {
         const v = p.data?.couvertureStockJours;
         if (v == null) {
           return "—";
@@ -1379,7 +1379,7 @@ export class CommandeReceivedComponent implements OnInit {
         return `<span style="color:${color};font-weight:700">${v} j</span>`;
       }
     });
-    //TVA (masquée par défaut, activable via menu colonnes)
+    // TVA (masquée par défaut, activable via menu colonnes)
     cols.push({
       field: "tva",
       headerName: "TVA (%)",

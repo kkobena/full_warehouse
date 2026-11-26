@@ -94,7 +94,7 @@ export class SaleCustomerFacade {
     if (currentSale?.saleId) {
       this.store.setCurrentSale({
         ...currentSale,
-        tiersPayants: tiersPayants,
+        tiersPayants,
       });
     } else {
       this.store.setPendingTiersPayants(tiersPayants);

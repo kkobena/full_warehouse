@@ -1,11 +1,13 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild, signal } from "@angular/core";
+  viewChild,
+  signal,
+} from "@angular/core";
 import {IProduit} from "../../../shared/model";
 import {
   FournisseurProduit,
@@ -49,7 +51,7 @@ import {
     CardComponent
   ]
 })
-export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
+export class FormProduitFournisseurComponent implements OnInit {
   header = "";
   produit?: IProduit;
   entity?: IFournisseurProduit;
@@ -75,6 +77,12 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   private fournisseurSelect = viewChild.required("fournisseurSelect", {read: ElementRef<HTMLElement>});
   private readonly activeModal = inject(NgbActiveModal);
 
+  constructor() {
+    afterNextRender(() => {
+      this.fournisseurSelect().nativeElement.querySelector('input')?.focus();
+    });
+  }
+
   save(): void {
     this.isSaving.set(true);
     const produitFournisseur = this.createFrom();
@@ -97,12 +105,6 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     if (this.entity && this.produit) {
       this.editForm.get("principal").setValue(this.entity.id === this.produit.fournisseurProduit?.id);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.fournisseurSelect().nativeElement.querySelector('input')?.focus();
-    }, 100);
   }
 
   updateForm(produitFournisseur: IFournisseurProduit): void {

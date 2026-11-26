@@ -1,10 +1,12 @@
-import {signal, AfterViewInit,
+import {
+  afterNextRender,
+  signal,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild
+  viewChild,
 } from "@angular/core";
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
@@ -38,7 +40,7 @@ import {
     CardComponent
   ]
 })
-export class RayonFormComponent implements OnInit, AfterViewInit {
+export class RayonFormComponent implements OnInit {
   header = "";
   entity: IRayon | null = null;
 
@@ -63,16 +65,18 @@ export class RayonFormComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly libelleInput = viewChild.required<ElementRef>("libelleInput");
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelleInput().nativeElement.focus();
+    });
+  }
+
   protected get isSansRayon(): boolean {
     return this.entity?.code === "SANS";
   }
 
   ngOnInit(): void {
     this.loadStorages();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => this.libelleInput().nativeElement.focus(), 100);
   }
 
   protected save(): void {

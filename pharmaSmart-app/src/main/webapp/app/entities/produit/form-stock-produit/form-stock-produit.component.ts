@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy, signal } from '@angular/core';
+import { afterNextRender, Component, inject, OnInit, viewChild, ElementRef, ChangeDetectionStrategy, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { ErrorService } from '../../../shared/error.service';
@@ -18,7 +18,7 @@ import { ButtonComponent, CardComponent, CheckboxComponent, KeyFilterDirective }
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './form-stock-produit.component.scss',
 })
-export class FormStockProduitComponent implements OnInit, AfterViewInit {
+export class FormStockProduitComponent implements OnInit {
   produit?: IProduit;
   stockProduit?: IStockProduit;
   protected readonly isSaving = signal(false);
@@ -45,6 +45,12 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
 
   //  private readonly stockReassortInput = viewChild<ElementRef>('stockReassortInput');
 
+  constructor() {
+    afterNextRender(() => {
+      this.seuilMiniInput()?.nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.isEditMode.set(!!this.stockProduit?.id);
 
@@ -60,14 +66,6 @@ export class FormStockProduitComponent implements OnInit, AfterViewInit {
       this.findStockRayon();
       this.setupTransferWatcher();
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (this.seuilMiniInput()) {
-        this.seuilMiniInput()!.nativeElement.focus();
-      }
-    }, 100);
   }
 
   get title(): string {

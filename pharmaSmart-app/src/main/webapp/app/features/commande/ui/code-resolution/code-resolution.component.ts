@@ -37,7 +37,7 @@ export class CodeResolutionComponent {
   readonly lignes = input<IOrderLine[]>([]);
 
   readonly valide = output<CodeResolutionChoice>();
-  readonly annule = output<void>();
+  readonly annule = output();
 
   protected readonly filtre = signal("");
   protected readonly ligneChoisie = signal<IOrderLine | null>(null);

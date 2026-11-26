@@ -102,7 +102,7 @@ export class SalesAnnulationsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: total => this.totalCanceledAmount.set(total),
-        error: () => {
+        error() {
         }
       });
   }

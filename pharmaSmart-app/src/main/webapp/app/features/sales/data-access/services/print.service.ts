@@ -63,7 +63,7 @@ export class PrintService {
     // Sinon, impression receipt backend
     return new Observable(observer => {
       this.apiService.printReceipt(saleId).subscribe({
-        next: () => {
+        next() {
           observer.next();
           observer.complete();
         },

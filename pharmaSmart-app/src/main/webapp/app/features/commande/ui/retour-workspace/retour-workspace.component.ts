@@ -41,7 +41,7 @@ export class RetourWorkspaceComponent implements OnInit {
   readonly bon = input.required<IDelivery>();
 
   readonly avoirCreated = output<IAvoirFournisseur>();
-  readonly cancelled = output<void>();
+  readonly cancelled = output();
 
   protected lines = signal<RetourLine[]>([]);
   protected motifs = signal<IMotifRetourProduit[]>([]);

@@ -57,14 +57,14 @@ export class InsuranceDataBarComponent implements OnInit, AfterViewInit {
   readonly tiersPayantsChanged = output<IClientTiersPayant[]>();
   readonly customerSelected = output<ICustomer>();
   readonly openCustomerList = output<{ customers: ICustomer[]; searchTerm: string }>();
-  readonly editCustomer = output<void>();
-  readonly addCustomer = output<void>();
-  readonly editAyantDroit = output<void>();
-  readonly loadAyantDroits = output<void>();
-  readonly assureBeneficiaire = output<void>();
-  readonly addComplementaire = output<void>();
+  readonly editCustomer = output();
+  readonly addCustomer = output();
+  readonly editAyantDroit = output();
+  readonly loadAyantDroits = output();
+  readonly assureBeneficiaire = output();
+  readonly addComplementaire = output();
   readonly removeTiersPayant = output<IClientTiersPayant>();
-  readonly focusProductSearch = output<void>();
+  readonly focusProductSearch = output();
 
   protected readonly search = signal<string>('');
   /** Assuré pour lequel la recherche a été rouverte à la demande ; un autre assuré la referme d'elle-même. */

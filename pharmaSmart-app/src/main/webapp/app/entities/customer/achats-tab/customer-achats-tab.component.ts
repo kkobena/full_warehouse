@@ -1,19 +1,33 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { NgbDateStruct, NgbPagination, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
-import { ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent } from 'app/shared/ui';
-import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-picker.component';
-import { ErrorService } from 'app/shared/error.service';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { BlobDownloadService } from 'app/shared/services/blob-download.service';
-import { NGB_DATE_OFFSET_MONTHS, NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
-import { ISales } from 'app/shared/model/sales.model';
-import { ISalesLine } from 'app/shared/model/sales-line.model';
-import { CustomerService } from '../customer.service';
-import { SalesService } from '../../sales/sales.service';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormsModule} from '@angular/forms';
+import {NgbDateStruct, NgbPagination} from '@ng-bootstrap/ng-bootstrap';
+import {
+  ButtonComponent,
+  DataTableComponent,
+  DetailGridComponent,
+  DetailSectionComponent
+} from 'app/shared/ui';
+import {PharmaDatePickerComponent} from 'app/shared/date-picker/pharma-date-picker.component';
+import {ErrorService} from 'app/shared/error.service';
+import {NotificationService} from 'app/shared/services/notification.service';
+import {BlobDownloadService} from 'app/shared/services/blob-download.service';
+import {NGB_DATE_OFFSET_MONTHS, NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
+import {ISales} from 'app/shared/model/sales.model';
+import {ISalesLine} from 'app/shared/model/sales-line.model';
+import {CustomerService} from '../customer.service';
+import {SalesService} from '../../sales/sales.service';
 
 /** Onglet « Achats » de la fiche client : historique des ventes clôturées et détail de la facture sélectionnée. */
 @Component({
@@ -21,7 +35,7 @@ import { SalesService } from '../../sales/sales.service';
   templateUrl: './customer-achats-tab.component.html',
   styleUrls: ['./customer-achats-tab.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, NgbPagination, NgbTooltip, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, PharmaDatePickerComponent],
+  imports: [CommonModule, FormsModule, NgbPagination, ButtonComponent, DataTableComponent, DetailGridComponent, DetailSectionComponent, PharmaDatePickerComponent],
 })
 export class CustomerAchatsTabComponent {
   readonly customerId = input.required<number>();

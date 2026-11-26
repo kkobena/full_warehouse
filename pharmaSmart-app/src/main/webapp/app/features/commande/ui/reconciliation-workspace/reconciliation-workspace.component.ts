@@ -52,7 +52,7 @@ import {
 export class ReconciliationWorkspaceComponent implements OnInit {
   readonly delivery = input.required<IDelivery>();
   readonly done = output<IReconciliationFactureFournisseur>();
-  readonly cancelled = output<void>();
+  readonly cancelled = output();
   readonly deliveryRef = computed<string>(() => {
     const d = this.delivery() as any;
     return d.receiptReference ?? d.orderReference ?? '';

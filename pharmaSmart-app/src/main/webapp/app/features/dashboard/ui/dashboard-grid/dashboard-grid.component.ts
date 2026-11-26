@@ -60,7 +60,7 @@ export class DashboardGridComponent implements AfterViewInit, OnDestroy {
   /** Positions recalculées par la grille (tassement compris). */
   readonly positionsChange = output<GridPosition[]>();
   /** Déplacement ou redimensionnement à la souris. */
-  readonly userChanged = output<void>();
+  readonly userChanged = output();
   readonly removeItem = output<string>();
   readonly openSettings = output<string>();
   readonly duplicateItem = output<string>();

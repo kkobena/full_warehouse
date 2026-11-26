@@ -16,8 +16,24 @@ export default tseslint.config(
       },
     },
   },
-  { ignores: ['src/main/docker/'] },
-  { ignores: ['target/classes/static/', 'target/'] },
+  {
+    // ESLint ne lit pas le .gitignore : sans cette liste, il parcourt les sorties de compilation
+    // (src-tauri/target à lui seul compte plus de 17 000 fichiers).
+    ignores: [
+      '**/target/',
+      '**/build/',
+      'e2e/.tmp/',
+      'test-results/',
+      // Gabarits Thymeleaf des rapports : pas des gabarits Angular.
+      'pharmaSmart-app/src/main/resources/',
+      'pharmaSmart-app/src/test/resources/',
+      // Applications mobiles : chacune a son outillage.
+      'mobile/',
+      'mobile-inventory/',
+      'pharma-mobile-report/',
+      'sales-android/',
+    ],
+  },
   eslint.configs.recommended,
   {
     files: ['**/*.{js,cjs,mjs}'],
@@ -26,7 +42,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/main/webapp/**/*.ts'],
+    files: ['pharmaSmart-app/src/main/webapp/**/*.ts'],
     extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylistic, ...angular.configs.tsRecommended],
     languageOptions: {
       globals: {
@@ -42,7 +58,8 @@ export default tseslint.config(
         'error',
         {
           type: 'element',
-          prefix: 'jhi',
+          // `app` pour le code courant ; `jhi` et `pharma` subsistent de la génération JHipster.
+          prefix: ['app', 'jhi', 'pharma'],
           style: 'kebab-case',
         },
       ],
@@ -50,7 +67,7 @@ export default tseslint.config(
         'error',
         {
           type: 'attribute',
-          prefix: 'jhi',
+          prefix: ['app', 'jhi'],
           style: 'camelCase',
         },
       ],
@@ -86,13 +103,19 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-shadow': ['error'],
-      '@typescript-eslint/no-unnecessary-condition': 'error',
+      // Ces règles raisonnent sur `null` et `undefined` : avec `strictNullChecks: false`
+      // (tsconfig.json), tout type les exclut, et chaque `?.`, `??`, `as T | null`, `=== false` ou
+      // valeur par défaut passe pour inutile. Les deux dernières le signalent d'ailleurs elles-mêmes.
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'off',
+      '@typescript-eslint/no-useless-default-assignment': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/unbound-method': 'off',
@@ -113,7 +136,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/main/webapp/**/*.spec.ts'],
+    files: ['pharmaSmart-app/src/main/webapp/**/*.spec.ts'],
     rules: {
       '@typescript-eslint/no-empty-function': 'off',
     },

@@ -170,7 +170,7 @@ export class SalePaymentFacade {
       .subscribe();
   }
 
-  finalizePresale(sale: ISales, transform: boolean = true): Observable<boolean | null> {
+  finalizePresale(sale: ISales, transform = true): Observable<boolean | null> {
     this.store.setIsSaving(true);
     this.store.clearError();
 

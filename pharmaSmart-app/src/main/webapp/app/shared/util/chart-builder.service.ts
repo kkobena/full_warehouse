@@ -50,7 +50,7 @@ export class ChartBuilderService {
   }
 
   /** Barres empilées ou multiples datasets. */
-  multiBarConfig(labels: string[], datasets: Array<{ label: string; data: number[]; color?: string }>): ChartConfig {
+  multiBarConfig(labels: string[], datasets: { label: string; data: number[]; color?: string }[]): ChartConfig {
     const palette = this.colors.colors();
     return {
       data: {

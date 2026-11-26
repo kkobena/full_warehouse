@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   Component,
   ElementRef,
   inject,
@@ -7,7 +7,7 @@ import {
   output,
   signal,
   viewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -41,7 +41,7 @@ import {showCommonModal} from '../../../../entities/sales/selling-home/sale-help
     `,
   ],
 })
-export class CustomerSearchTableComponent implements AfterViewInit {
+export class CustomerSearchTableComponent {
   readonly customerSelected = output<ICustomer>();
 
   searchTerm = '';
@@ -53,10 +53,10 @@ export class CustomerSearchTableComponent implements AfterViewInit {
   private readonly customerSearchService = inject(CustomerSearchService);
   private readonly modalService = inject(NgbModal);
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
+  constructor() {
+    afterNextRender(() => {
       this.searchInput()?.nativeElement.focus();
-    }, 100);
+    });
   }
 
   onSearchChange(term: string): void {

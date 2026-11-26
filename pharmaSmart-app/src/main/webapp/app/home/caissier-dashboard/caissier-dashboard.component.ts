@@ -96,7 +96,7 @@ export class CaissierDashboardComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       ).subscribe({
         next: (user: IUser) => this.currentUser.set(user),
-        error: () => { /* non bloquant */
+        error() { /* non bloquant */
         }
       });
     }

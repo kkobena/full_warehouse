@@ -46,7 +46,7 @@ export class RetourDepuisReceptionComponent implements OnInit {
     this.motifService.query({ size: 999 }).subscribe({ next: res => (this.motifs.set(res.body ?? [])) });
     this.retourLines.set(
       this.orderLines
-        //On ne peut retourner une quantité qu'on a pas reçu
+        // On ne peut retourner une quantité qu'on a pas reçu
         .filter(l => (l.quantityReceived ?? 0) > 0)
         .map(l => ({
           orderLine: l,

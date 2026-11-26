@@ -144,7 +144,7 @@ export default class VieillissementCreancesComponent implements OnInit, OnDestro
           tooltip: {
             callbacks: {
               label: ctx => `${ctx.dataset.label} : ${formatCurrency(ctx.parsed.y)} ${currencySymbol()}`,
-              footer: items => {
+              footer(items) {
                 const i = items[0].dataIndex;
                 return `Total facturé : ${formatCurrency(facture[i] ?? 0)} ${currencySymbol()}`;
               },

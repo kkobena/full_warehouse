@@ -30,7 +30,7 @@ import {formatNumber} from 'app/shared/utils/format-utils';
 })
 export class ProduitFournisseursTabComponent {
   readonly produit = input.required<IProduit>();
-  readonly refreshRequested = output<void>();
+  readonly refreshRequested = output();
 
   /** Un produit désactivé ne doit plus être modifiable (fournisseurs...). */
   protected readonly isDisabled = computed(() => this.produit().status === 'DISABLE');

@@ -115,7 +115,7 @@ export class SaleLifecycleFacade {
       }),
       switchMap(() => {
         const currentSale = this.store.currentSale();
-        if (!currentSale || !currentSale.id || !currentSale.saleId) {
+        if (!currentSale?.id || !currentSale.saleId) {
           throw new Error('Aucune vente en cours');
         }
         const saleId: SaleId = currentSale.saleId;

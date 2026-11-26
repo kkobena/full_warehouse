@@ -53,7 +53,7 @@ export class PlanningTournantListComponent implements OnInit {
   loadDashboard(): void {
     this.api.getDashboard().subscribe({
       next: d => this.dashboard.set(d),
-      error: () => {
+      error() {
       },
     });
   }

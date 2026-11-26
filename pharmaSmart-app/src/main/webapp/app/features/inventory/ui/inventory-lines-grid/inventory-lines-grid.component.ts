@@ -63,7 +63,7 @@ export class InventoryLinesGridComponent {
     search: string;
   }>();
   readonly storageChange = output<number | null>();
-  readonly nextPage = output<void>();
+  readonly nextPage = output();
   readonly lineSelected = output<IInventoryLine | null>();
 
   readonly editorFacade = inject(InventoryEditorFacade);
@@ -112,7 +112,7 @@ export class InventoryLinesGridComponent {
       type: ['rightAligned', 'numericColumn'],
       hide: !this.showSeuilMini(),
       valueFormatter: params => (params.value ?? '—'),
-      cellStyle: params => {
+      cellStyle(params) {
         const seuil = params.value;
         const stock = params.data?.quantityInit;
         if (seuil != null && stock != null && stock <= seuil) {
@@ -128,7 +128,7 @@ export class InventoryLinesGridComponent {
       // Seule colonne saisissable — et seulement tant que l'inventaire est ouvert.
       editable: !this.readOnly(),
       type: ['rightAligned', 'numericColumn'],
-      cellStyle: params => {
+      cellStyle(params) {
         // Sauvegarde échouée : la quantité affichée n'est pas enregistrée. La grille
         // n'étant plus rechargée à chaque ligne, c'est le seul signal qui distingue
         // une ligne comptée d'une ligne perdue.
@@ -152,7 +152,7 @@ export class InventoryLinesGridComponent {
       type: 'numericColumn',
       // L'écart se déduit directement du stock théorique : même privilège que lui
       hide: this.blindMode(),
-      cellStyle: params => {
+      cellStyle(params) {
         const val = params.value;
         if (val == null) {
           return null;
@@ -173,7 +173,7 @@ export class InventoryLinesGridComponent {
       editable: false,
       hide: !this.gestionLot(),
       type: 'numericColumn',
-      cellStyle: params => {
+      cellStyle(params) {
         if (params.value > 0) {
           return {color: '#0d6efd', fontWeight: 'bold', cursor: 'pointer'};
         }
@@ -198,7 +198,7 @@ export class InventoryLinesGridComponent {
       editable: false,
       cellStyle: {textAlign: 'center'},
       headerClass: 'ag-header-cell-center',
-      cellRenderer: (params: any) => {
+      cellRenderer(params: any) {
         if (params.data?.saveFailed) {
           return '<i class="pi pi-exclamation-triangle text-danger" title="Non enregistré — à ressaisir"></i>';
         }
@@ -213,7 +213,7 @@ export class InventoryLinesGridComponent {
       hide: true,
       headerClass: 'ag-header-cell-center',
       // Traçabilité : compteur + horodatage du dernier comptage
-      valueGetter: params => {
+      valueGetter(params) {
         const who = params.data?.countedBy;
         if (!who) {
           return '';

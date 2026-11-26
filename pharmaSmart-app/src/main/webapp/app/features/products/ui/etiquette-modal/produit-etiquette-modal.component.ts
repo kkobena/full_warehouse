@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { afterNextRender, Component, computed, DestroyRef, ElementRef, inject, OnInit, Signal, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { FormControl, NonNullableFormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { AppPillOption, ButtonComponent, CardComponent, InputNumberComponent, PillSelectorComponent, SelectComponent } from "app/shared/ui";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { IProduit } from "app/shared/model/produit.model";
 import { IEtiquettePreparation, IFormatEtiquette, ILotProduit, ProductsApiService } from "../../data-access/services/products-api.service";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
@@ -40,7 +40,7 @@ interface OptionLot {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     ButtonComponent,
     InputNumberComponent,
     CardComponent,
@@ -50,19 +50,43 @@ interface OptionLot {
     PharmaDatePickerComponent,
   ]
 })
-export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
+export class ProduitEtiquetteModalComponent implements OnInit {
   produit!: IProduit;
 
-  protected qty = 1;
-  protected startAt = 1;
+  /**
+   * La préparation magistrale n'est pas conservée : l'étiquette est une sortie, pas un
+   * enregistrement — le registre des préparations est un autre chantier.
+   */
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    typeEtiquette: ["STANDARD" as TypeEtiquette],
+    lotId: [null as number | null],
+    formatCode: [null as string | null],
+    modeImpression: ["PDF" as ModeImpression],
+    imprimante: [null as string | null],
+    resolution: ["DPI_203"],
+    qty: [1 as number | null],
+    startAt: [1 as number | null],
+    preparation: inject(NonNullableFormBuilder).group({
+      libelle: "",
+      composition: "",
+      patient: "",
+      prescripteur: "",
+      posologie: "",
+      mention: "",
+      datePreparation: [null as NgbDateStruct | null],
+      peremption: [null as NgbDateStruct | null],
+    }),
+  });
+
   protected loading = signal(false);
 
   protected readonly formats = signal<IFormatEtiquette[]>([]);
-  protected readonly formatCode = signal<string | null>(null);
+  // Les choix dont dépendent des `computed` sont relus en signaux : un contrôle n'en est pas un.
+  protected readonly formatCode = this.suivre(this.form.controls.formatCode);
 
-  protected readonly typeEtiquette = signal<TypeEtiquette>("STANDARD");
+  protected readonly typeEtiquette = this.suivre(this.form.controls.typeEtiquette);
   protected readonly lots = signal<OptionLot[]>([]);
-  protected readonly lotId = signal<number | null>(null);
+  protected readonly lotId = this.suivre(this.form.controls.lotId);
   protected readonly etatLots = signal<"VIERGE" | "CHARGEMENT" | "PRET">("VIERGE");
 
   /** Planche choisie, d'ou vient la borne de la case de depart. */
@@ -77,10 +101,8 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
   /** Sur une planche, on ne depasse pas la planche ; sur un rouleau, on deroule. */
   protected readonly qtyMax = computed(() => (this.estRouleau() ? MAX_ETIQUETTES_ROULEAU : this.capacite()));
 
-  protected readonly modeImpression = signal<ModeImpression>("PDF");
+  protected readonly modeImpression = this.suivre(this.form.controls.modeImpression);
   protected readonly imprimantes = signal<PrinterInfo[]>([]);
-  protected readonly imprimante = signal<string | null>(null);
-  protected readonly resolution = signal<string>("DPI_203");
 
   /** Le ZPL n'a de sens qu'en rouleau, et le poste doit pouvoir parler a l'imprimante. */
   protected readonly zplPossible = computed(() => this.estRouleau() && this.tauriPrinter.isRunningInTauri());
@@ -105,43 +127,39 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
     { label: "Préparation", value: "PREPARATION", icon: "pi pi-flask" },
   ];
 
-  /**
-   * Saisie de la préparation magistrale. Rien n'est conservé : l'étiquette est une sortie, pas un
-   * enregistrement — le registre des préparations est un autre chantier.
-   */
-  protected preparation = {
-    libelle: "",
-    composition: "",
-    patient: "",
-    prescripteur: "",
-    posologie: "",
-    mention: "",
-  };
-
-  protected datePreparation: NgbDateStruct | null = null;
-  protected peremption: NgbDateStruct | null = null;
-
   private readonly activeModal = inject(NgbActiveModal);
   private readonly api = inject(ProductsApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly qtyInput = viewChild.required<ElementRef<HTMLElement>>("qtyInput");
+  // #qtyInput porte sur <app-input-number> : sans `read: ElementRef`, viewChild rend l'instance du
+  // composant, dont nativeElement est undefined.
+  private readonly qtyInput = viewChild.required<unknown, ElementRef<HTMLElement>>("qtyInput", { read: ElementRef });
   private readonly blobDocumentService = inject(BlobDownloadService);
   private readonly tauriPrinter = inject(TauriPrinterService);
+
+  constructor() {
+    // Un formulaire réactif écrit la valeur pendant le rendu : elle est là quand on la sélectionne.
+    afterNextRender(() => {
+      const el = this.qtyInput().nativeElement.querySelector("input");
+      el?.focus();
+      el?.select();
+    });
+  }
 
   ngOnInit(): void {
     this.chargerFormats();
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const el = this.qtyInput()?.nativeElement.querySelector("input");
-      if (el) {
-        el.focus();
-        el.select();
-      }
+  private get qty(): number {
+    return this.form.controls.qty.value ?? 0;
+  }
 
-    }, 150);
+  private get startAt(): number {
+    return this.form.controls.startAt.value ?? 0;
+  }
+
+  private suivre<T>(controle: FormControl<T>): Signal<T> {
+    return toSignal(controle.valueChanges, { initialValue: controle.value });
   }
 
   protected onPrint(): void {
@@ -173,7 +191,8 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
     if (this.typeEtiquette() === "LOT") return this.lotId() !== null;
     // Une préparation sans composition n'est pas une étiquette de préparation.
     if (this.typeEtiquette() === "PREPARATION") {
-      return !!this.preparation.libelle.trim() && !!this.preparation.composition.trim();
+      const { libelle, composition } = this.form.controls.preparation.getRawValue();
+      return !!libelle.trim() && !!composition.trim();
     }
     return true;
   }
@@ -185,7 +204,7 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
       .subscribe({
         next: zpl => {
           this.tauriPrinter
-            .printZpl(zpl, this.imprimante() ?? undefined)
+            .printZpl(zpl, this.form.controls.imprimante.value ?? undefined)
             .then(() => {
               this.loading.set(false);
               this.activeModal.close(true);
@@ -221,31 +240,32 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
     const id = this.produit.id!;
     switch (this.typeEtiquette()) {
       case "LOT":
-        return this.api.getEtiquettesLotZpl(id, this.lotId()!, this.qty, format, this.resolution());
+        return this.api.getEtiquettesLotZpl(id, this.lotId()!, this.qty, format, this.form.controls.resolution.value);
       case "REGLETTE":
-        return this.api.getReglettesZpl(id, this.qty, format, this.resolution());
+        return this.api.getReglettesZpl(id, this.qty, format, this.form.controls.resolution.value);
       case "PREPARATION":
-        return this.api.imprimerPreparationZpl(this.saisiePreparation(), this.qty, format, this.resolution());
+        return this.api.imprimerPreparationZpl(this.saisiePreparation(), this.qty, format, this.form.controls.resolution.value);
       default:
-        return this.api.getEtiquettesZpl(id, this.qty, format, this.resolution());
+        return this.api.getEtiquettesZpl(id, this.qty, format, this.form.controls.resolution.value);
     }
   }
 
   private saisiePreparation(): IEtiquettePreparation {
+    const p = this.form.controls.preparation.getRawValue();
     return {
-      libelle: this.preparation.libelle,
-      composition: this.preparation.composition,
-      patient: this.preparation.patient || null,
-      prescripteur: this.preparation.prescripteur || null,
-      posologie: this.preparation.posologie || null,
-      mention: this.preparation.mention || null,
-      datePreparation: this.datePreparation ? NGB_DATE_TO_ISO(this.datePreparation) : null,
-      peremption: this.peremption ? NGB_DATE_TO_ISO(this.peremption) : null,
+      libelle: p.libelle,
+      composition: p.composition,
+      patient: p.patient || null,
+      prescripteur: p.prescripteur || null,
+      posologie: p.posologie || null,
+      mention: p.mention || null,
+      datePreparation: p.datePreparation ? NGB_DATE_TO_ISO(p.datePreparation) : null,
+      peremption: p.peremption ? NGB_DATE_TO_ISO(p.peremption) : null,
     };
   }
 
   protected onModeChange(mode: unknown): void {
-    this.modeImpression.set(mode as ModeImpression);
+    this.form.controls.modeImpression.setValue(mode as ModeImpression);
     if (this.modeImpression() === "ZPL" && !this.imprimantes().length) {
       this.chargerImprimantes();
     }
@@ -254,28 +274,29 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
   private chargerImprimantes(): void {
     void this.tauriPrinter.getAvailablePrinters().then(imprimantes => {
       this.imprimantes.set(imprimantes);
-      this.imprimante.set(imprimantes.find(i => i.isDefault)?.name ?? imprimantes[0]?.name ?? null);
+      this.form.controls.imprimante.setValue(imprimantes.find(i => i.isDefault)?.name ?? imprimantes[0]?.name ?? null);
     });
   }
 
-  protected onFormatChange(code: string | null): void {
-    this.formatCode.set(code);
+  protected onFormatChange(code: unknown): void {
+    this.form.controls.formatCode.setValue(code as string | null);
     // Une planche s'imprime en PDF : le ZPL ne vaut que pour un rouleau.
     if (!this.estRouleau()) {
-      this.modeImpression.set("PDF");
+      this.form.controls.modeImpression.setValue("PDF");
     }
     // Un rouleau n'a pas de planche entamee a reprendre, et une planche plus petite peut
     // rendre la case de depart hors bornes.
     if (this.estRouleau() || this.startAt > this.capacite()) {
-      this.startAt = 1;
+      this.form.controls.startAt.setValue(1);
     }
   }
 
   protected onTypeChange(type: unknown): void {
-    this.typeEtiquette.set(type as TypeEtiquette);
+    this.form.controls.typeEtiquette.setValue(type as TypeEtiquette);
     // Le pot porte le nom de l'article d'où l'impression est lancée, sauf à le remplacer.
-    if (this.typeEtiquette() === "PREPARATION" && !this.preparation.libelle) {
-      this.preparation.libelle = this.produit.libelle ?? "";
+    const libelle = this.form.controls.preparation.controls.libelle;
+    if (this.typeEtiquette() === "PREPARATION" && !libelle.value) {
+      libelle.setValue(this.produit.libelle ?? "");
     }
     // Les lots ne se chargent qu'à la demande : la modale s'ouvre sur le type standard, et
     // `produit` n'est renseigné par l'appelant qu'après la construction du composant.
@@ -308,7 +329,7 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
       .subscribe({
         next: formats => {
           this.formats.set(formats);
-          this.formatCode.set((formats.find(f => f.parDefaut) ?? formats[0])?.code ?? null);
+          this.form.controls.formatCode.setValue((formats.find(f => f.parDefaut) ?? formats[0])?.code ?? null);
         },
         error: () => this.formats.set([]),
       });
@@ -323,7 +344,7 @@ export class ProduitEtiquetteModalComponent implements AfterViewInit, OnInit {
         next: lots => {
           this.lots.set(lots.filter(lot => lot.id).map(lot => this.versOption(lot)));
           if (this.lots().length === 1) {
-            this.lotId.set(this.lots()[0].id);
+            this.form.controls.lotId.setValue(this.lots()[0].id);
           }
           this.etatLots.set("PRET");
         },

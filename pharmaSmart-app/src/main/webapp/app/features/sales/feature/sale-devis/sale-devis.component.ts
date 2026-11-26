@@ -112,8 +112,8 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
   readonly remises = input<IRemise[]>([]);
   readonly isDevis = input(true);
   // Outputs
-  switchToComptant = output<void>();
-  cashRegisterOpened = output<void>();
+  switchToComptant = output();
+  cashRegisterOpened = output();
   // State signals
   readonly saleType = signal<'COMPTANT'>('COMPTANT');
   readonly selectedLineId = signal<number | null>(null);
@@ -247,7 +247,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
       cancelSale: () => this.onCancel(),
       openCustomerRecord: () => this.ouvrirFicheClient(),
       openOrdonnances: () => this.ouvrirOrdonnances(),
-      focusPayment: () => {
+      focusPayment() {
       }, // Pas de paiement pour devis
       saveAsPresale: () => this.onSaveAsDevis(),
     },
@@ -474,7 +474,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
 
   onRemoveRemise(): void {
     const currentSale = this.currentSale();
-    if (!currentSale || !currentSale.remise) {
+    if (!currentSale?.remise) {
       return;
     }
 

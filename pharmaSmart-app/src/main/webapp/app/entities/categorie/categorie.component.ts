@@ -67,7 +67,7 @@ export class CategorieComponent implements OnInit {
   }
 
   trackId(index: number, item: ICategorie): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+     
     return item.id!;
   }
 

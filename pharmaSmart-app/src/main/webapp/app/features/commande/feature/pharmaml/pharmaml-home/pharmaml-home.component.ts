@@ -195,7 +195,7 @@ export class PharmamlHomeComponent implements OnInit, OnDestroy {
     const id = this.commandeId();
     this.api.substitutions(id.id, id.orderDate).subscribe({
       next: res => this.substitutionsEnAttente.set(res.body ?? []),
-      error: () => {
+      error() {
       },
     });
   }

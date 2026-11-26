@@ -155,7 +155,7 @@ export class PlanningTournantModalComponent implements OnInit {
   private loadStorages(): void {
     this.storageService.fetchUserStorages().subscribe({
       next: res => this.storages.set(res.body ?? []),
-      error: () => {
+      error() {
       },
     });
   }
@@ -163,7 +163,7 @@ export class PlanningTournantModalComponent implements OnInit {
   private loadUsers(): void {
     this.userService.query({page: 0, size: 200, sort: ['lastName,asc']}).subscribe({
       next: res => this.users.set((res.body ?? []).filter(u => u.activated).map(u => ({...u, displayLabel: this.getUserLabel(u)}))),
-      error: () => {
+      error() {
       },
     });
   }

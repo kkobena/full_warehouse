@@ -87,7 +87,7 @@ export function showCommonModal<T>(
     modalDialogClass,
     // Un composant qui expose `confirmerFermeture()` peut retenir la fermeture (Échap, bouton Annuler) :
     // une saisie longue ne se perd pas sur un geste involontaire. Les autres ne sont pas concernés.
-    beforeDismiss: () => {
+    beforeDismiss() {
       const instance = modalRef.componentInstance as { confirmerFermeture?: () => boolean | Promise<boolean> };
       return typeof instance?.confirmerFermeture === 'function' ? instance.confirmerFermeture() : true;
     },

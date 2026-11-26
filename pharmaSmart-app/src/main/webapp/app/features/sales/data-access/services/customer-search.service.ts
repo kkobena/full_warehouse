@@ -17,7 +17,7 @@ export class CustomerSearchService {
    * @param query Terme de recherche (nom, prénom, téléphone, etc.)
    * @param size Nombre maximum de résultats
    */
-  search(query: string, size: number = 10): Observable<ICustomer[]> {
+  search(query: string, size = 10): Observable<ICustomer[]> {
     if (!query || query.trim().length === 0) {
       return of([]);
     }
@@ -49,7 +49,7 @@ export class CustomerSearchService {
    * Crée un opérateur RxJS pour recherche avec debounce
    * Utile pour les champs de recherche en temps réel
    */
-  createDebouncedSearch(size: number = 10) {
+  createDebouncedSearch(size = 10) {
     return (source: Observable<string>) =>
       source.pipe(
         debounceTime(300),

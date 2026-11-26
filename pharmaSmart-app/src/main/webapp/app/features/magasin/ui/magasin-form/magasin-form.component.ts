@@ -39,7 +39,7 @@ export class MagasinFormComponent {
   readonly saving = input(false);
 
   readonly enregistrer = output<IMagasin>();
-  readonly annuler = output<void>();
+  readonly annuler = output();
 
   protected readonly avecIdentiteFne = computed(() => porteIdentiteFne(this.magasin()));
   protected readonly estUniteDeGestion = computed(() => this.magasin().typeMagasin === TypeMagasin.UNITE_GESTION);

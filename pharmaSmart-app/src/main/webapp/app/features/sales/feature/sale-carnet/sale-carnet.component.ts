@@ -114,8 +114,8 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
   readonly isPresale = input(false);
   readonly isDevis = input(false);
   // Outputs
-  switchToComptant = output<void>();
-  cashRegisterOpened = output<void>();
+  switchToComptant = output();
+  cashRegisterOpened = output();
   // State signals
   readonly saleType = signal<'CARNET'>('CARNET');
   readonly selectedLineId = signal<number | null>(null);
@@ -269,7 +269,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     resetForNewSale: () => this.resetForNewSale(),
     showConfirmDialog: (onConfirm, title, message, onCancel) =>
       this.confirmDialog.onConfirm(onConfirm, title, message, undefined, onCancel),
-    onPaymentSuccess: () => {
+    onPaymentSuccess() {
     },
     onDiffereConfirmed: () => this.handleDiffereConfirmed(),
   });
@@ -427,7 +427,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   onCustomerSelectedFromBar(customer: ICustomer): void {
     // Cloner l'objet pour forcer la réactivité
-    //TODO: on doit avoir un seul tiers payant pour le carnet, donc on peut simplifier en ne prenant que le premier élément de la liste
+    // TODO: on doit avoir un seul tiers payant pour le carnet, donc on peut simplifier en ne prenant que le premier élément de la liste
     const newCustomer = {...customer, tiersPayants: [...(customer.tiersPayants || [])]};
     this.customerHandling.selectCustomer(newCustomer);
   }
@@ -588,7 +588,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
     this.facade.putOnStandby();
   }
 
-  onSaveAsPresale(transform: boolean = true): void {
+  onSaveAsPresale(transform = true): void {
     const sale = this.currentSale();
     if (!sale) {
       this.notificationService.warning('Aucune vente à enregistrer', 'Vente vide');
@@ -704,7 +704,7 @@ export class SaleCarnetComponent implements OnInit, AfterViewInit, ProductSearch
 
   onRemoveRemise(): void {
     const currentSale = this.currentSale();
-    if (!currentSale || !currentSale.remise) {
+    if (!currentSale?.remise) {
       return;
     }
 

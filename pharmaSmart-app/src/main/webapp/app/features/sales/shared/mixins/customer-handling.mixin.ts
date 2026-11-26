@@ -93,14 +93,14 @@ export function createCustomerHandling(context: CustomerHandlingContext) {
         : context.customerSearchService!.search(searchTerm, limit);
 
       search$.subscribe({
-        next: (results: ICustomer[]) => {
+        next(results: ICustomer[]) {
           if (context.smartSearch) {
             handleSmartSearchResults(results);
           } else {
             customers.set(results);
           }
         },
-        error: () => {
+        error() {
           notificationService.error('Erreur lors de la recherche client');
           customers.set([]);
         },

@@ -39,7 +39,7 @@ export class CustomerOverlayPanelComponent {
 
   // Outputs
   readonly customerSelected = output<ICustomer>();
-  readonly customerRemoved = output<void>();
+  readonly customerRemoved = output();
 
   // ViewChild
   readonly editPopover = viewChild<NgbPopover>('editPopover');

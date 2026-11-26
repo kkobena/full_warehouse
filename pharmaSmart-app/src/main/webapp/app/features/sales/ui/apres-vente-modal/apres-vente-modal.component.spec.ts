@@ -69,7 +69,7 @@ describe('ApresVenteModalComponent', () => {
     const veille = () => new Promise(resolve => setTimeout(resolve, 80));
     // jsdom ne calcule aucune mise en page : `offsetParent` y est toujours nul, ce que la directive lit comme « masqué ».
     const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent')!;
-    Object.defineProperty(HTMLElement.prototype, 'offsetParent', { configurable: true, get: function (this: HTMLElement) { return this.parentElement; } });
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', { configurable: true, get (this: HTMLElement) { return this.parentElement; } });
     ouvrir(true, true);
     document.body.appendChild(el());
     fixture.detectChanges();

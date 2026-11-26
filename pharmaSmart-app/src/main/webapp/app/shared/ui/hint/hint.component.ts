@@ -96,7 +96,7 @@ export class HintComponent {
   readonly dismissAriaLabel = input<string>('Fermer');
 
   /** Émis quand l'utilisateur écarte le bandeau, que la mémorisation soit active ou non. */
-  readonly dismissed = output<void>();
+  readonly dismissed = output();
 
   private readonly ecarte = signal(false);
 

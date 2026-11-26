@@ -1,12 +1,14 @@
 import {HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild, signal } from '@angular/core';
+  viewChild,
+  signal,
+} from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {GammeProduitService} from '../gamme-produit.service';
@@ -24,7 +26,7 @@ import {NotificationService} from "../../../shared/services/notification.service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, KeyFilterDirective],
 })
-export class FormGammeComponent implements OnInit, AfterViewInit {
+export class FormGammeComponent implements OnInit {
   header = '';
   gamme: IGammeProduit | null = null;
   protected fb = inject(UntypedFormBuilder);
@@ -40,16 +42,16 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
   private readonly libelle = viewChild.required<ElementRef>('libelle');
   private readonly notificationService = inject(NotificationService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelle().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     if (this.gamme) {
       this.updateForm(this.gamme);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.libelle().nativeElement.focus();
-    }, 100);
   }
 
   protected save(): void {

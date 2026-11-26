@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
+import { afterRenderEffect, Component, computed, DestroyRef, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { NonNullableFormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { ButtonComponent, CardComponent, InputNumberComponent, SelectComponent } from "app/shared/ui";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { IProduit } from "app/shared/model/produit.model";
 import { IFournisseurProduit } from "app/shared/model/fournisseur-produit.model";
 import { CommandeService } from "app/entities/commande/commande.service";
@@ -18,17 +18,29 @@ import { DevisePipe } from "app/shared/utils/devise";
   templateUrl: "./commande-rapide-modal.component.html",
   styleUrls: ["./commande-rapide-modal.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent, DevisePipe]
+  imports: [CommonModule, ReactiveFormsModule, ButtonComponent, SelectComponent, InputNumberComponent, CardComponent, DevisePipe]
 })
-export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
+export class CommandeRapideModalComponent implements OnInit {
   produit!: IProduit;
 
   protected fournisseurs = signal<IFournisseurProduit[]>([]);
   protected loading = signal(false);
   protected submitting = signal(false);
-  protected readonly selectedFournisseurProduit = signal<IFournisseurProduit | null>(null);
-  protected readonly quantite = signal(1);
 
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    fournisseurProduit: [null as IFournisseurProduit | null],
+    quantite: [1 as number | null],
+  });
+
+  protected readonly selectedFournisseurProduit = toSignal(this.form.controls.fournisseurProduit.valueChanges, {
+    initialValue: this.form.controls.fournisseurProduit.value,
+  });
+  /** Un champ vidé vaut 0 : la commande reste alors refusée. */
+  protected readonly quantite = computed(() => this.quantiteSaisie() ?? 0);
+
+  private readonly quantiteSaisie = toSignal(this.form.controls.quantite.valueChanges, {
+    initialValue: this.form.controls.quantite.value,
+  });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly commandeService = inject(CommandeService);
   private readonly suggestionService = inject(SuggestionService);
@@ -36,7 +48,21 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly quantiteInput = viewChild.required<ElementRef<HTMLElement>>("quantiteInput");
+  // Le champ n'existe qu'une fois les fournisseurs chargés : la requête ne peut pas être `required`.
+  // Elle porte sur <app-input-number> : sans `read: ElementRef`, elle rendrait l'instance du composant.
+  private readonly quantiteInput = viewChild<unknown, ElementRef<HTMLElement>>("quantiteInput", { read: ElementRef });
+  private focusPose = false;
+
+  constructor() {
+    // Le champ apparaît après le chargement : le focus l'attend, puis n'y revient plus.
+    afterRenderEffect(() => {
+      const el = this.quantiteInput()?.nativeElement.querySelector("input");
+      if (!el || this.focusPose) return;
+      this.focusPose = true;
+      el.focus();
+      el.select();
+    });
+  }
 
   ngOnInit(): void {
     this.loading.set(true);
@@ -46,29 +72,17 @@ export class CommandeRapideModalComponent implements OnInit, AfterViewInit {
         next: (list) => {
           this.fournisseurs.set(list);
           const principal = list.find(f => f.principal) ?? list[0] ?? null;
-          this.selectedFournisseurProduit.set(principal);
-          this.quantite.set(principal?.qteMinimaleCommande ?? 1);
+          this.form.setValue({ fournisseurProduit: principal, quantite: principal?.qteMinimaleCommande ?? 1 });
           this.loading.set(false);
         },
         error: () => this.loading.set(false)
       });
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const el = this.quantiteInput()?.nativeElement.querySelector("input");
-      if (el) {
-        el.focus();
-        el.select();
-      }
-
-    }, 150);
-  }
-
   protected onFournisseurChange(): void {
     const fp = this.selectedFournisseurProduit();
     if (fp?.qteMinimaleCommande) {
-      this.quantite.set(fp.qteMinimaleCommande);
+      this.form.controls.quantite.setValue(fp.qteMinimaleCommande);
     }
   }
 

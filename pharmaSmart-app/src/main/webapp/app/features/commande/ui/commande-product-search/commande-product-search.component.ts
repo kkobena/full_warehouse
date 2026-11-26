@@ -35,7 +35,7 @@ export class CommandeProductSearchComponent implements OnInit, OnDestroy {
 
   productSelected = output<ProduitSearch | null>();
   productScanned = output<ProduitSearch>();
-  onKeyEnter = output<void>();
+  onKeyEnter = output();
 
   readonly produits = signal<ProduitSearch[]>([]);
   readonly selectProduit = signal<ProduitSearch | null>(null);

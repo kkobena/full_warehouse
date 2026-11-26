@@ -96,9 +96,9 @@ export class WidgetTileComponent {
   /** Affichée dans la fenêtre « Agrandir », qui porte déjà le titre : ni en-tête, ni cadre. */
   readonly inModal = input(false);
 
-  readonly remove = output<void>();
-  readonly openSettings = output<void>();
-  readonly duplicate = output<void>();
+  readonly remove = output();
+  readonly openSettings = output();
+  readonly duplicate = output();
   /** `true` : ouvrir en tableau (« Voir les données »), sinon dans la visualisation de la tuile. */
   readonly expand = output<boolean>();
   readonly paramsChange = output<Record<string, string>>();

@@ -41,7 +41,7 @@ import {
   ],
 })
 export class CustomerSelectionModalComponent {
-  modalTitle: string = 'Sélection client';
+  modalTitle = 'Sélection client';
   customers: ICustomer[] = [];
 
   private activeModal = inject(NgbActiveModal);

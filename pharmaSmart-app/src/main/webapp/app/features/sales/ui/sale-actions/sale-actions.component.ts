@@ -35,13 +35,13 @@ export class SaleActionsComponent {
   showButtonEnAttente = input(true);
 
   // Outputs
-  save = output<void>();
-  print = output<void>();
-  cancel = output<void>();
-  saveAsPresale = output<void>();
-  savePresale = output<void>();
-  saveAndPrint = output<void>();
-  putOnHold = output<void>();
+  save = output();
+  print = output();
+  cancel = output();
+  saveAsPresale = output();
+  savePresale = output();
+  saveAndPrint = output();
+  putOnHold = output();
 
   // Méthodes pour les événements UI
   onSave(): void {

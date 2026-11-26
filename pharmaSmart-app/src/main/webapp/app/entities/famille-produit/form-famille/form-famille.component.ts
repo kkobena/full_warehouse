@@ -1,12 +1,14 @@
 import {HttpResponse} from '@angular/common/http';
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
   OnInit,
-  viewChild, signal } from '@angular/core';
+  viewChild,
+  signal,
+} from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 import {Observable} from 'rxjs';
 import {FamilleProduitService} from '../famille-produit.service';
@@ -25,7 +27,7 @@ import {NotificationService} from "../../../shared/services/notification.service
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonComponent, SelectComponent],
 })
-export class FormFamilleComponent implements OnInit, AfterViewInit {
+export class FormFamilleComponent implements OnInit {
   familleProduit?: IFamilleProduit;
   header = '';
   protected readonly isSaving = signal(false);
@@ -43,17 +45,17 @@ export class FormFamilleComponent implements OnInit, AfterViewInit {
   private readonly libelle = viewChild.required<ElementRef>('libelle');
   private readonly notificationService = inject(NotificationService);
 
+  constructor() {
+    afterNextRender(() => {
+      this.libelle().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.populateAssurrance();
     if (this.familleProduit) {
       this.updateForm(this.familleProduit);
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.libelle().nativeElement.focus();
-    }, 100);
   }
 
   protected updateForm(entity: IFamilleProduit): void {

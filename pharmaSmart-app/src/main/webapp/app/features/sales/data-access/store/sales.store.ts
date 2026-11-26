@@ -224,7 +224,7 @@ export const SalesStore = signalStore(
      */
     isEmpty: computed(() => {
       const sale = store.currentSale();
-      return !sale || !sale.salesLines || sale.salesLines.length === 0;
+      return !sale?.salesLines || sale.salesLines.length === 0;
     }),
 
     /**

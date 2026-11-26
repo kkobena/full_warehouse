@@ -158,7 +158,7 @@ function buildPie(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
             boxWidth: 10,
             usePointStyle: true,
             pointStyleWidth: 10,
-            generateLabels: (chart: any) => {
+            generateLabels(chart: any) {
               const dataset = chart.data.datasets[0];
               return (chart.data.labels as string[]).map((lbl: string, i: number) => {
                 const val = Number(dataset.data[i] ?? 0);
@@ -176,7 +176,7 @@ function buildPie(viz: VizType, data: SeriesData, t: Theme): ChartConfig {
         },
         tooltip: {
           callbacks: {
-            label: (ctx: TooltipContext) => {
+            label(ctx: TooltipContext) {
               const value = Number(ctx.parsed);
               const share = total > 0 ? ` (${formatDecimal((value * 100) / total, 1)} %)` : '';
               return `${ctx.label} : ${formatNumber(value)}${share}`;

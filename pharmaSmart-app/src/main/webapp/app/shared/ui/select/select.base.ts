@@ -126,7 +126,7 @@ export abstract class SelectBase<TValue> extends ControlValueAccessorBase<TValue
   readonly selectionChange = output<TValue | null>();
 
   /** Atteinte du bas de liste — pour la pagination incrémentale. */
-  readonly scrolledToEnd = output<void>();
+  readonly scrolledToEnd = output();
 
   protected readonly ngSelectClasses = computed(() => {
     const classes: string[] = [];

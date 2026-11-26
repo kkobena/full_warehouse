@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -8,7 +8,7 @@ import {
   inject,
   OnInit,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {CommonModule} from '@angular/common';
@@ -79,7 +79,7 @@ import {SalesHelpService} from '../../data-access/services/sales-help.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './vente-depot.component.scss',
 })
-export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearchHost {
+export class VenteDepotComponent implements OnInit, ProductSearchHost {
   productSearchComponent = viewChild<ProductSearchSectionComponent>('produitbox');
   readonly quantityComponent = computed(() => {
     const section = this.productSearchComponent();
@@ -165,7 +165,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
     {
       focusProductSearch: () => this.productHandling.focusProductSearch(),
       focusQuantity: () => this.productSearchComponent()?.focusProduitControl(),
-      focusCustomer: () => {
+      focusCustomer() {
       },
       addProduct: () => {
         const product = this.facade.selectedProduct();
@@ -175,7 +175,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
       },
       clearProduct: () => this.productHandling.resetProductSelection(),
       finalizeSale: () => this.save(),
-      putOnStandby: () => {
+      putOnStandby() {
       },
       cancelSale: () => this.onCancel(),
       printReceipt: () => {
@@ -205,14 +205,11 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, ProductSearch
     effect(() => {
       this.facade.loading() ? this.spinner.show('sale-spinner') : this.spinner.hide('sale-spinner');
     });
+    // Le dépôt est le premier geste : le curseur y est dès le chargement (la recherche produit est grisée sans dépôt).
+    afterNextRender(() => this.depotBox()?.focus());
   }
 
   // ── Lifecycle ─────────────────────────────────────────────────
-
-  /** Le dépôt est le premier geste : le curseur y est dès le chargement (la recherche produit est grisée sans dépôt). */
-  ngAfterViewInit(): void {
-    setTimeout(() => this.depotBox()?.focus());
-  }
 
   ngOnInit(): void {
     this.facade.resetForNewSession();

@@ -1,5 +1,5 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnInit, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from 'app/shared/model/lot.model';
@@ -29,7 +29,7 @@ import { PharmaDatePickerComponent } from 'app/shared/date-picker/pharma-date-pi
     CardComponent,
   ],
 })
-export class FormLotComponent implements OnInit, AfterViewInit {
+export class FormLotComponent implements OnInit {
   header = 'Ajout de lot';
   entity?: ILot;
   deliveryItem?: AbstractOrderItem;
@@ -65,6 +65,12 @@ export class FormLotComponent implements OnInit, AfterViewInit {
   private readonly notificationService = inject(NotificationService);
   private numLotInput = viewChild.required<ElementRef>('numLotInput');
 
+  constructor() {
+    afterNextRender(() => {
+      this.numLotInput().nativeElement.focus();
+    });
+  }
+
   private static toNgbDate(date: Date): NgbDateStruct {
     return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
   }
@@ -82,12 +88,6 @@ export class FormLotComponent implements OnInit, AfterViewInit {
       .get('quantityReceived')
       .setValidators([Validators.required, Validators.min(1), Validators.max(this.getValidLotQuantity())]);
     this.editForm.get('quantityReceived').updateValueAndValidity();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.numLotInput().nativeElement.focus();
-    }, 100);
   }
 
   updateForm(entity: ILot): void {

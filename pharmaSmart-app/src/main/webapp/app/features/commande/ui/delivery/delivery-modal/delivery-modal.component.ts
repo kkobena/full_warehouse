@@ -40,7 +40,7 @@ export class DeliveryModalComponent implements OnInit {
   commande: ICommande;
   isEdit = false;
   protected readonly isSaving = signal(false);
-  protected blockSpace: RegExp = /^[a-zA-Z0-9_\-]+$/;
+  protected blockSpace = /^[a-zA-Z0-9_\-]+$/;
   protected fb = inject(FormBuilder);
   protected readonly maxDate = signal(null);
   protected minDate: NgbDateStruct | null = null;

@@ -3,18 +3,21 @@ import {
   Component,
   DestroyRef,
   inject,
+  input,
   OnInit,
-  signal, input} from "@angular/core";
+  signal
+} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormsModule} from "@angular/forms";
 import {HttpHeaders} from "@angular/common/http";
-import {Router, RouterLink} from "@angular/router";
+import {Router} from "@angular/router";
 import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 
 import {
   AppTableLazyLoadEvent,
-  ButtonComponent, CardComponent,
+  ButtonComponent,
+  CardComponent,
   DataTableComponent,
   IconFieldComponent,
   RowTogglerDirective,
@@ -44,7 +47,6 @@ import {NotificationService} from "../../../../shared/services/notification.serv
     SelectComponent,
     IconFieldComponent,
     NgbTooltip,
-    RouterLink,
     RowTogglerDirective,
     CardComponent
   ]

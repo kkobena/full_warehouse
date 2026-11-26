@@ -60,7 +60,7 @@ export class SemoisSuggestionsComponent implements OnInit {
    * Magasins qui commandent en propre. Les dépôts n'y sont pas : ils s'approvisionnent auprès
    * de l'officine et n'ont pas de réassort.
    */
-  readonly magasins = signal<Array<{ id: number; name: string }>>([]);
+  readonly magasins = signal<{ id: number; name: string }[]>([]);
   readonly selectedMagasinId = signal<number | null>(null);
   /** Un seul magasin : rien à choisir, le sélecteur reste absent. */
   readonly plusieursMagasins = computed(() => this.magasins().length > 1);
@@ -70,7 +70,7 @@ export class SemoisSuggestionsComponent implements OnInit {
   // KPI
   readonly dashboardStats = signal<IReapproDashboard | null>(null);
   // Fournisseurs distincts pour le filtre
-  readonly fournisseurOptions = signal<Array<{ label: string; value: number }>>([]);
+  readonly fournisseurOptions = signal<{ label: string; value: number }[]>([]);
   /** Nombre d'exclusions actives — badge dans la barre d'actions. */
   readonly exclusionCount = signal<number>(0);
   /** Options pour le sélecteur de classe */
@@ -79,7 +79,7 @@ export class SemoisSuggestionsComponent implements OnInit {
     value: key as ClasseCriticite,
   }));
   /** Options pour le filtre urgence — lexique métier */
-  readonly urgenceOptions: Array<{ label: string; value: 'URGENT' | 'NORMAL' | 'OK' }> = [
+  readonly urgenceOptions: { label: string; value: 'URGENT' | 'NORMAL' | 'OK' }[] = [
     {label: 'Rupture', value: 'URGENT'},
     {label: 'Sous seuil', value: 'NORMAL'},
     {label: 'Suffisant', value: 'OK'},

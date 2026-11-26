@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from "@angular/common/http";
 import {
-  AfterViewInit,
+  afterNextRender,
   Component,
   DestroyRef,
   ElementRef,
@@ -9,7 +9,7 @@ import {
   OnInit,
   signal,
   viewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from "@angular/forms";
@@ -47,7 +47,7 @@ import { BadgeComponent, ButtonComponent, CardComponent, SelectComponent } from 
     NgbTooltip
   ]
 })
-export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FormPosteComponent implements OnInit, OnDestroy {
   title = "";
   entity: IPoste;
   protected fb = inject(UntypedFormBuilder);
@@ -83,6 +83,12 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly posteDeviceService = inject(PosteDeviceService);
   private nameInput = viewChild.required<ElementRef>("nameInput");
 
+  constructor() {
+    afterNextRender(() => {
+      this.nameInput().nativeElement.focus();
+    });
+  }
+
   ngOnInit(): void {
     this.isTauri.set(this.tauriDeviceService.isTauriAvailable());
     if (this.entity) {
@@ -99,12 +105,6 @@ export class FormPosteComponent implements OnInit, AfterViewInit, OnDestroy {
         this.autoDetectSystemInfo();
       }
     }
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.nameInput().nativeElement.focus();
-    }, 100);
   }
 
   protected save(): void {

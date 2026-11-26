@@ -3,20 +3,6 @@
 @use 'app/shared/scss/panel-header' as header;
 @use 'app/shared/scss/split-panel';
 
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.recap-kpi-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
 .recap-kpi-card {
   background: var(--surface-card, #fff);
   border: 1px solid var(--surface-border, #e2e8f0);

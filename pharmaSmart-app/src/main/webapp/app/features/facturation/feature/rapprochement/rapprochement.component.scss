@@ -3,13 +3,6 @@
 @use 'app/shared/scss/panel-header' as header;
 @use 'app/shared/scss/split-panel';
 
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
 // KPI banner
 .rapr-kpi-row {
   display: flex;

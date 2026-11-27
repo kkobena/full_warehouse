@@ -45,6 +45,7 @@ public class BalanceCaisseDTO {
     private Long montantTtcUg = 0L;
     private Long montantHtUg = 0L;
     private Long montantTaxe = 0L;
+    private Long montantTva;
     private Long partAssure = 0L;
     private Long partTiersPayant = 0L;
     private Integer montantRemiseUg = 0;
@@ -416,9 +417,24 @@ public class BalanceCaisseDTO {
         return this;
     }
 
+    /**
+     * La TVA collectée, telle que l'état la calcule : sur le net de chaque ligne, remise déduite.
+     * TTC − HT, à défaut, y remettrait la remise : le HT est désormais calculé sur le net.
+     */
     public Long getMontantTaxe() {
-        montantTaxe = Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(montantHt, 0L);
+        montantTaxe = montantTva != null
+                ? montantTva
+                : Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(montantHt, 0L);
         return montantTaxe;
+    }
+
+    public void setMontantTva(Long montantTva) {
+        this.montantTva = montantTva;
+    }
+
+    /** Un regroupement de lignes additionne leur TVA : la recalculer en TTC − HT y remettrait la remise. */
+    public void ajouterTva(long tva) {
+        this.montantTva = Objects.requireNonNullElse(this.montantTva, 0L) + tva;
     }
 
     public Long getPartAssure() {

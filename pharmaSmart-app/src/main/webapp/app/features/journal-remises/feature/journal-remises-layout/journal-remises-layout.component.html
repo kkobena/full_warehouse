@@ -1,0 +1,79 @@
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [nav]="nav"
+  contentColumnClass="col-lg-9 col-xl-10 col-md-8 col-sm-7 pharma-smart-content p-1"
+  icon="pi pi-percentage"
+  menuColumnClass="col-lg-3 col-xl-2 col-md-4 col-sm-5"
+  title="Journal des remises"
+>
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="active.set($event)"
+    [activeId]="active()"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
+    @if (showSynthese()) {
+      <ng-container ngbNavItem="synthese">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="journal-remises.synthese" fallbackIcon="pi pi-chart-bar" fallbackLabel="Synthèse" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-synthese navCode="journal-remises.synthese" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+
+    @if (showPromotions()) {
+      <ng-container ngbNavItem="promotions">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="journal-remises.promotions" fallbackIcon="pi pi-tags" fallbackLabel="Promotions" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-remises-lignes nature="PROMOTIONS" navCode="journal-remises.promotions" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+
+    @if (showRemises()) {
+      <ng-container ngbNavItem="remises">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="journal-remises.remises" fallbackIcon="pi pi-percentage" fallbackLabel="Remises produit" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-remises-lignes nature="REMISES" navCode="journal-remises.remises" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+
+    @if (showUg()) {
+      <ng-container ngbNavItem="ug">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="journal-remises.ug" fallbackIcon="pi pi-gift" fallbackLabel="UG vendues" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-remises-lignes nature="UG" navCode="journal-remises.ug" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+  </div>
+</app-nav-sidebar>

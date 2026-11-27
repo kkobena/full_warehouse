@@ -10,9 +10,8 @@ import { scenario } from '../../src/scenario';
 
 /**
  * Scénario CORRIGÉ dans le modèle en écrivant ce parcours. Il annonçait deux dispositifs
- * cumulables — remise produit ET remise client. La remise client existe encore dans le modèle
- * de données et son écran d'administration, mais PLUS RIEN NE LA LIT au calcul d'une vente :
- * seule la grille produit s'applique. Le manuel ne peut pas promettre l'autre.
+ * cumulables — remise produit ET remise client. La remise client, héritage jamais exercé, a été
+ * retirée (migration V2.1.66) : seule la grille produit s'applique.
  *
  * Le point que l'image doit faire comprendre : la remise se choisit UNE FOIS sur la vente,
  * puis chaque ligne reçoit le taux de SON code produit — 7 % ici, 10 % ailleurs.

@@ -1,0 +1,72 @@
+@use 'app/shared/scss/modal-theme' as *;
+@use 'app/shared/scss/table-common' as *;
+
+:host {
+  @include modal-theme;
+}
+
+// Quatre colonnes sur grand écran ; les champs « 2col » en prennent deux.
+.form-grid-compact.promo-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+
+    .form-field.form-field-2col {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.articles-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+// Le raccourci « tout un rayon » sous la recherche d'article : la liste prend la place, le bouton la sienne.
+.perimetre-bloc {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  .perimetre-select {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.field-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.field-hint {
+  font-size: 0.72rem;
+  color: var(--pharma-text-muted);
+  font-style: italic;
+}
+
+.required {
+  color: var(--bs-danger);
+  margin-left: 0.125rem;
+}
+
+.pharma-code {
+  font-size: 0.82rem;
+  color: var(--pharma-text-muted);
+}
+
+.pharma-entity-name {
+  font-weight: 500;
+}
+
+.prix-promo {
+  font-weight: 600;
+  color: var(--bs-success);
+
+  &.prix-perte {
+    color: var(--bs-danger);
+  }
+}

@@ -17,9 +17,11 @@ import com.kobe.warehouse.domain.ordonnance.OrdonnanceLigne;
 import com.kobe.warehouse.domain.ordonnance.Prescripteur;
 import com.kobe.warehouse.repository.OrdonnanceRepository;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.dto.etiquette.EtiquettePreparationDTO;
 import com.kobe.warehouse.service.etiquette.zpl.impl.ZplEtiquetteServiceImpl;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -143,6 +145,60 @@ class EtiquetteUsageServiceImplTest {
                 LocalDate.of(2026, 10, 16),
                 LocalDate.of(2027, 1, 16),
                 "À usage externe");
+    }
+
+    @Nested
+    @DisplayName("promo")
+    class Promo {
+
+        private static EtiquetteDTO promo(String libelle) {
+            return new EtiquetteDTO()
+                    .setCode("3020611")
+                    .setLibelle(libelle)
+                    .setPrixAvant("4 495")
+                    .setPrix("3 596 CFA")
+                    .setMention("Jusqu'au 31/12/2026")
+                    .setPrint(true);
+        }
+
+        @Test
+        @DisplayName("le gabarit PDF porte le bandeau, les deux prix et la date de fin")
+        void contenuDuPdf() throws Exception {
+            byte[] pdf = service.imprimerPromotion(
+                    List.of(promo("ACIDUM PHOSPHORICUM"), promo("SAVON DOUX")), 1, FormatEtiquette.A4_21_63X38);
+            exporterPourRelecture(pdf, "promo-planche.pdf");
+            String texte = texteDuPdf(pdf);
+
+            assertThat(texte).contains("PROMO");
+            assertThat(texte).contains("ACIDUM PHOSPHORICUM").contains("SAVON DOUX");
+            assertThat(texte).contains("4 495").contains("3 596 CFA");
+            assertThat(texte).contains("Jusqu'au 31/12/2026");
+        }
+
+        @Test
+        @DisplayName("sur le plus petit rouleau, une page par etiquette : rien ne deborde sur la suivante")
+        void surPetitRouleau() throws Exception {
+            byte[] pdf = service.imprimerPromotion(
+                    List.of(promo("ACIDUM PHOSPHORICUM COMPOSE"), promo("SAVON DOUX")),
+                    1,
+                    FormatEtiquette.ROULEAU_30X20);
+            exporterPourRelecture(pdf, "promo-rouleau.pdf");
+
+            PdfReader lecteur = new PdfReader(pdf);
+            try {
+                assertThat(lecteur.getNumberOfPages()).isEqualTo(2);
+            } finally {
+                lecteur.close();
+            }
+        }
+
+        /** Sur demande ({@code -Detiquettes.export=<dossier>}), garde le PDF pour le regarder. */
+        private static void exporterPourRelecture(byte[] pdf, String nom) throws Exception {
+            String dossier = System.getProperty("etiquettes.export");
+            if (dossier != null) {
+                java.nio.file.Files.write(java.nio.file.Path.of(dossier, nom), pdf);
+            }
+        }
     }
 
     @Nested

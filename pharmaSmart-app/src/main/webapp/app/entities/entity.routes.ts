@@ -57,6 +57,18 @@ const routes: Routes = [
     loadChildren: () => import('./remise/remise.route'),
   },
   {
+    path: 'promotions',
+    data: { pageTitle: 'Promotions', abilitySubject: 'promotions' },
+    canActivate: [AuthGuard],
+    loadChildren: () => import('../features/promotion/promotion.routes'),
+  },
+  {
+    path: 'journal-remises',
+    data: { pageTitle: 'Journal des remises', abilitySubject: 'journal-remises' },
+    canActivate: [AuthGuard],
+    loadChildren: () => import('../features/journal-remises/journal-remises.routes'),
+  },
+  {
     path: 'tableaux',
     data: { pageTitle: 'warehouseApp.tableaux.home.title', abilitySubject: 'tableaux' },
     canActivate: [AuthGuard],

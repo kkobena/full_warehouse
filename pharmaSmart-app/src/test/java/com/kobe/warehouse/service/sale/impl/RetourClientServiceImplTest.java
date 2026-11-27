@@ -27,6 +27,7 @@ import com.kobe.warehouse.domain.enumeration.ModeReglementRetour;
 import com.kobe.warehouse.domain.enumeration.MotifRetourClient;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.StatutLegal;
+import com.kobe.warehouse.domain.enumeration.TypePromotion;
 import com.kobe.warehouse.repository.AvoirClientRepository;
 import com.kobe.warehouse.repository.RetourClientRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -83,6 +84,9 @@ class RetourClientServiceImplTest {
     @Mock
     private AppConfigurationService configurationService;
 
+    @Mock
+    private com.kobe.warehouse.repository.PromotionRepository promotionRepository;
+
     private RetourClientServiceImpl service;
     private LocalDate saleDate;
     private AppUser user;
@@ -106,7 +110,8 @@ class RetourClientServiceImplTest {
                 referenceService,
                 storageService,
                 inventoryService,
-                configurationService);
+                configurationService,
+                promotionRepository);
     }
 
     @Test
@@ -294,6 +299,124 @@ class RetourClientServiceImplTest {
         assertThrows(GenericError.class, () -> service.findById(404));
         assertEquals(
                 1, service.findAll("RET", saleDate, LocalDate.now(), pageable).getTotalElements());
+    }
+
+    // ── Lignes en promotion (plan des promotions, §5.7) ─────────────────────────
+
+    @Test
+    void remboursePromotionEnEntierAuMontantPayeRemiseDeduite() {
+        Sales comptant = sale(NatureVente.COMPTANT, 1_000, 900);
+        SalesLine promue = promue(line(10L, StatutLegal.SANS_LISTE, false, 2, 500), comptant, 7L, 100);
+        when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(promue));
+        when(promotionRepository.findAllById(List.of(7L)))
+                .thenReturn(List.of(promotion(7L, TypePromotion.PROMO_POURCENTAGE, false)));
+        StockProduit stock = new StockProduit();
+        stock.setQtyStock(0);
+        useCurrentUserAndStorage();
+        when(referenceService.buildNumRetourClient()).thenReturn("RET-1");
+        when(stockRepository.findOneByProduitIdAndStockageId(100, 4)).thenReturn(stock);
+        when(retourRepository.saveAndFlush(any(RetourClient.class)))
+                .thenAnswer(invocation -> ((RetourClient) invocation.getArgument(0)).setId(20));
+
+        RetourClientResultDTO result =
+                service.validerRetour(request(List.of(requestLine(10L, 2, true, true, true)), false));
+
+        // 2 × 500 moins 100 de remise : ce qu'elle a payé, pas le prix catalogue.
+        assertEquals(900, result.retour().montantTotal());
+        assertEquals(0, result.retour().montantTpTotal());
+    }
+
+    @Test
+    void refuseUnRetourPartielDUneLigneEnPromotion() {
+        Sales comptant = sale(NatureVente.COMPTANT, 1_500, 1_350);
+        SalesLine promue = promue(line(10L, StatutLegal.SANS_LISTE, false, 3, 500), comptant, 7L, 150);
+        when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(promue));
+        when(promotionRepository.findAllById(List.of(7L)))
+                .thenReturn(List.of(promotion(7L, TypePromotion.PROMO_OFFRE_NM, false)));
+
+        GenericError erreur = assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), false)));
+
+        assertTrue(erreur.getMessage().contains("en entier (3)"));
+        verify(retourRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void refuseUnPackRenduSansTousSesArticles() {
+        Sales comptant = sale(NatureVente.COMPTANT, 2_000, 1_500);
+        SalesLine creme = promue(line(10L, StatutLegal.SANS_LISTE, false, 1, 1_000), comptant, 8L, 250);
+        SalesLine savon = promue(line(11L, StatutLegal.SANS_LISTE, false, 1, 1_000), comptant, 8L, 250);
+        savon.getProduit().setLibelle("Savon du pack");
+        when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(creme));
+        when(promotionRepository.findAllById(List.of(8L)))
+                .thenReturn(List.of(promotion(8L, TypePromotion.PROMO_PACK, false)));
+        when(lineRepository.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(1L, saleDate))
+                .thenReturn(List.of(creme, savon));
+
+        GenericError erreur = assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), false)));
+
+        assertTrue(erreur.getMessage().contains("il manque Savon du pack"));
+    }
+
+    @Test
+    void refuseLaPromotionDUneVenteACreditOuCumuleeAvecLaRemiseProduit() {
+        Sales carnet = sale(NatureVente.CARNET, 1_000, 900);
+        SalesLine promue = promue(line(10L, StatutLegal.SANS_LISTE, false, 1, 1_000), carnet, 7L, 100);
+        when(lineRepository.findById(new SaleLineId(10L, saleDate))).thenReturn(Optional.of(promue));
+        when(promotionRepository.findAllById(List.of(7L)))
+                .thenReturn(List.of(promotion(7L, TypePromotion.PROMO_POURCENTAGE, true)));
+
+        GenericError credit = assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), false)));
+        assertTrue(credit.getMessage().contains("annuler la vente et la ressaisir"));
+
+        Sales comptant = sale(NatureVente.COMPTANT, 1_000, 850);
+        comptant.setRemise(new com.kobe.warehouse.domain.RemiseProduit());
+        promue.setSales(comptant);
+        GenericError cumul = assertThrows(
+                GenericError.class,
+                () -> service.validerRetour(request(List.of(requestLine(10L, 1, true, true, true)), false)));
+        assertTrue(cumul.getMessage().contains("cumulée avec la remise produit"));
+    }
+
+    @Test
+    void signaleALaRechercheLesLignesEnPromotion() {
+        Sales carnet = sale(NatureVente.CARNET, 2_000, 1_800);
+        SalesLine pack = promue(line(10L, StatutLegal.SANS_LISTE, false, 1, 1_000), carnet, 8L, 200);
+        when(salesRepository.findByNumberTransaction("V-1")).thenReturn(List.of(carnet));
+        when(lineRepository.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(1L, saleDate))
+                .thenReturn(List.of(pack));
+        when(promotionRepository.findAllById(List.of(8L)))
+                .thenReturn(List.of(promotion(8L, TypePromotion.PROMO_PACK, false)));
+        when(configurationService.getDelaiRetourClient()).thenReturn(30);
+
+        var ligne = service.findSaleByRef("V-1").lines().getFirst();
+
+        assertEquals(8L, ligne.promotionId());
+        assertTrue(ligne.pack());
+        assertEquals(800, ligne.montantRemboursableClient());
+        assertTrue(ligne.motifRefus().contains("vente à crédit"));
+    }
+
+    private static SalesLine promue(SalesLine line, Sales sale, long promotionId, int remise) {
+        line.setSales(sale);
+        line.setSalesAmount(line.getQuantitySold() * line.getRegularUnitPrice());
+        line.setDiscountAmount(remise);
+        line.setPromotionId(promotionId);
+        line.setPromotionLibelle("Promo " + promotionId);
+        return line;
+    }
+
+    private static com.kobe.warehouse.domain.Promotion promotion(long id, TypePromotion type, boolean cumulable) {
+        return new com.kobe.warehouse.domain.Promotion()
+                .setId(id)
+                .setLibelle("Promo " + id)
+                .setType(type)
+                .setCumulable(cumulable);
     }
 
     private void useCurrentUserAndStorage() {

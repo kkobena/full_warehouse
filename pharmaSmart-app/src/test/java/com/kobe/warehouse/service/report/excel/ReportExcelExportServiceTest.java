@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -34,6 +37,55 @@ class ReportExcelExportServiceTest {
     @BeforeEach
     void setUp() {
         service = new ReportExcelExportService();
+    }
+
+    // ===== plusieurs tableaux =====
+
+    @Nested
+    @DisplayName("Plusieurs tableaux par feuille")
+    class PlusieursTableaux {
+
+        @Test
+        @DisplayName("une feuille par clé ; chaque tableau a son intitulé, ses en-têtes, ses nombres et son total")
+        void feuillesEtSections() throws IOException {
+            Map<String, List<ReportExcelExportService.SectionExcel>> feuilles = new LinkedHashMap<>();
+            feuilles.put(
+                    "Synthèse",
+                    List.of(
+                            new ReportExcelExportService.SectionExcel(
+                                    "Remises",
+                                    entetes("Nature", "Remise"),
+                                    List.of(new Object[] {"Promotions", 380}, new Object[] {"Grille", 200}),
+                                    new Object[] {"Total", 580}),
+                            new ReportExcelExportService.SectionExcel(
+                                    "Taux",
+                                    entetes("Grille", "Taux"),
+                                    List.<Object[]>of(new Object[] {"A", 12.5}),
+                                    null)));
+            feuilles.put("Détail", List.of());
+
+            try (XSSFWorkbook classeur =
+                    new XSSFWorkbook(new ByteArrayInputStream(service.createExcelReport("Journal", feuilles)))) {
+                assertThat(classeur.getNumberOfSheets()).isEqualTo(2);
+                Sheet synthese = classeur.getSheet("Synthèse");
+                assertThat(valeur(synthese, 0, 0)).isEqualTo("Journal");
+                assertThat(valeur(synthese, 1, 0)).startsWith("Généré le:");
+                assertThat(valeur(synthese, 3, 0)).isEqualTo("Remises");
+                assertThat(valeur(synthese, 4, 1)).isEqualTo("Remise");
+                Cell remise = synthese.getRow(5).getCell(1);
+                assertThat(remise.getCellType()).isEqualTo(CellType.NUMERIC);
+                assertThat(remise.getNumericCellValue()).isEqualTo(380);
+                assertThat(synthese.getRow(7).getCell(1).getNumericCellValue()).isEqualTo(580);
+                assertThat(classeur.getFontAt(synthese.getRow(7)
+                                        .getCell(1)
+                                        .getCellStyle()
+                                        .getFontIndex())
+                                .getBold())
+                        .isTrue();
+                assertThat(valeur(synthese, 9, 0)).isEqualTo("Taux");
+                assertThat(synthese.getRow(11).getCell(1).getNumericCellValue()).isEqualTo(12.5);
+            }
+        }
     }
 
     // ===== disposition du classeur =====

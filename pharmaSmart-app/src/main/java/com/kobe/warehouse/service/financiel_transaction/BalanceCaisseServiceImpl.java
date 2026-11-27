@@ -236,6 +236,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             b.setMontantDiscount(b.getMontantDiscount() + e.getMontantDiscount());
             b.setMontantTtc(b.getMontantTtc() + e.getMontantTtc());
             b.setMontantHt(b.getMontantHt() + e.getMontantHt());
+            b.ajouterTva(e.getMontantTaxe());
             b.setMontantNet(b.getMontantNet() + e.getMontantNet());
             b.setMontantAchat(b.getMontantAchat() + e.getMontantAchat());
             b.setMontantNetUg(b.getMontantNetUg() + e.getMontantNetUg());

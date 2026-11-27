@@ -1,14 +1,11 @@
 package com.kobe.warehouse.service.sale.calculation;
 
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.VenteDepot;
-import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.impl.SaleLineServiceFactory;
@@ -34,8 +31,6 @@ public class SaleAmountCalculator {
     public void updateAmounts(Sales c) {
         int salesAmount = 0;
         int costAmount = 0;
-        int taxableAmount = 0;
-        int htAmount = 0;
         int discount = 0;
 
         for (SalesLine salesLine : c.getSalesLines()) {
@@ -43,10 +38,6 @@ public class SaleAmountCalculator {
             int costAmountItem = salesLine.getQuantityRequested() * salesLine.getCostAmount();
             salesAmount += saleItemAmount;
             costAmount += costAmountItem;
-            int htAmont = computeHtAmount(saleItemAmount, salesLine.getTaxValue());
-            htAmount += htAmont;
-            int montantTva = saleItemAmount - htAmont;
-            taxableAmount += montantTva;
             discount += Objects.requireNonNullElse(salesLine.getDiscountAmount(), 0);
             // Le montant déclarable de la ligne n'était renseigné qu'à sa création : il dérivait
             // ensuite silencieusement de quantity_requested × regular_unit_price à chaque
@@ -58,8 +49,7 @@ public class SaleAmountCalculator {
 
         c.setSalesAmount(salesAmount);
         c.setCostAmount(costAmount);
-        c.setTaxAmount(taxableAmount);
-        c.setHtAmount(htAmount);
+        computeTva(c);
         c.setDiscountAmount(discount);
         c.setNetAmount(salesAmount - discount);
         c.setAmountToBeTakenIntoAccount(salesAmount);
@@ -76,12 +66,13 @@ public class SaleAmountCalculator {
             discountAmount += saleLine.getDiscountAmount();
         }
         c.setDiscountAmount(discountAmount);
+        computeTva(c);
         if (c instanceof CashSale cashSale) {
             processDiscountCash(cashSale, discountAmount);
         }
     }
 
-    private int computeHtAmount(Integer amount, Integer taxValue) {
+    private static int computeHtAmount(Integer amount, Integer taxValue) {
         int tax = Objects.requireNonNullElse(taxValue, 0);
         int ttc = Objects.requireNonNullElse(amount, 0);
         if (tax == 0) {
@@ -99,15 +90,39 @@ public class SaleAmountCalculator {
         c.setCostAmount(c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
     }
 
+    /** La ligne a déjà quitté la vente : HT et TVA se refont sur les lignes restantes. */
     public void computeTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        if (saleLine.getTaxValue().compareTo(0) == 0) {
-            c.setHtAmount(c.getHtAmount() - saleLine.getSalesAmount());
-        } else {
-            int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
-            int montantTva = saleLine.getSalesAmount() - htAmont;
-            c.setTaxAmount(c.getTaxAmount() - montantTva);
-            c.setHtAmount(c.getHtAmount() - htAmont);
+        computeTva(c);
+    }
+
+    /**
+     * HT et TVA de la vente, sur ce que la cliente paie : le montant de chaque ligne MOINS sa remise
+     * (remise produit, promotion). Une remise accordée à la vente n'entre pas dans la base imposable ;
+     * calculée sur le brut, la TVA d'une vente remisée était surévaluée.
+     */
+    public void computeTva(Sales c) {
+        int htAmount = 0;
+        int taxAmount = 0;
+        for (SalesLine salesLine : c.getSalesLines()) {
+            int net = montantNet(salesLine);
+            int ht = computeHtAmount(net, salesLine.getTaxValue());
+            htAmount += ht;
+            taxAmount += net - ht;
         }
+        c.setHtAmount(htAmount);
+        c.setTaxAmount(taxAmount);
+    }
+
+    /** Ce que la cliente paie pour la ligne : quantité × prix, moins la remise de la ligne. */
+    public static int montantNet(SalesLine salesLine) {
+        return Objects.requireNonNullElse(salesLine.getQuantityRequested(), 0)
+                        * Objects.requireNonNullElse(salesLine.getRegularUnitPrice(), 0)
+                - Objects.requireNonNullElse(salesLine.getDiscountAmount(), 0);
+    }
+
+    /** HT d'un montant TTC (arrondi au franc supérieur, comme à l'enregistrement). */
+    public static int montantHt(int ttc, Integer taxValue) {
+        return computeHtAmount(ttc, taxValue);
     }
 
     public int roundedAmount(int payrollAmount) {
@@ -134,34 +149,15 @@ public class SaleAmountCalculator {
     }
 
     public void proccessDiscount(Sales sales) {
-        Remise remise = sales.getRemise();
-        if (remise != null) {
-            if (remise instanceof RemiseProduit) {
-                this.computeRemiseProduit(sales);
-            } else {
-                this.computeRemisableAmount((RemiseClient) remise, sales);
-            }
+        if (sales.getRemise() instanceof RemiseProduit) {
+            this.computeRemiseProduit(sales);
         }
     }
 
     private void computeRemiseProduit(Sales sales) {
-        sales.getSalesLines().forEach(salesLine -> {
-            saleLineServiceFor(sales).processProductDiscount(salesLine);
-            this.processDiscountCommonAmounts(sales);
-        });
-    }
-
-    private void computeRemisableAmount(RemiseClient remiseClient, Sales sales) {
-        int totalAmount = sales.getSalesLines().stream()
-                .filter(e -> e.getProduit().getCodeRemise() != CodeRemise.NONE)
-                .mapToInt(SalesLine::getSalesAmount)
-                .sum();
-        if (totalAmount == 0) {
-            return;
-        }
-        int discount = (int) Math.ceil(totalAmount * remiseClient.getTauxRemise());
-        sales.setDiscountAmount(discount);
-        sales.setNetAmount(sales.getSalesAmount() - discount);
+        SalesLineService salesLineService = saleLineServiceFor(sales);
+        sales.getSalesLines().forEach(salesLineService::processProductDiscount);
+        this.processDiscountCommonAmounts(sales);
     }
 
     /**

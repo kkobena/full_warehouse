@@ -167,6 +167,8 @@ final class SaleServicesUnderTest {
     final ThirdPartyClientManager thirdPartyClientManager;
     final ThirdPartyCalculationManager thirdPartyCalculationManager;
     final AssuredCustomerManager assuredCustomerManager;
+    final com.kobe.warehouse.repository.PromotionRepository promotionRepository;
+    final com.kobe.warehouse.service.promotion.MoteurPromotionService moteurPromotionService;
 
     SaleServicesUnderTest(EntityManager entityManager) {
         this.salesRepository = IntegrationPostgresDatabase.bean(SalesRepository.class);
@@ -312,6 +314,13 @@ final class SaleServicesUnderTest {
                 appConfigurationService,
                 declarationCaService,
                 ponctionService);
+        // Réel, comme en production (injecté par setter) : sans promotion en base, il ne pose rien.
+        this.promotionRepository =
+                IntegrationPostgresDatabase.bean(com.kobe.warehouse.repository.PromotionRepository.class);
+        this.moteurPromotionService =
+                new com.kobe.warehouse.service.promotion.impl.MoteurPromotionServiceImpl(promotionRepository);
+        ((com.kobe.warehouse.service.sale.impl.SaleServiceImpl) this.saleService)
+                .setMoteurPromotionService(moteurPromotionService);
 
         ThirdPartySaleLineService thirdPartySaleLineService =
                 new ThirdPartySaleLineService(assuranceItemIdGeneratorService, thirdPartySaleLineRepository);
@@ -363,6 +372,8 @@ final class SaleServicesUnderTest {
                 assuredCustomerManager,
                 appConfigurationService,
                 declarationCaService);
+        // Comme en production, où le setter est injecté dans toute la hiérarchie des ventes.
+        ((ThirdPartySaleServiceImpl) this.thirdPartySaleService).setMoteurPromotionService(moteurPromotionService);
 
         this.saleDepotExtensionService = new SaleDepotExtensionImpl(
                 remiseRepository,
@@ -409,7 +420,8 @@ final class SaleServicesUnderTest {
                 referenceService,
                 storageService,
                 inventoryTransactionService,
-                appConfigurationService);
+                appConfigurationService,
+                promotionRepository);
 
         this.retourAvoirDashboardService =
                 new RetourAvoirDashboardService(retourClientRepository, avoirClientRepository);

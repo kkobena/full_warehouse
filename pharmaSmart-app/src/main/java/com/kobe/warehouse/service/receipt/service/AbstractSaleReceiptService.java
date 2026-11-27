@@ -57,8 +57,13 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return getSale().getTvaEmbededs();
     }
 
-    /** Montant des lignes imprimées sur un autre ticket : à retirer des totaux de celui-ci. */
+    /** Montant net des lignes imprimées sur un autre ticket : à retirer des totaux de celui-ci. */
     protected int getMontantHorsTicket() {
+        return 0;
+    }
+
+    /** Remise des lignes imprimées sur un autre ticket : elle figure sur le leur, pas sur celui-ci. */
+    protected int getRemiseHorsTicket() {
         return 0;
     }
 
@@ -98,9 +103,25 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
         item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
-        item.setLots(formaterLots(saleLineDTO));
+        item.setLots(sousLignes(saleLineDTO));
 
         return item;
+    }
+
+    /**
+     * Les lots, puis la promotion : sans son libellé sur le ticket, la cliente ne sait pas pourquoi
+     * elle paie moins que le prix affiché.
+     */
+    protected List<String> sousLignes(SaleLineDTO saleLineDTO) {
+        List<String> lots = formaterLots(saleLineDTO);
+        String promotion = saleLineDTO.getPromotionLibelle();
+        int remise = saleLineDTO.getDiscountAmount() == null ? 0 : saleLineDTO.getDiscountAmount();
+        if (promotion == null || promotion.isBlank() || remise <= 0) {
+            return lots;
+        }
+        List<String> lignes = new ArrayList<>(lots);
+        lignes.add("Promo " + promotion + " -" + NumberUtil.formatToString(remise));
+        return lignes;
     }
 
     /**
@@ -244,7 +265,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
                 out,
                 String.format(
                         "%-37s %10s",
-                        MONTANT_TTC, NumberUtil.formatToString(sale.getSalesAmount() - getMontantHorsTicket())));
+                        MONTANT_TTC,
+                        NumberUtil.formatToString(
+                                sale.getSalesAmount() - getMontantHorsTicket() - getRemiseHorsTicket())));
         escPosSetBold(out, false);
 
         // Avoir section (if any)
@@ -258,9 +281,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         }
 
         // Discount (if any)
-        if (sale.getDiscountAmount() > 0) {
-            escPosPrintLine(
-                    out, String.format("%-37s %10s", REMISE, NumberUtil.formatToString(sale.getDiscountAmount())));
+        int remiseTicket = sale.getDiscountAmount() - getRemiseHorsTicket();
+        if (remiseTicket > 0) {
+            escPosPrintLine(out, String.format("%-37s %10s", REMISE, NumberUtil.formatToString(remiseTicket)));
         }
 
         // Add spacing before total

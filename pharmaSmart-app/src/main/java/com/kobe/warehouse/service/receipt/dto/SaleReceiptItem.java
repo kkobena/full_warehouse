@@ -8,7 +8,10 @@ public abstract class SaleReceiptItem extends AbstractItem {
     protected String quantity;
     protected String unitPrice;
     protected String totalPrice;
-    /** Une ligne imprimée par lot prélevé (« Lot A123 (2) exp. 03/2027 ») ; vide sans gestion de lots. */
+    /**
+     * Lignes de détail imprimées sous l'article : une par lot prélevé (« Lot A123 (2) exp. 03/2027 »),
+     * puis la promotion appliquée s'il y en a une. Vide sinon.
+     */
     protected List<String> lots = List.of();
 
     public List<String> getLots() {

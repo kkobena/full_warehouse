@@ -164,6 +164,70 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     @Column(name = "code_scan")
     private String codeScan;
 
+    /**
+     * Promotion posée par le moteur ; nulle pour une remise humaine. Une colonne simple plutôt
+     * qu'une association : la ligne se lit hors transaction (open-in-view est coupé), et le moteur
+     * n'efface que ce qu'il a posé.
+     */
+    @Column(name = "promotion_id")
+    private Long promotionId;
+
+    /** Libellé de la promotion au moment de la vente : le ticket reste justifiable après un renommage. */
+    @Column(name = "promotion_libelle", length = 100)
+    private String promotionLibelle;
+
+    /** Unités que la promotion a remisées : sous un plafond, moins que la quantité de la ligne. */
+    @Column(name = "quantite_promo")
+    private Integer quantitePromo;
+
+    /**
+     * Part de la promotion dans {@code discountAmount}. Sur une ligne qui cumule une promotion et la
+     * remise produit, le reste ({@code discountAmount - remisePromotion}) est la remise produit. Zéro
+     * sans promotion.
+     */
+    @Column(name = "remise_promotion", nullable = false)
+    private int remisePromotion;
+
+    public int getRemisePromotion() {
+        return remisePromotion;
+    }
+
+    public void setRemisePromotion(int remisePromotion) {
+        this.remisePromotion = remisePromotion;
+    }
+
+    /**
+     * La part de la remise produit (grille) : ce que la promotion n'a pas posé. Négative, comme la
+     * remise, sur la ligne de contre-passation d'une vente annulée.
+     */
+    public int getRemiseProduit() {
+        return (discountAmount == null ? 0 : discountAmount) - remisePromotion;
+    }
+
+    public Integer getQuantitePromo() {
+        return quantitePromo;
+    }
+
+    public void setQuantitePromo(Integer quantitePromo) {
+        this.quantitePromo = quantitePromo;
+    }
+
+    public Long getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Long promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public String getPromotionLibelle() {
+        return promotionLibelle;
+    }
+
+    public void setPromotionLibelle(String promotionLibelle) {
+        this.promotionLibelle = promotionLibelle;
+    }
+
     @Override
     public SaleLineId getId() {
         return new SaleLineId(id, saleDate);

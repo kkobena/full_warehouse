@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
@@ -212,30 +211,6 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
     }
 
     @Test
-    @DisplayName("Une remise client s'applique aux montants puis se retire proprement")
-    void remiseClient() {
-        Produit produit = produitEnStock("CREME SOLAIRE", 10_000, 6_000, 0, 10);
-        CashSaleDTO cree = services.saleService.createCashSale(venteDe(produit, 1));
-        RemiseClient remise = remiseClientDe(0.10f);
-
-        services.saleService.processDiscount(new UpdateSaleInfo(cree.getSaleId(), remise.getId()));
-        viderLeCache();
-
-        CashSale avecRemise = em.find(CashSale.class, cree.getSaleId());
-        assertEquals(1_000, avecRemise.getDiscountAmount(), "10 % de 10 000");
-        assertEquals(9_000, avecRemise.getNetAmount());
-        assertNotNull(avecRemise.getRemise());
-
-        services.saleService.removeRemiseFromCashSale(cree.getSaleId());
-        viderLeCache();
-
-        CashSale sansRemise = em.find(CashSale.class, cree.getSaleId());
-        assertEquals(0, sansRemise.getDiscountAmount());
-        assertEquals(10_000, sansRemise.getNetAmount());
-        assertNull(sansRemise.getRemise());
-    }
-
-    @Test
     @DisplayName("Mettre en attente une vente sans ligne la supprime de la base")
     void miseEnAttenteDUneVenteVide() {
         Produit produit = produitEnStock("COMPRESSES", 300, 150, 0, 10);
@@ -370,16 +345,6 @@ class SaleServiceIntegrationTest extends AbstractSaleIntegrationTest {
         StockProduit stock =
                 services.stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), STORAGE_RAYON_ID);
         return stock.getQtyStock() + stock.getQtyUG();
-    }
-
-    private RemiseClient remiseClientDe(float taux) {
-        RemiseClient remise = new RemiseClient();
-        remise.setTauxRemise(taux);
-        remise.setRemiseValue(taux * 100);
-        remise.setValeur(String.valueOf((int) (taux * 100)));
-        em.persist(remise);
-        em.flush();
-        return remise;
     }
 
     private void cloturer(SaleId saleId, int montant) {

@@ -180,6 +180,7 @@ class WidgetProvidersTest {
                 10L,
                 null,
                 null,
+                null,
                 null);
     }
 

@@ -5,7 +5,6 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -184,17 +183,46 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         }
     }
 
+    /**
+     * Pose sur la ligne la remise de la grille de la vente, ou l'annule si aucune grille ne la vise.
+     *
+     * <p>Idempotent : la remise est recalculée à chaque mutation du panier ({@code
+     * SalesManagerImpl#finalizeSaleUpdate}, via {@code SaleAmountCalculator#proccessDiscount}), sur
+     * toutes les lignes. Une ligne que la grille ne couvre plus doit donc revenir à zéro, montant
+     * <b>et</b> taux : la FNE déclare la remise par le taux.
+     */
     public void processProductDiscount(SalesLine salesLine) {
         Sales sales = salesLine.getSales();
-        Remise remise = sales.getRemise();
-
-        RemiseProduit remiseProduit = (RemiseProduit) remise;
-        getGrilleRemise(salesLine.getProduit().getCodeRemise(), remiseProduit, sales)
-                .ifPresent(grilleRemise -> {
+        CodeRemise codeRemise = salesLine.getProduit().getCodeRemise();
+        Optional<GrilleRemise> grille = sales.getRemise() instanceof RemiseProduit remiseProduit && codeRemise != null
+                ? getGrilleRemise(codeRemise, remiseProduit, sales)
+                : Optional.empty();
+        grille.ifPresentOrElse(
+                grilleRemise -> {
                     int discount = (int) Math.ceil(salesLine.getSalesAmount() * grilleRemise.getTauxRemise());
                     salesLine.setDiscountAmount(discount);
                     salesLine.setTauxRemise(grilleRemise.getTauxRemise());
+                },
+                () -> {
+                    salesLine.setDiscountAmount(0);
+                    salesLine.setTauxRemise(0f);
                 });
+    }
+
+    /**
+     * Le taux de remise d'une ligne importée : celui du DTO s'il le porte, sinon celui qui se déduit
+     * du montant remisé. Sans lui, la FNE d'une vente importée déclarerait une remise nulle.
+     */
+    static float tauxRemiseImporte(SaleLineDTO dto) {
+        if (dto.getTauxRemise() != null && dto.getTauxRemise() > 0) {
+            return dto.getTauxRemise();
+        }
+        int discount = Objects.requireNonNullElse(dto.getDiscountAmount(), 0);
+        int amount = Objects.requireNonNullElse(dto.getSalesAmount(), 0);
+        if (discount <= 0 || amount <= 0) {
+            return 0f;
+        }
+        return (float) discount / amount;
     }
 
     @Override
@@ -216,6 +244,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
         salesLine.setDiscountAmount(dto.getDiscountAmount());
+        salesLine.setTauxRemise(tauxRemiseImporte(dto));
         salesLine.setDiscountUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantityRequested(dto.getQuantityRequested());
         // buildSaleLineFromDTO est utilisé pour l'import de données : pas de forceStock
@@ -303,7 +332,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             salesLine.setCodeScan(dto.getCodeScan());
         }
         processUg(salesLine, dto, stockageId);
-        // processProductDiscount(salesLine);
     }
 
     @Override
@@ -330,7 +358,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setRegularUnitPrice(saleLineDTO.getRegularUnitPrice());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         processUg(salesLine, saleLineDTO, storageId);
-        // processProductDiscount(salesLine);
         salesLineRepository.save(salesLine);
     }
 
@@ -462,6 +489,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLineCopy.setQuantityUg(salesLineCopy.getQuantityUg() * (-1));
         salesLineCopy.setQuantityRequested(salesLineCopy.getQuantityRequested() * (-1));
         salesLineCopy.setDiscountAmount(salesLineCopy.getDiscountAmount() * (-1));
+        salesLineCopy.setRemisePromotion(salesLineCopy.getRemisePromotion() * (-1));
         salesLineCopy.setAmountToBeTakenIntoAccount(salesLineCopy.getAmountToBeTakenIntoAccount() * (-1));
 
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(
@@ -492,7 +520,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setQuantityAvoir(salesLine.getQuantityRequested() - salesLine.getQuantitySold());
         processUg(salesLine, saleLineDTO, storageId);
-        // processProductDiscount(salesLine);
     }
 
     @Override
@@ -553,7 +580,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setSalesAmount(salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice());
         processUg(salesLine, saleLineDTO, storageId);
-        //    processProductDiscount(salesLine);
         salesLineRepository.save(salesLine);
     }
 

@@ -115,8 +115,7 @@ export class ProductListComponent {
   priceChanged = output<{ line: ISalesLine; newPrice: number }>();
   lineRemoved = output<ISalesLine>();
   lineSelected = output<ISalesLine>();
-  discountChanged = output<{ line: ISalesLine; newDiscount: number }>();
-  authorizationRequired = output<{ line: ISalesLine; action: 'delete' | 'discount' }>();
+  authorizationRequired = output<{ line: ISalesLine; action: 'delete' }>();
   remiseSelected = output<IRemise>();
   removeRemise = output();
   remiseActionCancelled = output();

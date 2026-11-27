@@ -417,6 +417,7 @@ class SalesManagerImplTest {
         verify(saleAmountCalculator).proccessDiscount(testVenteDepot);
         verify(saleAmountCalculator).computeSaleLazyAmountOnRemovingItem(testVenteDepot, testSalesLine);
         verify(saleAmountCalculator).computeTvaAmountOnRemovingItem(testVenteDepot, testSalesLine);
+        verify(saleAmountCalculator).arrondirMontantCaisse(testVenteDepot);
         verify(venteDepotRepository).save(testVenteDepot);
         verify(customerDisplayService).displaySaleTotal(testVenteDepot.getNetAmount());
     }

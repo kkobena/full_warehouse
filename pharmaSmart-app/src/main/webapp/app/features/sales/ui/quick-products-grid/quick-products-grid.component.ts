@@ -2,8 +2,12 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 import { DevisePipe } from 'app/shared/utils/devise';
+import { formatNumber } from 'app/shared/utils/format-utils';
 import { ProduitSearch } from '../../../../shared/model';
 import { FavorisComptoirService } from '../../data-access/services/favoris-comptoir.service';
+import { BadgePromoComponent } from '../../../promotion/ui/badge-promo/badge-promo.component';
+import { IPromotionArticle } from '../../../promotion/models/promotion.model';
+import { PromotionsEnVigueurService } from '../../../promotion/data-access/services/promotions-en-vigueur.service';
 
 const CLE_OUVERT = 'pharmasmart_favoris_ouverts';
 
@@ -13,7 +17,7 @@ const CLE_OUVERT = 'pharmasmart_favoris_ouverts';
   templateUrl: './quick-products-grid.component.html',
   styleUrl: './quick-products-grid.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DevisePipe],
+  imports: [DevisePipe, BadgePromoComponent],
 })
 export class QuickProductsGridComponent implements OnInit {
   /** Vente en cours d'enregistrement : les tuiles ne répondent plus. */
@@ -23,6 +27,7 @@ export class QuickProductsGridComponent implements OnInit {
 
   private readonly service = inject(FavorisComptoirService);
   protected readonly favoris = this.service.favoris;
+  private readonly promotions = inject(PromotionsEnVigueurService);
   protected readonly ouvert = signal<boolean>(lirePreference());
 
   private readonly destroyRef = inject(DestroyRef);
@@ -34,6 +39,7 @@ export class QuickProductsGridComponent implements OnInit {
   /** Relit la grille : le stock de chaque tuile bouge à chaque vente. */
   recharger(): void {
     this.service.charger();
+    this.promotions.charger();
   }
 
   protected basculer(): void {
@@ -57,12 +63,33 @@ export class QuickProductsGridComponent implements OnInit {
       .subscribe(() => this.recharger());
   }
 
+  protected promotion(produit: ProduitSearch): IPromotionArticle | undefined {
+    return this.promotions.pour(produit.id);
+  }
+
+  /**
+   * Le prix barré ne s'affiche que si un clic le fait payer : la tuile ajoute une unité, et une
+   * promotion « dès 3 » ne remise pas une unité seule.
+   */
+  protected prixRemise(produit: ProduitSearch): number | null {
+    const promo = this.promotion(produit);
+    return promo && promo.quantiteMin <= 1 ? promo.prixApresPromo : null;
+  }
+
+  /** Le prix barré sans devise : celle du prix remisé suffit, et la tuile garde son pied sur une ligne. */
+  protected prixSansDevise(prix: number | null | undefined): string {
+    return formatNumber(prix);
+  }
+
   protected enRupture(produit: ProduitSearch): boolean {
     return (produit.totalQuantity ?? 0) <= 0;
   }
 
   protected libelleAccessible(produit: ProduitSearch): string {
-    return `${produit.libelle}, ${produit.regularUnitPrice} francs${this.enRupture(produit) ? ', en rupture' : ''}`;
+    const remise = this.prixRemise(produit);
+    const prix =
+      remise == null ? `${produit.regularUnitPrice} francs` : `en promotion à ${remise} francs au lieu de ${produit.regularUnitPrice}`;
+    return `${produit.libelle}, ${prix}${this.enRupture(produit) ? ', en rupture' : ''}`;
   }
 }
 

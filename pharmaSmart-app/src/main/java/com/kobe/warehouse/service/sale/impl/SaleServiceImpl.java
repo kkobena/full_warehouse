@@ -5,7 +5,6 @@ import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.PaymentMode;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -248,14 +247,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public void upddateCashSaleAmounts(CashSale c) {
-        computeSaleEagerAmount(c);
-        this.proccessDiscount(c);
-        computeCashSaleAmountToPaid(c);
-        arrondirMontantCaisse(c);
-    }
-
-    @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO, boolean increment)
             throws StockException, DeconditionnementStockOut {
         return salesManager.updateItemQuantityRequested(
@@ -378,15 +369,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     @Override
-    public void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
-        computeSaleEagerAmountOnRemovingItem(c, saleLine);
-        this.proccessDiscount(c);
-        computeCashSaleAmountToPaid(c);
-        computeSaleLazyAmountOnRemovingItem(c, saleLine);
-        computeTvaAmountOnRemovingItem(c, saleLine);
-    }
-
-    @Override
     public void savePrevente(CashSaleDTO dto, boolean transform) {
         cashSaleRepository.findById(dto.getSaleId()).ifPresent(s -> {
             verifierVersion(s, dto.getVersion());
@@ -441,13 +423,13 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                 if (cashSale.getRemise() != null) {
                     this.removeRemise(cashSale);
                 }
-                if (remise instanceof RemiseProduit remiseProduit) {
-                    this.applyRemiseProduit(cashSale, remiseProduit);
-                } else {
-                    this.applyRemiseClient(cashSale, (RemiseClient) remise);
+                if (!(remise instanceof RemiseProduit remiseProduit)) {
+                    throw new GenericError("Seule une remise produit s'applique à une vente.");
                 }
-                computeCashSaleAmountToPaid(cashSale);
-                arrondirMontantCaisse(cashSale);
+                this.applyRemiseProduit(cashSale, remiseProduit);
+                // Le recalcul complet, promotions comprises : la remise produit vient de réécrire
+                // toutes les lignes, et une promotion cumulable doit se reposer par-dessus.
+                upddateCashSaleAmounts(cashSale);
                 this.cashSaleRepository.save(cashSale);
                 this.displayNet(cashSale.getNetAmount());
             });
@@ -458,6 +440,8 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     public void removeRemiseFromCashSale(SaleId salesId) {
         CashSale sales = findOne(salesId);
         this.removeRemise(sales);
+        // Les lignes viennent d'être remises à zéro : les promotions se reposent.
+        upddateCashSaleAmounts(sales);
         this.cashSaleRepository.save(sales);
         this.displayNet(sales.getNetAmount());
     }

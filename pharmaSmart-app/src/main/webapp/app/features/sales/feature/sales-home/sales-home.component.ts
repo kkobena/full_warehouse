@@ -56,6 +56,7 @@ import { SalesApiService } from '../../data-access/services/sales-api.service';
 import { finalize, interval, TimeoutError } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { ProduitSearch, SalesStatut } from '../../../../shared/model';
+import { PackComptoirService } from '../../data-access/services/pack-comptoir.service';
 import { SaleForEditInfo, SaleId } from '../../../../shared/model/sales.model';
 import { GlobalScannerService } from '../../../../shared/global-scanner.service';
 import { ProduitService } from '../../../../entities/produit/produit.service';
@@ -151,6 +152,7 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
   /** Conservé pour le cas où GlobalScannerService est appelé directement ailleurs. */
   /** Orchestrateur unifié HID + CDC — point d'entrée unique pour le scan vente. */
   private readonly salesScanner = inject(SalesScannerService);
+  private readonly packComptoir = inject(PackComptoirService);
   /** Mode scanner courant exposé au template (badge SERIAL / bouton reconnexion). */
   protected readonly scannerMode = this.salesScanner.scannerMode;
   private produitService = inject(ProduitService);
@@ -860,8 +862,8 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
             this.scanAudio.beepSuccess();
             this.dispatchScannedProduct(results[0], code);
           } else if (results.length === 0) {
-            this.scanAudio.beepError();
-            this.notificationService.error(`Produit non trouvé : ${code}`, 'Scan');
+            // Aucun article : c'est peut-être l'étiquette d'un pack monté par l'officine.
+            this.chercherPack(code);
           } else {
             this.scanAudio.beepWarning();
             const labels = results
@@ -884,6 +886,33 @@ export class SalesHomeComponent implements OnInit, AfterViewInit {
             this.notificationService.error('Erreur de recherche produit', 'Scan');
           }
         },
+      });
+  }
+
+  /**
+   * Le code scanné désigne-t-il un pack en vigueur ? Ses articles s'ajoutent alors au panier, chacun sur
+   * sa ligne et à sa quantité ; le serveur reconnaît le pack complet et pose la remise. Un pack ne se
+   * vend qu'au comptant, comme toute promotion.
+   */
+  private chercherPack(code: string): void {
+    this.packComptoir
+      .chercher(code)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(pack => {
+        if (!pack) {
+          this.scanAudio.beepError();
+          this.notificationService.error(`Produit non trouvé : ${code}`, 'Scan');
+          return;
+        }
+        const creation = this.saleCreation();
+        if (this.active() !== 'comptant' || this.isDevisMode() || !creation) {
+          this.scanAudio.beepError();
+          this.notificationService.warning(`« ${pack.libelle} » est un pack : il ne se vend qu'au comptant.`, 'Scan');
+          return;
+        }
+        this.scanAudio.beepSuccess();
+        this.clearActiveInputAfterScan();
+        this.packComptoir.ajouter(pack, (produit, quantite) => creation.ajouterArticleDePack(produit, quantite));
       });
   }
 

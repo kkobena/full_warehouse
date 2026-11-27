@@ -6,11 +6,8 @@
 --
 --   1. LES REMISES PRODUIT. Le produit porte un « code remise » qui renvoie à
 --      deux taux — l'un pour les ventes non ordonnancées, l'autre pour les
---      ordonnancées. C'est le SEUL mécanisme de remise appliqué à la vente :
---      la remise attachée au client (personnel, fidélité) existe encore dans le
---      modèle et son écran d'administration, mais plus rien ne la lit dans le
---      calcul d'une vente. On ne l'alimente donc pas : des données qu'aucun
---      écran n'exerce ne feraient qu'égarer.
+--      ordonnancées. C'est le SEUL mécanisme de remise appliqué à la vente : la
+--      remise client, héritage jamais exercé, a été retirée (V2.1.66).
 --   2. LES PLAFONDS de prise en charge — traités dans 13b_plafonds.sql, et
 --      non ici : la consommation mensuelle des assurés est RECALCULÉE par
 --      13_consommations.sql depuis les ventes. Toute valeur posée avant lui
@@ -20,8 +17,8 @@
 --
 -- PIÈGES DU MODÈLE, vérifiés sur la base :
 --   * `remise` est une table à héritage SINGLE_TABLE : la colonne `dtype`
---     distingue « RemiseClient » de « RemiseProduit », et la contrainte CHECK
---     n'accepte que ces valeurs.
+--     vaut « RemiseProduit », et la contrainte CHECK n'accepte que celle-là
+--     (et « Remise »).
 --   * `grille_remise.remise_value` est un POURCENTAGE (10 pour 10 %) : c'est
 --     `GrilleRemise.getTauxRemise()` qui divise par 100. Y écrire 0,10 ferait
 --     une remise de 0,1 %.
@@ -44,8 +41,8 @@
 -- (1 à 9), et le code renvoie à deux taux — l'un pour les ventes non
 -- ordonnancées, l'autre pour les ordonnancées.
 -- ---------------------------------------------------------------------------
-INSERT INTO remise (dtype, libelle, remise_value, enable)
-VALUES ('RemiseProduit', 'Grille de remise officine', 0, true)
+INSERT INTO remise (dtype, libelle, enable)
+VALUES ('RemiseProduit', 'Grille de remise officine', true)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO grille_remise (code, remise_value, enable, remise_produit_id)

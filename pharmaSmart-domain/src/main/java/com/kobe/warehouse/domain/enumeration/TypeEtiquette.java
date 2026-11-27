@@ -22,7 +22,13 @@ public enum TypeEtiquette {
     POSOLOGIE("Posologie"),
 
     /** Préparation magistrale : composition, dates et prescripteur, saisis à l'impression. */
-    PREPARATION("Préparation magistrale");
+    PREPARATION("Préparation magistrale"),
+
+    /**
+     * Étiquette de rayon d'une promotion : bandeau « PROMO », prix de référence barré, prix remisé
+     * en gros et date de fin. Une promotion que la cliente ne voit pas ne fait rien vendre.
+     */
+    PROMO("Promotion");
 
     private final String libelle;
 
@@ -36,11 +42,11 @@ public enum TypeEtiquette {
 
     /** Les trois usages servis par le gabarit commun, par opposition aux étiquettes d'article. */
     public boolean isUsage() {
-        return this == REGLETTE || this == POSOLOGIE || this == PREPARATION;
+        return this == REGLETTE || this == POSOLOGIE || this == PREPARATION || this == PROMO;
     }
 
     /** Un prix sur une ordonnance ou sur un pot de préparation n'aurait rien à y faire. */
     public boolean isAvecPrix() {
-        return this == STANDARD || this == LOT || this == REGLETTE;
+        return this == STANDARD || this == LOT || this == REGLETTE || this == PROMO;
     }
 }

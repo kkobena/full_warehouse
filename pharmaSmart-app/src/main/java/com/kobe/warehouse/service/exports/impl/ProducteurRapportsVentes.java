@@ -2,7 +2,11 @@ package com.kobe.warehouse.service.exports.impl;
 
 import com.kobe.warehouse.domain.enumeration.FiltreExport;
 import com.kobe.warehouse.domain.enumeration.FormatExport;
+import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.RapportExport;
+import com.kobe.warehouse.service.remise.JournalRemisesService;
+import com.kobe.warehouse.service.remise.dto.JournalRemisesFiltre;
+import com.kobe.warehouse.service.remise.dto.NatureJournal;
 import com.kobe.warehouse.service.report.MargeReportService;
 import com.kobe.warehouse.service.report.excel.DashboardCAPExcelCsvExportService;
 import com.kobe.warehouse.service.report.pdf.ComparativePdfReportService;
@@ -11,6 +15,7 @@ import com.kobe.warehouse.service.report.pdf.DashboardCAPdfExportService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 
 /** Éditions des écrans Rapports de ventes et Clients, bâties par leur propre service. */
@@ -25,13 +30,16 @@ class ProducteurRapportsVentes {
     private final ComparativePdfReportService comparativePdfReportService;
     private final MargeReportService margeReportService;
     private final CustomerSegmentationPdfReportService customerSegmentationPdfReportService;
+    private final JournalRemisesService journalRemisesService;
 
     ProducteurRapportsVentes(
             DashboardCAPdfExportService dashboardCAPdfExportService,
             DashboardCAPExcelCsvExportService dashboardCAPExcelCsvExportService,
             ComparativePdfReportService comparativePdfReportService,
             MargeReportService margeReportService,
-            CustomerSegmentationPdfReportService customerSegmentationPdfReportService) {
+            CustomerSegmentationPdfReportService customerSegmentationPdfReportService,
+            JournalRemisesService journalRemisesService) {
+        this.journalRemisesService = journalRemisesService;
         this.dashboardCAPdfExportService = dashboardCAPdfExportService;
         this.dashboardCAPExcelCsvExportService = dashboardCAPExcelCsvExportService;
         this.comparativePdfReportService = comparativePdfReportService;
@@ -54,6 +62,7 @@ class ProducteurRapportsVentes {
             case RENTABILITE_PRODUITS ->
                 margeReportService.export(ReglagesRapports.lireEntier(filtres, FiltreExport.FAMILLE_UNIQUE), null);
             case SEGMENTATION_CLIENTS -> customerSegmentationPdfReportService.export();
+            case JOURNAL_REMISES -> produireJournalRemises(format, du, au, filtres);
             default -> throw new IllegalArgumentException("Édition hors des rapports de ventes : " + rapport);
         };
     }
@@ -66,6 +75,25 @@ class ProducteurRapportsVentes {
             case CSV ->
                 ProductionVerifiee.tenter(() -> dashboardCAPExcelCsvExportService.exportDailySummaryToCsv(du, au));
         };
+    }
+
+    /**
+     * Le journal tel que son écran l'exporte, par le même service : sans partie choisie, la synthèse et les trois journaux. Le
+     * service garde ses propres limites — la période d'un an au plus.
+     */
+    private byte[] produireJournalRemises(
+            FormatExport format, LocalDate du, LocalDate au, Map<FiltreExport, List<String>> filtres) {
+        String partie = ReglagesRapports.lireTexte(filtres, FiltreExport.JOURNAL);
+        JournalRemisesFiltre filtre = new JournalRemisesFiltre(
+                du,
+                au,
+                Set.copyOf(ReglagesRapports.lireListe(filtres, FiltreExport.CAISSIER, Integer.class)),
+                Set.copyOf(ReglagesRapports.lireListe(filtres, FiltreExport.VENDEUR, Integer.class)),
+                Set.copyOf(ReglagesRapports.lireListe(filtres, FiltreExport.NATURE_VENTE, NatureVente.class)),
+                Set.copyOf(ReglagesRapports.lireListe(filtres, FiltreExport.PROMOTION, Long.class)),
+                null,
+                null);
+        return journalRemisesService.exporter(format, partie == null ? null : NatureJournal.valueOf(partie), filtre);
     }
 
     /** Les meilleures ventes ne sortent qu'en tableur : l'écran n'en produit pas de PDF. */

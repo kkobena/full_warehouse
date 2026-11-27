@@ -129,7 +129,14 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     protected int getMontantHorsTicket() {
         return TicketNonRembourseBuilder.listerLignesNonRemboursees(thirdPartySale).stream()
-                .mapToInt(SaleLineDTO::getSalesAmount)
+                .mapToInt(l -> l.getSalesAmount() - TicketNonRembourseBuilder.remise(l))
+                .sum();
+    }
+
+    @Override
+    protected int getRemiseHorsTicket() {
+        return TicketNonRembourseBuilder.listerLignesNonRemboursees(thirdPartySale).stream()
+                .mapToInt(TicketNonRembourseBuilder::remise)
                 .sum();
     }
 

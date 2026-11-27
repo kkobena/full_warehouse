@@ -1,6 +1,0 @@
-@use '../../../shared/scss/modal-theme' as *;
-@use 'app/shared/scss/table-common' as *;
-
-:host {
-  @include modal-theme;
-}

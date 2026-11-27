@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -116,7 +117,142 @@ public class ReportExcelExportService {
         });
     }
 
+    /**
+     * Un tableau d'une feuille à plusieurs tableaux : son intitulé, ses en-têtes, ses lignes, et une
+     * ligne de total facultative, en gras.
+     *
+     * <p>Une valeur {@link Number} s'écrit en nombre, que le tableur sait additionner ; toute autre
+     * valeur, en texte. Une cellule nulle reste vide.
+     */
+    public record SectionExcel(String titre, String[] entetes, List<Object[]> lignes, Object[] total) {}
+
+    /**
+     * Crée un classeur dont chaque feuille enchaîne plusieurs tableaux — une synthèse et ses
+     * détails, par exemple. Même présentation que {@link #createExcelReport(String, String[], List,
+     * BiConsumer)} : titre, date d'export, en-têtes sur fond bleu.
+     *
+     * @param title titre du rapport, en tête de chaque feuille
+     * @param feuilles les tableaux de chaque feuille, dans l'ordre d'affichage ; la clé nomme la
+     *     feuille
+     */
+    public byte[] createExcelReport(String title, Map<String, List<SectionExcel>> feuilles) throws IOException {
+        try (SXSSFWorkbook workbook = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);
+                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            CellStyle titleStyle = createTitleStyle(workbook);
+            CellStyle sectionStyle = createSectionStyle(workbook);
+            CellStyle headerStyle = createHeaderStyle(workbook);
+            CellStyle dateStyle = createDateStyle(workbook);
+            CellStyle entierStyle = createNumberStyle(workbook, "#,##0", false);
+            CellStyle decimalStyle = createNumberStyle(workbook, "#,##0.00", false);
+            CellStyle totalEntierStyle = createNumberStyle(workbook, "#,##0", true);
+            CellStyle totalDecimalStyle = createNumberStyle(workbook, "#,##0.00", true);
+            CellStyle totalTexteStyle = createTotalTextStyle(workbook);
+
+            for (Map.Entry<String, List<SectionExcel>> feuille : feuilles.entrySet()) {
+                SXSSFSheet sheet = workbook.createSheet(sanitizeSheetName(feuille.getKey()));
+                sheet.trackAllColumnsForAutoSizing();
+                int largeur = feuille.getValue().stream()
+                        .mapToInt(section -> section.entetes().length)
+                        .max()
+                        .orElse(1);
+                int rowNum = 0;
+
+                Cell titleCell = sheet.createRow(rowNum++).createCell(0);
+                titleCell.setCellValue(title);
+                titleCell.setCellStyle(titleStyle);
+                Cell dateCell = sheet.createRow(rowNum++).createCell(0);
+                dateCell.setCellValue("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
+                dateCell.setCellStyle(dateStyle);
+                if (largeur > 1) {
+                    sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, largeur - 1));
+                    sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, largeur - 1));
+                }
+
+                for (SectionExcel section : feuille.getValue()) {
+                    rowNum++;
+                    Cell sectionCell = sheet.createRow(rowNum++).createCell(0);
+                    sectionCell.setCellValue(section.titre());
+                    sectionCell.setCellStyle(sectionStyle);
+                    Row headerRow = sheet.createRow(rowNum++);
+                    for (int i = 0; i < section.entetes().length; i++) {
+                        Cell cell = headerRow.createCell(i);
+                        cell.setCellValue(section.entetes()[i]);
+                        cell.setCellStyle(headerStyle);
+                    }
+                    for (Object[] ligne : section.lignes()) {
+                        writeValues(sheet.createRow(rowNum++), ligne, entierStyle, decimalStyle, null);
+                    }
+                    if (section.total() != null) {
+                        writeValues(
+                                sheet.createRow(rowNum++),
+                                section.total(),
+                                totalEntierStyle,
+                                totalDecimalStyle,
+                                totalTexteStyle);
+                    }
+                }
+                for (int i = 0; i < largeur; i++) {
+                    sheet.autoSizeColumn(i);
+                }
+            }
+            workbook.write(out);
+            workbook.dispose();
+            return out.toByteArray();
+        }
+    }
+
+    /** Un nombre entier ou décimal à son format ; le reste en texte, avec le style donné s'il y en a un. */
+    private void writeValues(
+            Row row, Object[] valeurs, CellStyle entierStyle, CellStyle decimalStyle, CellStyle texteStyle) {
+        for (int i = 0; i < valeurs.length; i++) {
+            Object valeur = valeurs[i];
+            if (valeur == null) {
+                continue;
+            }
+            Cell cell = row.createCell(i);
+            if (valeur instanceof Number nombre) {
+                cell.setCellValue(nombre.doubleValue());
+                boolean entier = valeur instanceof Integer || valeur instanceof Long || valeur instanceof Short;
+                cell.setCellStyle(entier ? entierStyle : decimalStyle);
+            } else {
+                cell.setCellValue(valeur.toString());
+                if (texteStyle != null) {
+                    cell.setCellStyle(texteStyle);
+                }
+            }
+        }
+    }
+
     // Styles
+
+    private CellStyle createSectionStyle(SXSSFWorkbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setFontHeightInPoints((short) 12);
+        font.setColor(IndexedColors.DARK_BLUE.getIndex());
+        style.setFont(font);
+        return style;
+    }
+
+    private CellStyle createNumberStyle(SXSSFWorkbook workbook, String format, boolean gras) {
+        CellStyle style = workbook.createCellStyle();
+        style.setDataFormat(workbook.createDataFormat().getFormat(format));
+        if (gras) {
+            Font font = workbook.createFont();
+            font.setBold(true);
+            style.setFont(font);
+        }
+        return style;
+    }
+
+    private CellStyle createTotalTextStyle(SXSSFWorkbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        style.setFont(font);
+        return style;
+    }
 
     private CellStyle createTitleStyle(SXSSFWorkbook workbook) {
         CellStyle style = workbook.createCellStyle();

@@ -32,6 +32,9 @@ public class OptionsFiltreExportRepositoryImpl implements OptionsFiltreExportRep
                 DTO
                         + "(cast(u.id AS String), concat(u.firstName, ' ', u.lastName)) FROM AppUser u WHERE u.activated = true ORDER BY u.lastName, u.firstName";
             case MODE_PAIEMENT -> DTO + "(p.code, p.libelle) FROM PaymentMode p ORDER BY p.libelle";
+            case PROMOTION ->
+                DTO
+                        + "(cast(p.id AS String), concat(p.libelle, ' (', p.code, ')')) FROM Promotion p WHERE p.statut <> com.kobe.warehouse.domain.enumeration.StatutPromotion.BROUILLON ORDER BY p.dateDebut DESC, p.libelle";
             default -> null;
         };
         return jpql == null

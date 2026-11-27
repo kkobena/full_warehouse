@@ -1,0 +1,356 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ titre() }}</h4>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" novalidate role="form">
+  <div class="modal-body">
+    <app-card [variant]="'form'" class="d-block mb-3" header="L'opération" icon="pi pi-tags">
+      <div class="form-grid-compact promo-grid">
+        <div class="form-field form-field-full">
+          <label for="pf-libelle">Libellé<span class="required">*</span></label>
+          <input
+            #libelleInput
+            autocomplete="off"
+            class="form-control"
+            formControlName="libelle"
+            id="pf-libelle"
+            placeholder="Ex. : Opération solaire été"
+            type="text"
+          />
+          <small class="field-hint">Imprimé sur le ticket : la cliente doit comprendre pourquoi elle paie moins.</small>
+          @if (editForm.controls.libelle.invalid && editForm.controls.libelle.touched) {
+            <small class="text-danger">Le libellé est obligatoire (100 caractères au plus).</small>
+          }
+        </div>
+
+        <div class="form-field form-field-2col">
+          <label for="pf-type">Mécanique<span class="required">*</span></label>
+          <app-select
+            [clearable]="false"
+            [items]="typeOptions"
+            appendTo="body"
+            bindLabel="label"
+            bindValue="value"
+            formControlName="type"
+            inputId="pf-type"
+          />
+        </div>
+
+        <div class="form-field form-field-2col">
+          @if (estPrixFixe()) {
+            <span class="field-label">Prix promotionnel</span>
+            <small class="field-hint mt-2">Saisi article par article, dans la liste ci-dessous.</small>
+          } @else {
+            <label for="pf-valeur">{{ libelleValeur() }}<span class="required">*</span></label>
+            <app-input-number
+              [max]="type() === 'PROMO_POURCENTAGE' || estSeuil() ? 99 : undefined"
+              [min]="1"
+              [suffix]="estOffre() ? ' offerte(s)' : type() === 'PROMO_POURCENTAGE' || estSeuil() ? ' %' : ' ' + ('' | devise)"
+              formControlName="valeur"
+              inputId="pf-valeur"
+            />
+            @if (editForm.controls.valeur.invalid && editForm.controls.valeur.touched) {
+              <small class="text-danger">
+                {{
+                  estOffre()
+                    ? 'Au moins une unité offerte.'
+                    : type() === 'PROMO_POURCENTAGE' || estSeuil()
+                      ? 'Un taux entre 1 et 99 %.'
+                      : 'Un montant positif.'
+                }}
+              </small>
+            }
+          }
+        </div>
+
+        <div class="form-field form-field-2col">
+          <pharma-date-picker
+            [labelPosition]="'top'"
+            [maxDate]="editForm.controls.dateFin.value"
+            formControlName="dateDebut"
+            id="pf-debut"
+            label="Du (inclus)"
+          />
+          @if (editForm.controls.dateDebut.invalid && editForm.controls.dateDebut.touched) {
+            <small class="text-danger">La date de début est obligatoire.</small>
+          }
+        </div>
+
+        <div class="form-field form-field-2col">
+          <pharma-date-picker
+            [labelPosition]="'top'"
+            [minDate]="editForm.controls.dateDebut.value"
+            formControlName="dateFin"
+            id="pf-fin"
+            label="Au (inclus)"
+          />
+          @if (editForm.controls.dateFin.invalid && editForm.controls.dateFin.touched) {
+            <small class="text-danger">La date de fin est obligatoire.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          @if (estPack()) {
+            <span class="field-label">Composition</span>
+            <small class="field-hint mt-2">
+              La quantité de chaque article se saisit dans la liste ci-dessous. Un pack incomplet ne remise rien ; deux packs complets, deux
+              fois.
+            </small>
+          } @else if (estSeuil()) {
+            <label for="pf-seuil">Dès un achat de<span class="required">*</span></label>
+            <app-input-number [min]="1" [suffix]="' ' + ('' | devise)" formControlName="seuilMontant" inputId="pf-seuil" />
+            <small class="field-hint">
+              Articles de la promotion cumulés, au prix normal. Atteint, le taux vaut pour tout le montant, pas pour l'excédent.
+            </small>
+            @if (editForm.controls.seuilMontant.invalid && editForm.controls.seuilMontant.touched) {
+              <small class="text-danger">Un montant positif.</small>
+            }
+          } @else if (estOffre()) {
+            <label for="pf-qmin">Unités achetées</label>
+            <app-input-number [min]="1" formControlName="quantiteMin" inputId="pf-qmin" suffix=" achetée(s)" />
+            <small class="field-hint">
+              Par groupe de {{ tailleGroupe() }} unités, articles de la promotion mêlés : les moins chères sont offertes.
+            </small>
+          } @else {
+            <label for="pf-qmin">À partir de</label>
+            <app-input-number [min]="1" formControlName="quantiteMin" inputId="pf-qmin" suffix=" unité(s)" />
+            <small class="field-hint">Sur la même ligne du ticket.</small>
+          }
+        </div>
+
+        @if (!estSeuil()) {
+          <div class="form-field">
+            <label for="pf-qmax">Plafond par vente</label>
+            <app-input-number [min]="1" formControlName="quantiteMaxParVente" inputId="pf-qmax" placeholder="Sans plafond" />
+            <small class="field-hint">Par ticket, tous articles de la promotion confondus. Au-delà, prix normal.</small>
+          </div>
+
+          <div class="form-field form-field-2col">
+            <label for="pf-qmax-totale">Dans la limite de</label>
+            <app-input-number
+              [min]="1"
+              formControlName="quantiteMaxTotale"
+              inputId="pf-qmax-totale"
+              placeholder="Sans limite"
+              suffix=" unité(s)"
+            />
+            <small class="field-hint"
+              >Toutes ventes clôturées confondues ; une vente annulée rend ses unités. Atteinte, la promotion est épuisée et le comptoir
+              revient au prix normal.</small
+            >
+          </div>
+        }
+
+        <div class="form-field form-field-2col">
+          <label for="pf-priorite">Priorité</label>
+          <app-input-number formControlName="priorite" inputId="pf-priorite" />
+          <small class="field-hint"
+            >Si deux promotions visent le même article, la plus avantageuse pour le client l'emporte ; la priorité ne départage que les
+            égalités.</small
+          >
+        </div>
+
+        @if (peutCumuler()) {
+          <div class="form-field form-field-full">
+            <app-switch formControlName="cumulable" inputId="pf-cumulable" label="Cumulable avec la remise produit de la vente" />
+            <small class="field-hint"
+              >Désactivé (par défaut), une ligne remisée par le caissier garde sa seule remise. Activé, la promotion s'applique après elle,
+              sur le prix déjà remisé ; au comptoir, elle cède ce qu'il faut pour que l'article reste vendu au-dessus de son prix
+              d'achat.</small
+            >
+          </div>
+        }
+      </div>
+    </app-card>
+
+    <app-card [variant]="'form'" class="d-block" header="Articles en promotion" icon="pi pi-box">
+      <div class="articles-section">
+        <app-produit-search-autocomplete-scanner
+          (scannedProduit)="ajouterArticle($event)"
+          (selectedProduit)="ajouterArticle($event)"
+          [autofocus]="false"
+          [enableScanner]="true"
+          [includeDetails]="true"
+          [pageSize]="10"
+          class="pharma-autocomplete"
+        />
+        @if (!estPack() && optionsPerimetre().length) {
+          <div class="perimetre-bloc">
+            <app-select
+              [(ngModel)]="perimetreChoisi"
+              [clearable]="true"
+              [items]="optionsPerimetre()"
+              [ngModelOptions]="{ standalone: true }"
+              appendTo="body"
+              bindLabel="libelle"
+              bindValue="cle"
+              class="perimetre-select"
+              groupBy="groupe"
+              inputId="pf-perimetre"
+              ariaLabel="Rayon ou famille"
+              placeholder="Ou tout un rayon, toute une famille…"
+            />
+            <app-button
+              (clicked)="ajouterPerimetre()"
+              [disabled]="!perimetreChoisi()"
+              [loading]="chargementPerimetre()"
+              [raised]="true"
+              icon="pi pi-plus"
+              label="Ajouter ses articles"
+              severity="secondary"
+              type="button"
+            />
+          </div>
+        }
+        <small class="field-hint"
+          >Un médicament à prix administré (TVA 0) est accepté, mais signalé : c'est à vous de décider s'il entre dans la promotion. Les
+          articles d'un rayon sont ceux d'aujourd'hui : un article rangé plus tard n'entre pas dans la promotion.</small
+        >
+
+        @if (estPack() && lignes().length) {
+          <div [class.alert-warning]="packAPerte()" [class.alert-info]="!packAPerte()" class="alert py-2 mb-0" role="status">
+            Vendus seuls : <strong>{{ prixReferencePack() | devise }}</strong> · en pack :
+            <strong>{{ valeur() ?? 0 | devise }}</strong>
+            @if (prixReferencePack() > (valeur() ?? 0)) {
+              · la cliente économise <strong>{{ prixReferencePack() - (valeur() ?? 0) | devise }}</strong>
+            }
+            @if (packAPerte()) {
+              <br /><i class="pi pi-exclamation-triangle me-1"></i>Le pack serait vendu à son prix d'achat ({{ prixAchatPack() | devise }})
+              ou en dessous. Possible (fin de série, péremption proche), mais à confirmer à la validation.
+            }
+          </div>
+        }
+
+        @if (administres().length) {
+          <div class="alert alert-warning py-2 mb-0" role="status">
+            <i class="pi pi-exclamation-triangle me-1"></i>
+            {{ administres().length }} médicament(s) à prix administré (TVA 0) dans la promotion : à vous de décider s'ils y restent.
+            <app-button
+              (clicked)="retirerAdministres()"
+              [text]="true"
+              class="ms-2"
+              label="Les retirer"
+              severity="warn"
+              size="small"
+              type="button"
+            />
+          </div>
+        }
+
+        @if (aPerte().length) {
+          <div class="alert alert-warning py-2 mb-0" role="alert">
+            <i class="pi pi-exclamation-triangle me-1"></i>
+            {{ aPerte().length }} article(s) seraient vendus au prix d'achat ou en dessous. Possible (fin de série, péremption proche), mais
+            à confirmer à la validation.
+            <app-button
+              (clicked)="retirerAPerte()"
+              [text]="true"
+              class="ms-2"
+              label="Les retirer"
+              severity="warn"
+              size="small"
+              type="button"
+            />
+          </div>
+        }
+
+        <app-data-table
+          [scrollable]="true"
+          [value]="lignes()"
+          emptyMessage="Recherchez ou scannez un article pour l'ajouter."
+          scrollHeight="18rem"
+          size="small"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Article</th>
+              <th style="width: 8rem">CIP</th>
+              <th class="text-end" style="width: 8rem">Prix</th>
+              @if (estPack()) {
+                <th class="text-end" style="width: 7rem">Qté</th>
+              }
+              @if (estPrixFixe()) {
+                <th class="text-end" style="width: 10rem">Prix promo<span class="required">*</span></th>
+              }
+              <th class="text-end" style="width: 8rem">En promotion</th>
+              <th style="width: 3.5rem"></th>
+            </tr>
+          </ng-template>
+
+          <ng-template #body let-ligne>
+            <tr>
+              <td>
+                <span class="pharma-entity-name">{{ ligne.libelle }}</span>
+                @if (ligne.prixAdministre) {
+                  <app-badge class="ms-2" label="Prix administré" severity="warn" />
+                }
+              </td>
+              <td>
+                <span class="pharma-code">{{ ligne.codeCip ?? '—' }}</span>
+              </td>
+              <td class="text-end">{{ ligne.prix | devise }}</td>
+              @if (estPack()) {
+                <td class="text-end">
+                  <app-input-number
+                    (ngModelChange)="changerQuantite(ligne, $event)"
+                    [min]="1"
+                    [ngModelOptions]="{ standalone: true }"
+                    [ngModel]="ligne.quantite"
+                    [ariaLabel]="'Quantité de ' + ligne.libelle + ' dans le pack'"
+                    size="small"
+                  />
+                </td>
+              }
+              @if (estPrixFixe()) {
+                <td class="text-end">
+                  <app-input-number
+                    (ngModelChange)="changerPrixPromo(ligne, $event)"
+                    [min]="1"
+                    [ngModelOptions]="{ standalone: true }"
+                    [ngModel]="ligne.prixPromo"
+                    ariaLabel="Prix promotionnel"
+                    size="small"
+                  />
+                </td>
+              }
+              <td class="text-end">
+                <span
+                  [class.prix-perte]="estAPerte(ligne)"
+                  [ngbTooltip]="estAPerte(ligne) ? 'Prix d\'achat : ' + (ligne.prixAchat | devise) : ''"
+                  class="prix-promo"
+                  >{{ prixApres(ligne) | devise }}</span
+                >
+              </td>
+              <td class="text-center">
+                <app-button
+                  (clicked)="retirerArticle(ligne)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  ngbTooltip="Retirer"
+                  severity="danger"
+                  size="small"
+                />
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
+    </app-card>
+  </div>
+
+  <div class="modal-footer">
+    <span class="me-auto small text-muted">{{ lignes().length }} article(s)</span>
+    <app-button (clicked)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
+    <app-button
+      [disabled]="editForm.invalid || !peutEnregistrer()"
+      [loading]="isSaving()"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Enregistrer en brouillon"
+      severity="primary"
+      type="submit"
+    />
+  </div>
+</form>

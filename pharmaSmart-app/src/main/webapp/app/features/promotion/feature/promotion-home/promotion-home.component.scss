@@ -1,0 +1,96 @@
+@use 'app/shared/scss/split-panel' as *;
+@use 'app/shared/scss/table-common' as *;
+@use 'app/shared/scss/panel-header' as *;
+
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.panel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pharma-code {
+  font-size: 0.82rem;
+  color: var(--pharma-text-muted);
+  white-space: nowrap;
+}
+
+// Panneau ouvert, la liste n'a plus que 40 % de la largeur : le détail montre déjà la mécanique,
+// la période et les articles.
+.split-container.panel-open .col-secondaire {
+  display: none;
+}
+
+.pharma-entity-name {
+  font-weight: 500;
+}
+
+.promo-conditions {
+  font-size: 0.72rem;
+  color: var(--pharma-text-muted);
+}
+
+.promo-mecanique {
+  font-weight: 600;
+  color: var(--bs-success);
+}
+
+.prix-barre {
+  text-decoration: line-through;
+  color: var(--pharma-text-muted);
+}
+
+.prix-promo {
+  font-weight: 600;
+  color: var(--bs-success);
+
+  &.prix-perte {
+    color: var(--bs-danger);
+  }
+}
+
+.bilan-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.bilan-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.bilan-kpi {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
+
+.bilan-kpi-label {
+  font-size: 0.72rem;
+  color: var(--pharma-text-muted);
+  text-transform: uppercase;
+}
+
+.bilan-kpi-valeur {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.bilan-kpi-detail {
+  font-size: 0.75rem;
+  color: var(--pharma-text-muted);
+}

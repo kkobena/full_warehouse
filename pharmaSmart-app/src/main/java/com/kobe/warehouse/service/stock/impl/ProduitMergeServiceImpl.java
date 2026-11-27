@@ -596,6 +596,7 @@ public class ProduitMergeServiceImpl implements ProduitMergeService {
                 kept.setQuantityUg(kept.getQuantityUg() + line.getQuantityUg());
                 kept.setQuantityAvoir(kept.getQuantityAvoir() + line.getQuantityAvoir());
                 kept.setDiscountAmount(kept.getDiscountAmount() + line.getDiscountAmount());
+                kept.setRemisePromotion(kept.getRemisePromotion() + line.getRemisePromotion());
                 kept.setSalesAmount(kept.getSalesAmount() + line.getSalesAmount());
                 kept.setTaxValue(kept.getTaxValue() + line.getTaxValue());
                 kept.setCostAmount(kept.getCostAmount() + line.getCostAmount());

@@ -39,6 +39,11 @@ export interface ISalesLine {
    */
   /** Ligne exclue de la prise en charge : le patient la règle en totalité (ventes assurance et carnet). */
   nonRembourse?: boolean;
+  /** Taux de remise de la ligne, en fraction (0,10 = 10 %), celui que la FNE déclare. */
+  tauxRemise?: number;
+  /** Promotion posée par le moteur sur la ligne, et son libellé figé à la vente ; absents sinon. */
+  promotionId?: number | null;
+  promotionLibelle?: string | null;
   /** Lots réellement prélevés pour la ligne (vides sans gestion de lots). `expiryDate` : AAAA-MM-JJ. */
   lots?: { id: number; numLot: string; quantity: number; expiryDate?: string | null }[];
   rates?: { compteTiersPayantId: number; rate: number }[];

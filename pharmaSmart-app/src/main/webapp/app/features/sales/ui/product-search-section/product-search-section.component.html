@@ -13,6 +13,7 @@
         [disabled]="rechercheBloquee()"
         [enableScanner]="false"
         (productSelected)="productSelected.emit($event)"
+        (codeInconnu)="codeInconnu.emit($event)"
         (productScanned)="productScanned.emit($event)"
         (onKeyEnter)="onKeyEnter.emit($event)"
       >

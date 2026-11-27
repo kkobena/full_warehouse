@@ -1,7 +1,15 @@
 /** Contrats de l'API des exports (`/api/exports`), miroir des DTO de `service/dto/exports`. */
 
 export type ExportDonnees =
-  'VENTES' | 'LIGNES_VENTE' | 'ENCAISSEMENTS' | 'ACHATS' | 'MOUVEMENTS_STOCK' | 'PRODUITS' | 'CLIENTS' | 'VENTES_JOUR_PRODUIT';
+  | 'VENTES'
+  | 'LIGNES_VENTE'
+  | 'LIGNES_REMISEES'
+  | 'ENCAISSEMENTS'
+  | 'ACHATS'
+  | 'MOUVEMENTS_STOCK'
+  | 'PRODUITS'
+  | 'CLIENTS'
+  | 'VENTES_JOUR_PRODUIT';
 /** Éditions que le menu Exports bâtit sur place, en appelant le service de leur écran. */
 export type RapportExport =
   | 'EXPORT_COMPTABLE'
@@ -16,6 +24,7 @@ export type RapportExport =
   | 'RAPPORT_ACTIVITE'
   | 'TABLEAU_DE_BORD_CA'
   | 'MEILLEURES_VENTES'
+  | 'JOURNAL_REMISES'
   | 'COMPARATIF_VENTES'
   | 'RENTABILITE_PRODUITS'
   | 'SEGMENTATION_CLIENTS'
@@ -52,6 +61,7 @@ export type FiltreExport =
   | 'CAISSIER'
   | 'UTILISATEUR'
   | 'MODE_PAIEMENT'
+  | 'PROMOTION'
   | 'NATURE_VENTE'
   | 'TYPE_PRESCRIPTION'
   | 'TYPE_TRANSACTION'
@@ -73,7 +83,8 @@ export type FiltreExport =
   | 'GROUPEMENT_TVA'
   | 'FAMILLE_UNIQUE'
   | 'DECOUPAGE_COMPARATIF'
-  | 'TYPE_FACTURE';
+  | 'TYPE_FACTURE'
+  | 'JOURNAL';
 
 /** Valeurs retenues par filtre ; une clé absente ou une liste vide ne filtre rien. */
 export type FiltresRetenus = Partial<Record<FiltreExport, string[]>>;

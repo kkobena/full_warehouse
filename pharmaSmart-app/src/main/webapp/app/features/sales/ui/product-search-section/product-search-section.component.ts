@@ -29,6 +29,8 @@ export class ProductSearchSectionComponent {
 
   productSelected = output<ProduitSearch | null>();
   productScanned = output<ProduitSearch>();
+  /** Relaie un code scanné qui ne désigne aucun article (l'étiquette d'un pack, peut-être). */
+  codeInconnu = output<string>();
   onKeyEnter = output<boolean>();
   addQuantite = output<number>();
 

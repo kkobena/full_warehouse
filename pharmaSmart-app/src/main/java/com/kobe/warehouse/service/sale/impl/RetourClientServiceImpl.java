@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.AvoirClient;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Promotion;
+import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.RetourClient;
 import com.kobe.warehouse.domain.RetourClientLine;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -15,7 +17,9 @@ import com.kobe.warehouse.domain.enumeration.AvoirClientStatut;
 import com.kobe.warehouse.domain.enumeration.ModeReglementRetour;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.StatutLegal;
+import com.kobe.warehouse.domain.enumeration.TypePromotion;
 import com.kobe.warehouse.repository.AvoirClientRepository;
+import com.kobe.warehouse.repository.PromotionRepository;
 import com.kobe.warehouse.repository.RetourClientRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
@@ -38,8 +42,13 @@ import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -59,6 +68,7 @@ public class RetourClientServiceImpl implements RetourClientService {
     private final StorageService storageService;
     private final InventoryTransactionService inventoryTransactionService;
     private final AppConfigurationService appConfigurationService;
+    private final PromotionRepository promotionRepository;
 
     public RetourClientServiceImpl(
             RetourClientRepository retourClientRepository,
@@ -69,7 +79,8 @@ public class RetourClientServiceImpl implements RetourClientService {
             ReferenceService referenceService,
             StorageService storageService,
             InventoryTransactionService inventoryTransactionService,
-            AppConfigurationService appConfigurationService) {
+            AppConfigurationService appConfigurationService,
+            PromotionRepository promotionRepository) {
         this.retourClientRepository = retourClientRepository;
         this.salesRepository = salesRepository;
         this.salesLineRepository = salesLineRepository;
@@ -79,6 +90,7 @@ public class RetourClientServiceImpl implements RetourClientService {
         this.storageService = storageService;
         this.inventoryTransactionService = inventoryTransactionService;
         this.appConfigurationService = appConfigurationService;
+        this.promotionRepository = promotionRepository;
     }
 
     @Override
@@ -106,9 +118,11 @@ public class RetourClientServiceImpl implements RetourClientService {
         String customerName = buildCustomerName(sale.getCustomer());
         double tauxPartAssure = computeTauxPartAssure(sale);
         boolean hasTiersPayant = sale.getNatureVente() != NatureVente.COMPTANT;
+        Map<Long, Promotion> promotions = promotions(lines);
         List<SaleLineForRetourDTO> lineDTOs = lines.stream()
                 .filter(sl -> sl.getQuantitySold() > 0)
-                .map(sl -> toSaleLineForRetourDTO(sl, tauxPartAssure))
+                .map(sl -> toSaleLineForRetourDTO(
+                        sl, tauxPartAssure, sl.getPromotionId() == null ? null : promotions.get(sl.getPromotionId())))
                 .toList();
         long ancienneteJours = java.time.temporal.ChronoUnit.DAYS.between(sale.getSaleDate(), LocalDate.now());
         boolean depasseDelai = ancienneteJours > appConfigurationService.getDelaiRetourClient();
@@ -130,6 +144,7 @@ public class RetourClientServiceImpl implements RetourClientService {
         if (CollectionUtils.isEmpty(request.lines())) {
             throw new GenericError("Au moins une ligne est requise");
         }
+        controlerLesPromotions(request.lines());
 
         var user = storageService.getUser();
         int storageId = storageService.getDefaultConnectedUserMainStorage().getId();
@@ -219,9 +234,18 @@ public class RetourClientServiceImpl implements RetourClientService {
                 stockProduitRepository.save(stock);
             }
 
-            int montantBrut = lineReq.quantite() * sl.getRegularUnitPrice();
-            int montantRemboursableClient = (int) Math.round(montantBrut * tauxPartAssure);
-            int montantTp = montantBrut - montantRemboursableClient;
+            int montantRemboursableClient;
+            int montantTp;
+            if (sl.getPromotionId() != null) {
+                // Ligne en promotion d'une vente au comptant, rendue en entier (controlerLesPromotions) :
+                // la cliente récupère ce qu'elle a payé, remise déduite — jamais le prix catalogue.
+                montantRemboursableClient = montantNet(sl);
+                montantTp = 0;
+            } else {
+                int montantBrut = lineReq.quantite() * sl.getRegularUnitPrice();
+                montantRemboursableClient = (int) Math.round(montantBrut * tauxPartAssure);
+                montantTp = montantBrut - montantRemboursableClient;
+            }
             total += montantRemboursableClient;
             totalTp += montantTp;
 
@@ -374,13 +398,123 @@ public class RetourClientServiceImpl implements RetourClientService {
                 line.getMontantTp());
     }
 
-    private SaleLineForRetourDTO toSaleLineForRetourDTO(SalesLine sl, double tauxPartAssure) {
+    /**
+     * Les règles de l'officine pour une ligne en promotion (plan des promotions, §5.7) :
+     *
+     * <ul>
+     *   <li>elle se retourne en entier ou pas du tout — une offre ou une remise ne se répartit pas ;
+     *   <li>un pack se retourne avec tous ses articles, ou pas du tout ;
+     *   <li>sur une vente à crédit (carnet, assurance) ou cumulée avec la remise produit, elle ne se
+     *       retourne pas : on annule la vente et on la ressaisit.
+     * </ul>
+     */
+    private void controlerLesPromotions(List<RetourLineRequest> demandes) {
+        Map<Long, Integer> quantites = new HashMap<>();
+        List<SalesLine> lignes = new ArrayList<>();
+        for (RetourLineRequest demande : demandes) {
+            SalesLine sl = salesLineRepository
+                    .findById(new SaleLineId(demande.salesLineId(), demande.salesLineDate()))
+                    .orElseThrow(() -> new GenericError("Ligne de vente introuvable : " + demande.salesLineId()));
+            quantites.merge(sl.getId().getId(), demande.quantite(), Integer::sum);
+            lignes.add(sl);
+        }
+        Map<Long, Promotion> promotions = promotions(lignes);
+        for (SalesLine sl : lignes) {
+            if (sl.getPromotionId() == null) {
+                continue;
+            }
+            Promotion promotion = promotions.get(sl.getPromotionId());
+            String refus = refusPromotion(sl.getSales(), promotion);
+            if (refus != null) {
+                throw new GenericError(libelle(sl) + " : " + refus);
+            }
+            if (!Objects.equals(quantites.get(sl.getId().getId()), quantiteVendue(sl))) {
+                throw new GenericError(libelle(sl) + " est en promotion : la ligne se retourne en entier ("
+                        + quantiteVendue(sl) + ") ou pas du tout.");
+            }
+            if (estPack(promotion)) {
+                controlerLePackEntier(sl, promotion, quantites);
+            }
+        }
+    }
+
+    private void controlerLePackEntier(SalesLine sl, Promotion pack, Map<Long, Integer> quantites) {
+        Sales sale = sl.getSales();
+        String nom = "Le pack « " + pack.getLibelle() + " »";
+        salesLineRepository
+                .findBySalesIdAndSalesSaleDateOrderByProduitLibelle(sale.getId().getId(), sale.getSaleDate())
+                .stream()
+                .filter(l -> Objects.equals(l.getPromotionId(), sl.getPromotionId()))
+                .forEach(l -> {
+                    if (l.getProduit() != null
+                            && l.getProduit().getStatutLegal() != null
+                            && l.getProduit().getStatutLegal().isRetourInterdit()) {
+                        throw new GenericError(nom + " contient " + libelle(l)
+                                + ", qui ne se reprend pas : le pack ne se retourne pas.");
+                    }
+                    if (!Objects.equals(quantites.get(l.getId().getId()), quantiteVendue(l))) {
+                        throw new GenericError(
+                                nom + " se retourne en entier, tous ses articles, ou pas du tout : il manque "
+                                        + libelle(l) + " (" + quantiteVendue(l) + ").");
+                    }
+                });
+    }
+
+    /** Pourquoi une ligne en promotion ne se retourne pas ; nul si elle se retourne. */
+    static String refusPromotion(Sales sale, Promotion promotion) {
+        if (sale.getNatureVente() != NatureVente.COMPTANT) {
+            return "ligne en promotion d'une vente à crédit (carnet ou assurance) : elle ne se retourne pas,"
+                    + " annuler la vente et la ressaisir.";
+        }
+        if (promotion != null && promotion.isCumulable() && sale.getRemise() instanceof RemiseProduit) {
+            return "promotion cumulée avec la remise produit : la ligne ne se retourne pas,"
+                    + " annuler la vente et la ressaisir.";
+        }
+        return null;
+    }
+
+    private static boolean estPack(Promotion promotion) {
+        return promotion != null && promotion.getType() == TypePromotion.PROMO_PACK;
+    }
+
+    private Map<Long, Promotion> promotions(Collection<SalesLine> lignes) {
+        List<Long> ids = lignes.stream()
+                .map(SalesLine::getPromotionId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        if (ids.isEmpty()) {
+            return Map.of();
+        }
+        return promotionRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Promotion::getId, Function.identity()));
+    }
+
+    /** Ce que la cliente a payé pour la ligne : montant moins la remise. */
+    private static int montantNet(SalesLine sl) {
+        return Objects.requireNonNullElse(sl.getSalesAmount(), 0)
+                - Objects.requireNonNullElse(sl.getDiscountAmount(), 0);
+    }
+
+    private static int quantiteVendue(SalesLine sl) {
+        return Objects.requireNonNullElse(sl.getQuantitySold(), 0);
+    }
+
+    private static String libelle(SalesLine sl) {
+        return sl.getProduit() != null
+                ? sl.getProduit().getLibelle()
+                : String.valueOf(sl.getId().getId());
+    }
+
+    private SaleLineForRetourDTO toSaleLineForRetourDTO(SalesLine sl, double tauxPartAssure, Promotion promotion) {
         Produit p = sl.getProduit();
         FournisseurProduit fp = p != null ? p.getFournisseurProduitPrincipal() : null;
         String codeCip = fp != null ? fp.getCodeCip() : (p != null ? p.getCodeEanLaboratoire() : null);
         var statutLegal = p != null && p.getStatutLegal() != null ? p.getStatutLegal() : StatutLegal.SANS_LISTE;
         int montantBrut = sl.getQuantitySold() * sl.getRegularUnitPrice();
-        int montantRemboursableClient = (int) Math.round(montantBrut * tauxPartAssure);
+        boolean enPromotion = sl.getPromotionId() != null;
+        int montantRemboursableClient = enPromotion ? montantNet(sl) : (int) Math.round(montantBrut * tauxPartAssure);
+        int montantTp = enPromotion ? 0 : montantBrut - montantRemboursableClient;
         return new SaleLineForRetourDTO(
                 sl.getId().getId(),
                 sl.getSaleDate(),
@@ -392,7 +526,11 @@ public class RetourClientServiceImpl implements RetourClientService {
                 statutLegal.isRetourInterdit(),
                 p != null && Boolean.TRUE.equals(p.getThermosensible()),
                 montantRemboursableClient,
-                montantBrut - montantRemboursableClient);
+                montantTp,
+                sl.getPromotionId(),
+                enPromotion ? sl.getPromotionLibelle() : null,
+                estPack(promotion),
+                enPromotion ? refusPromotion(sl.getSales(), promotion) : null);
     }
 
     private double computeTauxPartAssure(Sales sale) {

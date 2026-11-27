@@ -9,7 +9,6 @@ import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -713,6 +712,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public void removeDiscount(SaleId saleId) {
         ThirdPartySales thirdPartySales = findById(saleId);
         removeRemise(thirdPartySales);
+        // Le retrait de la remise efface aussi les promotions des lignes : elles se reposent.
+        appliquerRemisesEtPromotions(thirdPartySales);
         thirdPartyCalculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
         this.displayNet(thirdPartySales.getPartAssure());
     }
@@ -864,29 +865,26 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (thirdPartySales.getRemise() != null) {
             this.removeRemise(thirdPartySales);
         }
-        if (remise instanceof RemiseClient remiseClient) {
-            this.applyRemiseClient(thirdPartySales, remiseClient);
-        } else {
-            // if (thirdPartySales.getNatureVente() == NatureVente.CARNET) {
-            this.applyRemiseProduit(thirdPartySales, (RemiseProduit) remise);
-            thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
-            /*}
-            else {
-                throw new GenericError("La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
-            }*/
+        if (!(remise instanceof RemiseProduit remiseProduit)) {
+            throw new GenericError("Seule une remise produit s'applique à une vente.");
         }
+        this.applyRemiseProduit(thirdPartySales, remiseProduit);
+        thirdPartySales.setNetAmount(thirdPartySales.getSalesAmount() - thirdPartySales.getDiscountAmount());
+        // La remise de grille a écrasé les promotions des lignes : elles se reposent, cumulables comprises.
+        appliquerRemisesEtPromotions(thirdPartySales);
         thirdPartyCalculationManager.reComputeAndApplyAmounts(thirdPartySales, null, true);
     }
 
+    /**
+     * Rappelé à chaque mutation du panier : la remise de la vente, puis les promotions — sur toutes
+     * les lignes d'une vente carnet, sur les seules lignes non remboursées d'une vente assurance.
+     */
     private void applRemiseToSale(ThirdPartySales thirdPartySales) {
         Remise remise = thirdPartySales.getRemise();
-        if (remise == null) {
-            return;
-        }
         if (remise instanceof RemiseProduit && thirdPartySales.getNatureVente() == NatureVente.ASSURANCE) {
             throw new GenericError(
                     "La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
         }
-        this.proccessDiscount(thirdPartySales);
+        appliquerRemisesEtPromotions(thirdPartySales);
     }
 }

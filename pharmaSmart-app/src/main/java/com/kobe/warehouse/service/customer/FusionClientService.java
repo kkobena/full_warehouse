@@ -361,9 +361,6 @@ public class FusionClientService {
         if (!StringUtils.hasText(target.getEmail())) {
             target.setEmail(source.getEmail());
         }
-        if (target.getRemiseClient() == null) {
-            target.setRemiseClient(source.getRemiseClient());
-        }
         if (target instanceof AssuredCustomer t && source instanceof AssuredCustomer s) {
             if (t.getDatNaiss() == null) {
                 t.setDatNaiss(s.getDatNaiss());

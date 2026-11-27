@@ -9,7 +9,7 @@ final class WidgetFormat {
 
     /** Aucune vente sur la période : les services renvoient parfois null plutôt qu'un total nul. */
     static final VenteRecord EMPTY_VENTE =
-            new VenteRecord(0, 0, 0, 0, 0, 0, 0d, 0, 0, 0, 0, 0, 0, 0, 0L, null, null, null);
+            new VenteRecord(0, 0, 0, 0, 0, 0, 0d, 0, 0, 0, 0, 0, 0, 0, 0L, null, null, null, 0);
 
     private WidgetFormat() {}
 

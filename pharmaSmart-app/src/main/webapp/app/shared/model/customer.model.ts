@@ -27,7 +27,6 @@ export interface ICustomer {
   datNaiss?: string;
   numAyantDroit?: string;
   sexe?: string;
-  remiseId?: number;
   plafondConso?: number;
   plafondJournalier?: number;
   plafondAbsolu?: boolean;
@@ -62,7 +61,6 @@ export class Customer implements ICustomer {
     public categorie?: string,
     public datNaiss?: string,
     public sexe?: string,
-    public remiseId?: number,
     public plafondConso?: number,
     public plafondJournalier?: number,
     public plafondAbsolu?: boolean,

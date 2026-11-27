@@ -56,8 +56,12 @@ class ProducteurRapports {
                     DIFFERES_IMPAYES -> comptables.produire(rapport, format, du, au, filtres);
             case PILOTAGE_TABLEAU_DE_BORD, PILOTAGE_ANALYSER, PILOTAGE_ANNEES ->
                 pilotage.produire(rapport, du, au, filtres);
-            case TABLEAU_DE_BORD_CA, MEILLEURES_VENTES, COMPARATIF_VENTES, RENTABILITE_PRODUITS, SEGMENTATION_CLIENTS ->
-                ventes.produire(rapport, format, du, au, filtres);
+            case TABLEAU_DE_BORD_CA,
+                    MEILLEURES_VENTES,
+                    COMPARATIF_VENTES,
+                    RENTABILITE_PRODUITS,
+                    SEGMENTATION_CLIENTS,
+                    JOURNAL_REMISES -> ventes.produire(rapport, format, du, au, filtres);
             case ALERTES_STOCK, ROTATION_STOCK, VALORISATION_STOCK, ABC_PARETO, PRODUITS_A_DETRUIRE ->
                 stock.produire(rapport, format, du, au, filtres);
             case COMPTES_FOURNISSEURS,

@@ -3975,6 +3975,139 @@ export const CAHIER_RECETTE: ModuleRecette[] = [
         ],
       },
       {
+        nom: 'Promotions',
+        accesCode: 'promotions',
+        description:
+          'Des remises datées sur une liste d’articles, appliquées par le comptoir sans aucune saisie, et qui s’arrêtent seules à leur échéance.',
+        scenarios: [
+          {
+            id: 'RFD-22',
+            titre: 'Créer et valider une promotion',
+            besoin:
+              'Lancer une opération commerciale — « −15 % sur les pansements jusqu’à la fin du mois » — sans compter sur la mémoire de chaque caissier.',
+            fonctionnement:
+              'La promotion se prépare en brouillon : mécanique (pourcentage, montant par unité ou prix fixe par article), période, seuil « à partir de N unités », plafonds par ticket et « dans la limite de N unités », et liste d’articles. Un médicament à prix administré et un article vendu au prix d’achat ou en dessous sont acceptés, mais signalés — dans la liste des articles, dans la liste des promotions, et par une confirmation à la validation : c’est au pharmacien d’en décider. Elle ne s’applique qu’une fois validée, aux ventes au comptant, aux ventes carnet et aux lignes non remboursées d’une vente assurance.',
+            etapes: [
+              'Ouvrir « Nouvelle promotion » et saisir le libellé, le taux et la date de fin',
+              'Rechercher l’article et vérifier son prix en promotion',
+              'Enregistrer en brouillon',
+              'Valider la promotion',
+            ],
+            resultatAttendu: 'La promotion apparaît « En cours » dans la liste : le comptoir l’appliquera dès la vente suivante.',
+          },
+          {
+            id: 'RFD-23',
+            titre: 'Une promotion s’applique au comptoir sans saisie',
+            besoin:
+              'Faire payer le prix promotionnel sans qu’un caissier ait à se souvenir de l’opération ni à saisir une remise à la main.',
+            fonctionnement:
+              'À chaque changement du panier, le comptoir cherche les promotions validées du magasin, en vigueur à la date de la vente, qui couvrent l’article. Il retient la plus avantageuse pour le client et pose la remise sur la ligne. Une remise saisie à la main n’est jamais écrasée. Le libellé de la promotion est imprimé sur le ticket.',
+            prerequis: 'Une promotion validée et en cours sur l’article vendu (RFD-22).',
+            etapes: ['Ajouter l’article en promotion au panier', 'Lire la ligne : prix normal barré, prix remisé et nom de la promotion'],
+            resultatAttendu:
+              'La ligne affiche le montant normal barré, le montant remisé et le libellé de la promotion, sans aucune saisie.',
+          },
+          {
+            id: 'RFD-24',
+            titre: 'Une promotion s’arrête d’elle-même à son échéance',
+            besoin: 'Ne pas continuer à vendre au prix promotionnel parce que personne n’a pensé à arrêter l’opération.',
+            fonctionnement:
+              'L’état « à venir, en cours, terminée » n’est pas enregistré : il se lit sur les dates à chaque vente. Le lendemain de la date de fin, la promotion passe d’elle-même à « Terminée » et le comptoir revient au prix normal, sans tâche planifiée ni intervention — même si le serveur est resté éteint à minuit.',
+            prerequis: 'Une promotion validée dont la date de fin est passée.',
+            etapes: [
+              'Consulter la liste des promotions : l’opération est « Terminée »',
+              'Ajouter l’article au panier : il est vendu au prix normal',
+            ],
+            resultatAttendu: 'La promotion échue est « Terminée » et ne remise plus aucune vente.',
+          },
+          {
+            id: 'RFD-25',
+            titre: 'Imprimer les étiquettes de rayon d’une promotion',
+            besoin: 'Montrer la promotion en rayon : une promotion que la cliente ne voit pas ne fait rien vendre.',
+            fonctionnement:
+              'Une étiquette « PROMO » par article remisé, avec le prix normal barré, le prix remisé et la date de fin (et le seuil « dès N » s’il y en a un), sur tous les formats de planche et de rouleau. Seule une promotion validée, en cours ou à venir, s’étiquette : afficher un prix que la caisse ne ferait pas payer est refusé.',
+            prerequis: 'Une promotion validée, en cours ou à venir.',
+            etapes: ['Ouvrir les étiquettes de rayon de la promotion', 'Choisir le format et le nombre d’étiquettes, puis imprimer'],
+            resultatAttendu: 'Le PDF des étiquettes « PROMO » est produit, une étiquette par article et par exemplaire demandé.',
+          },
+          {
+            id: 'RFD-26',
+            titre: 'Une offre « 2 achetés + 1 offert » au comptoir',
+            besoin: 'Proposer « le troisième offert » sur une gamme sans que le caissier ait à compter ni à saisir une ligne gratuite.',
+            fonctionnement:
+              'L’offre N+M met en commun les unités de tous ses articles : la cliente peut mêler deux références. Par groupe de N+M unités, les M moins chères sont offertes ; les unités en surplus restent au prix normal. La remise du groupe se répartit sur toutes ses lignes, au prorata de leur montant : rendre ensuite l’article payé ne laisse pas l’article offert gratuit. Les unités gratuites du fournisseur ne sont jamais employées. L’étiquette de rayon porte le prix normal et l’offre en toutes lettres.',
+            prerequis: 'Une offre N+M validée et en cours sur l’article vendu.',
+            etapes: ['Ajouter deux unités : le groupe est incomplet, rien n’est offert', 'Ajouter la troisième : une unité est offerte'],
+            resultatAttendu:
+              'Avec trois unités, la ligne affiche le montant normal barré, le prix de deux unités et le libellé de l’offre.',
+          },
+          {
+            id: 'RFD-27',
+            titre: 'Vendre un pack en scannant son étiquette',
+            besoin:
+              'Vendre ensemble des articles différents à un prix de lot (« pansements + sparadrap = 2 000 F »), emballés par l’officine, sans saisir chaque article ni calculer la remise.',
+            fonctionnement:
+              'Le pack n’est pas un article stocké : chaque article garde sa ligne, sort de son propre stock et garde sa TVA. Le pack porte un code-barres, imprimé sur l’étiquette collée sur l’emballage. Au scan, le comptoir ajoute ses articles l’un après l’autre, à leur quantité. Le serveur reconnaît le pack complet et répartit la remise entre les lignes, au prorata de leur montant et au franc près. Un pack incomplet ne remise rien ; deux packs complets, deux fois. Saisis un à un, les articles sont reconnus de la même façon.',
+            prerequis: 'Un pack validé et en cours, son étiquette imprimée (Étiquettes du pack).',
+            etapes: [
+              'Scanner l’étiquette du pack dans le champ produit',
+              'Lire les lignes : chaque article porte le pack, et le tout fait le prix du pack',
+            ],
+            resultatAttendu: 'Les articles du pack sont au panier, chacun sur sa ligne, et leur total remisé est le prix du pack.',
+          },
+          {
+            id: 'RFD-28',
+            titre: 'Mettre tout un rayon en promotion',
+            besoin: 'Lancer « −10 % sur tout le rayon accessoires » sans rechercher les articles un par un.',
+            fonctionnement:
+              'Sous la recherche d’article, une liste propose les rayons du magasin et les familles, avec leur nombre d’articles actifs. « Ajouter ses articles » les verse dans la liste de la promotion, sans doublon ; les médicaments à prix administré y entrent, signalés par un badge, et « Les retirer » les enlève d’un clic si on ne veut pas les promouvoir. C’est la liste qui s’enregistre, pas le rayon : chaque article passe les contrôles ordinaires, et un article rangé plus tard dans le rayon n’entre pas dans une promotion déjà validée. Si des articles tomberaient sous leur prix d’achat, « Les retirer » les enlève d’un clic.',
+            prerequis: 'Un rayon qui range des articles à prix libre.',
+            etapes: [
+              'Ouvrir « Nouvelle promotion » et saisir le libellé, le taux et la date de fin',
+              'Choisir le rayon et cliquer « Ajouter ses articles »',
+              'Retirer les articles qui seraient vendus à perte, puis enregistrer en brouillon',
+            ],
+            resultatAttendu: 'Le brouillon porte tous les articles promouvables du rayon, et seulement eux.',
+          },
+          {
+            id: 'RFD-29',
+            titre: 'Une remise dès un montant d’achat',
+            besoin:
+              'Récompenser un panier plutôt qu’un article : « −10 % sur les soins dès 20 000 F d’achat », sans que le caissier ait à additionner ni à saisir la remise.',
+            fonctionnement:
+              'Le seuil se lit sur le prix normal des articles de la promotion présents dans le panier, pas sur tout le ticket : un article hors de la promotion ne l’aide pas à l’atteindre et n’est pas remisé. Atteint, le taux vaut pour tout ce montant, pas pour l’excédent. La remise est répartie sur les lignes au prorata de leur montant, au franc près : chacune garde sa TVA exacte, et un article rendu emporte sa part. Si un article est déjà mieux remisé par une autre promotion, la remise de panier ne s’applique que si elle fait gagner davantage. En rayon, l’étiquette porte le prix normal et « −10 % dès 20 000 CFA d’achat ».',
+            prerequis: 'Une remise dès un montant d’achat validée et en cours, sur des articles à prix libre.',
+            etapes: [
+              'Ajouter des articles de l’opération sous le seuil : rien n’est remisé',
+              'Ajouter l’article qui franchit le seuil : toutes les lignes de l’opération sont remisées',
+            ],
+            resultatAttendu: 'Les lignes de l’opération portent la promotion, et leur remise totale fait le taux de leur montant.',
+          },
+          {
+            id: 'RFD-30',
+            titre: 'Une promotion cumulable avec la remise produit',
+            besoin:
+              'Laisser une opération « −10 % sur les pansements » s’ajouter à la remise produit qu’un client obtient déjà, sans que l’une efface l’autre — et sans risquer de vendre à perte.',
+            fonctionnement:
+              'Par défaut, une promotion ne s’applique pas à une ligne déjà remisée par le caissier. Cochée « Cumulable avec la remise produit de la vente », elle s’applique après elle, sur le prix déjà remisé : la remise de la ligne est la somme des deux. Au comptoir, la promotion cède ce qu’il faut pour que l’article reste vendu au-dessus de son prix d’achat ; la remise du caissier n’est jamais réduite. Seules les promotions en pourcentage, en montant ou à prix fixe se cumulent : une offre, un pack ou une remise de panier répartissent leur remise sur les prix normaux. Une ligne porte toujours une seule promotion.',
+            prerequis: 'Une promotion cumulable, validée et en cours ; une remise produit (grille) paramétrée.',
+            etapes: ['Ajouter l’article en promotion au panier', 'Choisir la remise produit de la vente'],
+            resultatAttendu: 'La ligne garde sa promotion, et sa remise s’ajoute à celle de la grille.',
+          },
+          {
+            id: 'RFD-31',
+            titre: 'Le bilan d’une promotion',
+            besoin:
+              'Savoir, à la fin d’une opération (ou en cours de route), ce qu’elle a coûté et ce qu’elle a rapporté, pour décider de la reconduire.',
+            fonctionnement:
+              'Le détail d’une promotion porte son bilan dès son premier jour : le coût de l’opération (la remise des lignes qu’elle a posées) et les unités remisées, les tickets et les clients identifiés qui en ont profité ; puis, pour ses articles, toutes ventes confondues, les unités vendues, le chiffre d’affaires net et la marge, comparés à la période précédente de même durée — celle qui finit la veille de l’opération. Seules les ventes clôturées et non annulées du magasin comptent ; une vente dépôt, qui est un transfert, n’entre pas. La marge déduit le coût d’achat enregistré à la vente. « Exporter » donne le même bilan en CSV, une ligne par article, avec le droit d’export.',
+            prerequis: 'Une promotion validée, commencée.',
+            etapes: ['Ouvrir le détail de la promotion', 'Lire le bilan', 'Exporter le bilan'],
+            resultatAttendu: 'Le bilan compare l’opération à la période précédente ; le fichier CSV liste chaque article.',
+          },
+        ],
+      },
+      {
         nom: 'Rayons',
         accesCode: 'rayon',
         scenarios: [

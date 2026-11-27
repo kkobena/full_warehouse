@@ -76,7 +76,6 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     adresse: [],
     sexe: [],
     datNaiss: [],
-    remiseId: [],
   });
   readonly tiersPayantService = inject(TiersPayantService);
   private readonly customerService = inject(CustomerService);

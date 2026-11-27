@@ -193,6 +193,37 @@ class CsvExportServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("Plusieurs tableaux")
+    class PlusieursTableaux {
+
+        @Test
+        @DisplayName("titre et date en tête, puis chaque tableau après une ligne vide et son intitulé")
+        void sectionsEnchainees() throws IOException {
+            String csv = new String(
+                    service.createCsvReport(
+                            "Journal",
+                            List.of(
+                                    new CsvExportService.SectionCsv(
+                                            "Synthèse",
+                                            entetes("Nature", "Remise"),
+                                            List.<String[]>of(ligne("Promotions", "380"))),
+                                    new CsvExportService.SectionCsv(
+                                            "Détail",
+                                            entetes("Produit"),
+                                            List.<String[]>of(ligne("Crème"), ligne("Gel"))))),
+                    StandardCharsets.UTF_8);
+
+            List<String> toutes = csv.lines().toList();
+            assertThat(toutes.get(0)).isEqualTo("Journal");
+            assertThat(toutes.get(1)).startsWith("Généré le:");
+            assertThat(toutes.get(2)).isEmpty();
+            assertThat(toutes.subList(3, 6)).containsExactly("Synthèse", "Nature;Remise", "Promotions;380");
+            assertThat(toutes.get(6)).isEmpty();
+            assertThat(toutes.subList(7, 10)).containsExactly("Détail", "Produit", "Crème");
+        }
+    }
+
     // ===== fabriques =====
 
     private String csv(String titre, String[] entetes, List<String[]> donnees) throws IOException {

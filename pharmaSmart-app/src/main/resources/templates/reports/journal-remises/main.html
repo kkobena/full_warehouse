@@ -1,0 +1,81 @@
+<html lang="fr" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+    <title th:text="${reportTitle}">Journal des remises</title>
+    <style th:replace="~{common/landscape}"></style>
+    <style>
+      h1.journal-titre {
+        font-size: 13px;
+        margin: 0 0 6px 0;
+        color: #1f2937;
+      }
+
+      h2.section-titre {
+        font-size: 11px;
+        margin: 10px 0 4px 0;
+        padding-bottom: 2px;
+        border-bottom: 0.5px solid #3989c6;
+        color: #1f2937;
+      }
+
+      .nouvelle-page {
+        page-break-before: always;
+      }
+
+      table.main-table tr td,
+      table.main-table thead tr th {
+        padding: 1px 3px;
+        font-size: 8px;
+      }
+
+      table.main-table td.nombre,
+      table.main-table th.nombre {
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      table.main-table tr.ligne-total td {
+        font-weight: bold;
+        background: #f3f4f6;
+      }
+
+      .vide {
+        font-style: italic;
+        color: #6b7280;
+        margin: 2px 0 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header th:replace="~{common/commonheader}"></header>
+    <div class="invoice">
+      <main>
+        <h1 class="journal-titre" th:text="${reportTitle}"></h1>
+        <!-- Un tableau par partie : la synthèse, puis chaque journal sur sa page -->
+        <div th:each="tableau, etat : ${tableaux}" th:class="${tableau.nouvellePage() and !etat.first} ? 'nouvelle-page' : ''">
+          <h2 class="section-titre" th:text="${tableau.titre()}"></h2>
+          <p class="vide" th:if="${#lists.isEmpty(tableau.lignes())}">Aucune ligne sur la période.</p>
+          <table class="main-table" th:unless="${#lists.isEmpty(tableau.lignes())}">
+            <thead>
+              <tr>
+                <th
+                  th:each="entete, i : ${tableau.entetes()}"
+                  th:class="${tableau.numerique()[i.index]} ? 'nombre' : ''"
+                  th:text="${entete}"
+                ></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="ligne : ${tableau.lignes()}">
+                <td th:each="valeur, i : ${ligne}" th:class="${tableau.numerique()[i.index]} ? 'nombre' : ''" th:text="${valeur}"></td>
+              </tr>
+              <tr class="ligne-total" th:if="${tableau.total() != null}">
+                <td th:each="valeur, i : ${tableau.total()}" th:class="${tableau.numerique()[i.index]} ? 'nombre' : ''" th:text="${valeur}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

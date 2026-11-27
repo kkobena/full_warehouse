@@ -276,6 +276,29 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   font-size: 14px;
 }
 
+// Ligne en promotion : le montant d'avant, barré, au-dessus du montant payé ; le libellé dessous.
+.pharma-total-barre {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--pharma-text-muted);
+  text-decoration: line-through;
+}
+
+.promo-ligne {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--bs-success);
+  white-space: nowrap;
+
+  .pi {
+    font-size: 0.7rem;
+  }
+}
+
 // ====================================
 // INPUTS ÉDITABLES
 // ====================================

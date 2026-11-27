@@ -157,6 +157,7 @@
           [clearSelectionTrigger]="clearSelectionTrigger()"
           (favoriChanged)="onFavoriChanged($event)"
           [favorisIds]="favorisIds()"
+          [promotions]="promotions()"
           [loading]="loading()"
           [produits]="produits()"
           [rows]="rows()"
@@ -173,6 +174,7 @@
             (editRequested)="onEditRequested($event)"
             [canEdit]="canEdit()"
             [produit]="selectedProduit()!"
+            [promotion]="promotions().get(selectedProduit()!.id!)"
           />
         </div>
       }

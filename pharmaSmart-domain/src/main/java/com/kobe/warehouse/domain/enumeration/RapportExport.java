@@ -122,6 +122,19 @@ public enum RapportExport implements SujetExport {
             List.of(FormatExport.XLSX, FormatExport.CSV),
             List.of(),
             List.of("rapport-ventes.dashboard-ca")),
+    JOURNAL_REMISES(
+            "Ventes",
+            "Journal des remises, promotions et UG",
+            "Ce que les promotions et les remises produit ont coûté, et ce que les UG du fournisseur ont rapporté, avec leur marge. Toute la période, ou un seul journal.",
+            true,
+            List.of(FormatExport.PDF, FormatExport.XLSX, FormatExport.CSV),
+            List.of(
+                    FiltreExport.JOURNAL,
+                    FiltreExport.NATURE_VENTE,
+                    FiltreExport.CAISSIER,
+                    FiltreExport.VENDEUR,
+                    FiltreExport.PROMOTION),
+            List.of("journal-remises", "promotions.journal")),
     COMPARATIF_VENTES(
             "Ventes",
             "Comparatif des ventes",

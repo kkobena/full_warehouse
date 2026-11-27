@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.kobe.warehouse.domain.AssuredCustomer;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
@@ -17,7 +16,6 @@ import java.util.Optional;
 
 public class AssuredCustomerDTO extends CustomerDTO {
 
-    private RemiseClient remise;
     private String sexe;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -39,7 +37,6 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     private Integer assureId;
     private String numAyantDroit;
-    private Integer remiseId;
     private Integer tiersPayantId;
     private Integer plafondConso;
     private Integer plafondJournalier;
@@ -56,7 +53,6 @@ public class AssuredCustomerDTO extends CustomerDTO {
             List<ClientTiersPayantDTO> clientTiersPayants,
             List<AssuredCustomerDTO> ayantDroits) {
         super(customer);
-        this.remise = customer.getRemiseClient();
         this.sexe = customer.getSexe();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.num = customer.getNumAyantDroit();
@@ -132,15 +128,6 @@ public class AssuredCustomerDTO extends CustomerDTO {
                 .setId(tiersPayant.getTiersPayantId())
                 .setName(tiersPayant.getTiersPayantName())
                 .setFullName(tiersPayant.getTiersPayantFullName());
-    }
-
-    public Integer getRemiseId() {
-        return remiseId;
-    }
-
-    public AssuredCustomerDTO setRemiseId(Integer remiseId) {
-        this.remiseId = remiseId;
-        return this;
     }
 
     public Integer getTiersPayantId() {
@@ -238,15 +225,6 @@ public class AssuredCustomerDTO extends CustomerDTO {
 
     public AssuredCustomerDTO setAssureId(Integer assureId) {
         this.assureId = assureId;
-        return this;
-    }
-
-    public RemiseClient getRemise() {
-        return remise;
-    }
-
-    public AssuredCustomerDTO setRemise(RemiseClient remise) {
-        this.remise = remise;
         return this;
     }
 

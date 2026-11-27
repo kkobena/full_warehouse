@@ -83,6 +83,28 @@ public class EtiquetteUsageServiceImpl implements EtiquetteUsageService {
     }
 
     @Override
+    public byte[] imprimerPromotion(List<EtiquetteDTO> etiquettes, int startAt, FormatEtiquette format) {
+        return imprimer(etiquettes, TypeEtiquette.PROMO, startAt, format);
+    }
+
+    @Override
+    public String genererZplPromotion(
+            List<EtiquetteDTO> etiquettes, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return zplEtiquetteService.rendreEtiquettes(etiquettes, TypeEtiquette.PROMO, format, resolution);
+    }
+
+    @Override
+    public byte[] imprimerPack(List<EtiquetteDTO> etiquettes, int startAt, FormatEtiquette format) {
+        return imprimer(etiquettes, TypeEtiquette.REGLETTE, startAt, format);
+    }
+
+    @Override
+    public String genererZplPack(
+            List<EtiquetteDTO> etiquettes, FormatEtiquette format, ResolutionEtiquette resolution) {
+        return zplEtiquetteService.rendreEtiquettes(etiquettes, TypeEtiquette.REGLETTE, format, resolution);
+    }
+
+    @Override
     public byte[] imprimerPreparation(EtiquettePreparationDTO saisie, int qty, int startAt, FormatEtiquette format) {
         return imprimer(construirePreparations(saisie, qty), TypeEtiquette.PREPARATION, startAt, format);
     }

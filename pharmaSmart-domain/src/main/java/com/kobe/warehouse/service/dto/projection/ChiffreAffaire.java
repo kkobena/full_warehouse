@@ -13,10 +13,19 @@ public record ChiffreAffaire(
         BigDecimal montantTp,
         BigDecimal montantAchat,
         BigDecimal montantRemiseUg,
-        List<Recette> payments) {
-    @JsonProperty("montantTva")
-    public BigDecimal getMontantTva() {
+        List<Recette> payments,
+        BigDecimal montantTva) {
+    /**
+     * La TVA collectée, telle que le rapport la calcule : sur le net des lignes, remise déduite. À
+     * défaut, TTC − remise − HT : le HT est calculé sur le net.
+     */
+    @Override
+    public BigDecimal montantTva() {
+        if (montantTva != null) {
+            return montantTva;
+        }
         return Objects.requireNonNullElse(montantTtc, BigDecimal.ZERO)
+                .subtract(Objects.requireNonNullElse(montantRemise, BigDecimal.ZERO))
                 .subtract(Objects.requireNonNullElse(montantHt, BigDecimal.ZERO));
     }
 

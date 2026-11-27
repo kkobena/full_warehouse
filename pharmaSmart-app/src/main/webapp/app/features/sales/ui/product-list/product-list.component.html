@@ -326,9 +326,17 @@
           }
         </td>
 
-        <!-- TOTAL -->
+        <!-- TOTAL : une ligne en promotion montre le montant barré, le montant remisé et le libellé de l'opération -->
         <td style="text-align: right">
-          <span class="pharma-total">{{ line.salesAmount | number }}</span>
+          @if (line.promotionLibelle && line.discountAmount) {
+            <span class="pharma-total-barre">{{ line.salesAmount | number }}</span>
+            <span class="pharma-total">{{ line.salesAmount - line.discountAmount | number }}</span>
+            <span [ngbTooltip]="'Promotion appliquée automatiquement : - ' + (line.discountAmount | number)" class="promo-ligne">
+              <i aria-hidden="true" class="pi pi-tag"></i>{{ line.promotionLibelle }}
+            </span>
+          } @else {
+            <span class="pharma-total">{{ line.salesAmount | number }}</span>
+          }
         </td>
 
         <!-- NON REMBOURSÉ : le patient règle la ligne en totalité (ventes à tiers payant) -->
@@ -444,7 +452,7 @@
         </div>
         @if (line.discountAmount) {
           <div>
-            <dt>Remise sur la ligne</dt>
+            <dt>{{ line.promotionLibelle ? 'Promotion « ' + line.promotionLibelle + ' »' : 'Remise sur la ligne' }}</dt>
             <dd>- {{ line.discountAmount | number }}</dd>
           </div>
         }

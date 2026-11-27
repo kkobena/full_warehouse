@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = RemiseClientDTO.class, name = "remiseClient"),
     @JsonSubTypes.Type(value = RemiseProduitDTO.class, name = "remiseProduit"),
 })
 public class RemiseDTO implements Serializable {

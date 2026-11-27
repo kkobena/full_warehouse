@@ -8,8 +8,10 @@ import { ButtonComponent, CardComponent, CheckboxComponent, InputNumberComponent
 import {
   IRetourClientResult,
   ISaleForRetour,
+  estRetournable,
   ISaleLineForRetour,
   ModeReglementRetour,
+  montantRetour,
   MotifRetourClient,
   RetourClientApiService,
   RetourClientRequest,
@@ -73,17 +75,14 @@ export class RetourClientModalComponent {
     { label: 'Avoir client', value: 'AVOIR_CLIENT', icon: 'pi pi-ticket' },
   ];
 
-  protected readonly montantTotal = computed(() =>
-    this.selectedLines().reduce((s, l) => {
-      const price = l.montantRemboursableClient ?? l.netUnitPrice ?? 0;
-      return s + (l.quantiteRetour ?? 0) * price;
-    }, 0),
-  );
+  protected readonly montantTotal = computed(() => this.selectedLines().reduce((s, l) => s + montantRetour(l), 0));
+  protected readonly estRetournable = estRetournable;
+  protected readonly montantRetour = montantRetour;
 
   protected readonly canSubmit = computed(() => {
     if (!this.currentSale() || !this.motif()) return false;
     if (!this.avecEchange() && !this.modeReglement()) return false;
-    return this.selectedLines().some(l => !l.retourInterdit && (l.quantiteRetour ?? 0) > 0);
+    return this.selectedLines().some(l => estRetournable(l) && (l.quantiteRetour ?? 0) > 0);
   });
 
   /** Reçoit l'ISales sélectionnée depuis le contexte appelant. */
@@ -128,6 +127,15 @@ export class RetourClientModalComponent {
     );
   }
 
+  /** Une ligne en promotion se retourne en entier ; un pack, avec tous ses articles. */
+  protected retournerEnEntier(line: ISaleLineForRetour, oui: boolean): void {
+    const concernee = (l: ISaleLineForRetour): boolean =>
+      l.salesLineId === line.salesLineId || (line.pack === true && l.promotionId === line.promotionId);
+    this.selectedLines.update(lines =>
+      lines.map(l => (concernee(l) && estRetournable(l) ? { ...l, quantiteRetour: oui ? (l.quantitySold ?? 0) : 0 } : l)),
+    );
+  }
+
   protected updateLineState(
     salesLineId: number | undefined,
     field: 'emballageIntact' | 'numLotLisible' | 'datePeremptionValide',
@@ -148,7 +156,7 @@ export class RetourClientModalComponent {
     if (!sale || !motif || !modeReglement) return;
 
     const lines = this.selectedLines()
-      .filter(l => !l.retourInterdit && (l.quantiteRetour ?? 0) > 0)
+      .filter(l => estRetournable(l) && (l.quantiteRetour ?? 0) > 0)
       .map(l => ({
         salesLineId: l.salesLineId!,
         salesLineDate: l.salesLineDate!,

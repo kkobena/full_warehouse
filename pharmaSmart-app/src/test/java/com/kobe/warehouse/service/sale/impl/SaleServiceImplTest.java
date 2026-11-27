@@ -29,7 +29,6 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
@@ -582,6 +581,19 @@ class SaleServiceImplTest {
     }
 
     @Test
+    void removingItemRoundsAmountToBePaidLikeAnyOtherMutation() {
+        testSale.setSalesAmount(1_000);
+        testSale.setCostAmount(500);
+        testSale.setHtAmount(1_000);
+        testSalesLine.setSalesAmount(497);
+
+        saleService.upddateCashSaleAmountsOnRemovingItem(testSale, testSalesLine);
+
+        assertEquals(503, testSale.getNetAmount());
+        assertEquals(505, testSale.getAmountToBePaid());
+    }
+
+    @Test
     void testSavePreventeUpdatesExistingSale() {
         testSale.setStatut(SalesStatut.PROCESSING);
         CashSaleDTO dto = new CashSaleDTO();
@@ -687,17 +699,14 @@ class SaleServiceImplTest {
     }
 
     @Test
-    void testProcessDiscount() {
+    void testProcessDiscount_RefuseUneRemiseQuiNEstPasUneRemiseProduit() {
         UpdateSaleInfo info = new UpdateSaleInfo(new SaleId(1L, testDate), 1);
-        RemiseClient remise = new RemiseClient();
 
         when(cashSaleRepository.findById(any())).thenReturn(Optional.of(testSale));
-        when(remiseRepository.findById(1)).thenReturn(Optional.of(remise));
+        when(remiseRepository.findById(1)).thenReturn(Optional.of(new com.kobe.warehouse.domain.Remise()));
 
-        saleService.processDiscount(info);
-
-        verify(cashSaleRepository).save(testSale);
-        assertInstanceOf(RemiseClient.class, testSale.getRemise());
+        assertThrows(GenericError.class, () -> saleService.processDiscount(info));
+        verify(cashSaleRepository, never()).save(testSale);
     }
 
     @Test
@@ -717,8 +726,8 @@ class SaleServiceImplTest {
     @Test
     void testProcessDiscount_ReplacesExistingDiscount() {
         UpdateSaleInfo info = new UpdateSaleInfo(testSale.getId(), 3);
-        testSale.setRemise(new RemiseClient());
-        RemiseClient replacement = new RemiseClient();
+        testSale.setRemise(new RemiseProduit());
+        RemiseProduit replacement = new RemiseProduit();
         when(cashSaleRepository.findById(testSale.getId())).thenReturn(Optional.of(testSale));
         when(remiseRepository.findById(3)).thenReturn(Optional.of(replacement));
 

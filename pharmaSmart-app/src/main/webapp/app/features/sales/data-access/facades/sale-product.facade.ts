@@ -243,28 +243,6 @@ export class SaleProductFacade {
     );
   }
 
-  applyLineDiscount(lineId: number, discountAmount: number): void {
-    const currentSale = this.store.currentSale();
-    if (!currentSale?.salesLines || !currentSale.saleId) {
-      return;
-    }
-
-    const line = currentSale.salesLines.find(l => l.id === lineId);
-    if (!line) {
-      return;
-    }
-
-    const updatedLine: ISalesLine = {
-      ...line,
-      discountAmount,
-      saleCompositeId: currentSale.saleId,
-    };
-
-    this.executeAndReloadSale(this.apiService.updateItemPrice(updatedLine), currentSale.saleId, {
-      errorMessage: "Erreur lors de l'application de la remise",
-    });
-  }
-
   updateRemise(remise?: IRemise): void {
     const currentSale = this.store.currentSale();
     const saleType = this.store.saleType();

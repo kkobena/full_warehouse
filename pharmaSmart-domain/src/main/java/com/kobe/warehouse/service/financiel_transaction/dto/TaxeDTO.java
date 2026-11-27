@@ -16,6 +16,7 @@ public class TaxeDTO {
     private Long montantAchat = 0L;
     private Integer codeTva;
     private Long amountToBeTakenIntoAccount = 0L;
+    private Long montantTva;
 
     public TaxeDTO() {}
 
@@ -62,9 +63,19 @@ public class TaxeDTO {
         this.montantHt = montantHt;
     }
 
+    /**
+     * La TVA collectée, telle que l'état la calcule : sur le net de chaque ligne, remise déduite.
+     * TTC − HT, à défaut, y remettrait la remise : le HT est désormais calculé sur le net.
+     */
     public Long getMontantTaxe() {
-        montantTaxe = Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(this.montantHt, 0L);
+        montantTaxe = montantTva != null
+                ? montantTva
+                : Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(this.montantHt, 0L);
         return montantTaxe;
+    }
+
+    public void setMontantTva(Long montantTva) {
+        this.montantTva = montantTva;
     }
 
     public void setMontantTaxe(Long montantTaxe) {

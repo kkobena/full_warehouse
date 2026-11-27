@@ -21,11 +21,6 @@ export class Remise implements IRemise {
   ) {}
 }
 
-export enum RemiseType {
-  remiseClient = 'Remise client',
-  remiseProduit = 'Remise produit',
-}
-
 export class CodeRemise {
   constructor(
     public value: string,

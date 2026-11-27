@@ -1,0 +1,206 @@
+<!-- ── Toolbar : titre, période et filtres, export ─────────────────────────── -->
+<app-toolbar [code]="navCode()" [compact]="true" [icon]="icone()" [title]="titre()">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <app-journal-filtres [avecOrigine]="!estUg()" [idPrefixe]="'journal-' + nature()" />
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-toolbar-actions">
+      <div class="pharma-button-group">
+        <app-button (clicked)="afficher()" [disabled]="chargement()" icon="pi pi-search" label="Afficher" severity="info" />
+        @if (peutExporter()) {
+          <app-split-button
+            (clicked)="telechargement.telecharger('PDF', nature(), filtres.demande())"
+            [disabled]="telechargement.enCours()"
+            [items]="formats()"
+            icon="pi pi-file-export"
+            label="Exporter"
+            severity="warn"
+          />
+        }
+      </div>
+    </div>
+  </ng-container>
+</app-toolbar>
+
+<app-hint [storageKey]="'journal-remises-' + nature()">{{ explication() }}</app-hint>
+
+<!-- ── Indicateurs, sur toute la période ───────────────────────────────────── -->
+@if (estUg()) {
+  <app-kpi-strip [loading]="!synthese()" [skeletonCount]="4" stripClass="mb-2">
+    <app-kpi-item
+      [accent]="'info'"
+      [value]="synthese()?.ug?.unites | number"
+      icon="pi pi-gift"
+      iconClass="text-info"
+      label="UG vendues"
+      info="Unités gratuites du fournisseur sorties sur la période, et nombre de tickets où elles apparaissent."
+      valueClass="text-info"
+    >
+      <ng-container ngProjectAs="[kpiSub]">{{ synthese()?.ug?.tickets | number }} ticket(s)</ng-container>
+    </app-kpi-item>
+    <app-kpi-item
+      [accent]="'secondary'"
+      [value]="synthese()?.ug?.valeur | number: '1.0-0'"
+      icon="pi pi-tag"
+      iconClass="text-secondary"
+      label="Valeur au tarif"
+      info="UG au prix de vente unitaire, avant remise. La remise de la ligne leur est imputée au prorata des unités."
+      suffix="F"
+    >
+      <ng-container ngProjectAs="[kpiSub]">dont {{ synthese()?.ug?.remise | number: '1.0-0' }} F de remise</ng-container>
+    </app-kpi-item>
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="synthese()?.ug?.marge | number: '1.0-0'"
+      icon="pi pi-percentage"
+      iconClass="text-success"
+      label="Marge des UG"
+      info="HT net des UG : elles n'ont rien coûté, tout leur prix est marge."
+      suffix="F"
+      valueClass="text-success"
+    />
+    <app-kpi-item
+      [accent]="'warning'"
+      [value]="synthese()?.ug?.coutEvite | number: '1.0-0'"
+      icon="pi pi-wallet"
+      iconClass="text-warning"
+      label="Coût d'achat évité"
+      info="Ce que ces unités auraient coûté au prix d'achat. Les états de marge le comptent pourtant comme dépensé : ils sous-estiment la marge d'autant (défaut connu, en cours de correction)."
+      suffix="F"
+    />
+  </app-kpi-strip>
+} @else {
+  <app-kpi-strip [loading]="!totaux()" [skeletonCount]="4" stripClass="mb-2">
+    <app-kpi-item
+      [accent]="'primary'"
+      [value]="totaux()?.lignes | number"
+      icon="pi pi-list"
+      iconClass="text-primary"
+      label="Lignes remisées"
+      info="Lignes de vente portant cette remise sur la période et les filtres appliqués, et nombre de tickets où elles apparaissent."
+      valueClass="text-primary"
+    >
+      <ng-container ngProjectAs="[kpiSub]">{{ totaux()?.tickets | number }} ticket(s)</ng-container>
+    </app-kpi-item>
+    <app-kpi-item
+      [accent]="'secondary'"
+      [value]="totaux()?.montantBrut | number: '1.0-0'"
+      icon="pi pi-tag"
+      iconClass="text-secondary"
+      label="Montant brut"
+      info="Ces lignes au prix de vente, avant toute remise."
+      suffix="F"
+    />
+    <app-kpi-item
+      [accent]="'danger'"
+      [value]="totaux()?.remise | number: '1.0-0'"
+      [icon]="icone()"
+      iconClass="text-danger"
+      label="Remise accordée"
+      info="La seule part de la remise qui revient à cette nature : sur une ligne cumulée, l'autre part est dans l'autre journal."
+      suffix="F"
+      valueClass="text-danger"
+    />
+    <app-kpi-item
+      [accent]="'success'"
+      [value]="totaux()?.montantNet | number: '1.0-0'"
+      icon="pi pi-check-circle"
+      iconClass="text-success"
+      label="Montant net"
+      info="Ce que ces lignes ont rapporté, toutes remises déduites."
+      suffix="F"
+      valueClass="text-success"
+    />
+  </app-kpi-strip>
+}
+
+<!-- ── Détail ──────────────────────────────────────────────────────────────── -->
+<app-card>
+  <app-data-table
+    (onLazyLoad)="onLazyLoad($event)"
+    [first]="first()"
+    [lazy]="true"
+    [loading]="chargement()"
+    [paginator]="true"
+    [rows]="lignesParPage"
+    [showCurrentPageReport]="true"
+    [stripedRows]="true"
+    [totalRecords]="total()"
+    [value]="lignes()"
+    emptyMessage="Aucune ligne sur cette période"
+    size="small"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 6.5rem">Date</th>
+        <th style="width: 7rem">Ticket</th>
+        <th style="width: 7rem">Vente</th>
+        <th style="width: 8rem">Code</th>
+        <th>Produit</th>
+        @if (estPromotions()) {
+          <th>Promotion</th>
+        } @else if (!estUg()) {
+          <th style="width: 10rem">Grille</th>
+        }
+        <th class="text-end" style="width: 5rem">Qté</th>
+        @if (estUg()) {
+          <th class="text-end" style="width: 5rem">Dont UG</th>
+          <th class="text-end" style="width: 7rem">Valeur UG</th>
+          <th class="text-end" style="width: 7rem">Remise UG</th>
+          <th class="text-end" style="width: 7rem">Marge UG</th>
+          <th class="text-end" style="width: 7rem">Coût évité</th>
+          <th class="text-end" style="width: 7rem">Marge réelle</th>
+        } @else {
+          <th class="text-end" style="width: 7rem">Brut</th>
+          <th class="text-end" style="width: 7rem">Remise</th>
+          @if (estPromotions()) {
+            <th class="text-end" style="width: 5rem">Unités</th>
+          } @else {
+            <th class="text-end" style="width: 5rem">Taux</th>
+          }
+          <th style="width: 9rem">Origine</th>
+          <th class="text-end" style="width: 7rem">Net</th>
+        }
+        <th style="width: 9rem">Caissier</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-l>
+      <tr>
+        <td>{{ l.date | date: 'dd/MM/yyyy' }}</td>
+        <td class="small">{{ l.ticket }}</td>
+        <td class="small text-muted">{{ natureVente(l.natureVente) }}</td>
+        <td class="small text-muted">{{ l.cip }}</td>
+        <td>{{ l.produit }}</td>
+        @if (estPromotions()) {
+          <td class="small">{{ l.promotionLibelle }}</td>
+        } @else if (!estUg()) {
+          <td class="small">{{ l.grille }}</td>
+        }
+        <td class="text-end">{{ l.quantite | number }}</td>
+        @if (estUg()) {
+          <td class="text-end fw-semibold">{{ l.quantiteUg | number }}</td>
+          <td class="text-end">{{ l.valeurUg | number: '1.0-0' }}</td>
+          <td class="text-end text-danger">{{ l.remiseUg | number: '1.0-0' }}</td>
+          <td class="text-end text-success">{{ l.margeUg | number: '1.0-0' }}</td>
+          <td class="text-end">{{ l.coutEviteUg | number: '1.0-0' }}</td>
+          <td [class.text-danger]="l.margeReelle < 0" class="text-end">{{ l.margeReelle | number: '1.0-0' }}</td>
+        } @else {
+          <td class="text-end">{{ l.montantBrut | number: '1.0-0' }}</td>
+          <td class="text-end text-danger">
+            {{ (estPromotions() ? l.partPromotion : l.partRemiseProduit) | number: '1.0-0' }}
+          </td>
+          @if (estPromotions()) {
+            <td class="text-end">{{ l.unitesPromo | number }}</td>
+          } @else {
+            <td class="text-end">{{ l.tauxRemise | number: '1.0-2' }} %</td>
+          }
+          <td class="small text-muted">{{ origine(l.origine) }}</td>
+          <td class="text-end">{{ l.montantNet | number: '1.0-0' }}</td>
+        }
+        <td class="small text-muted">{{ l.caissier }}</td>
+      </tr>
+    </ng-template>
+  </app-data-table>
+</app-card>

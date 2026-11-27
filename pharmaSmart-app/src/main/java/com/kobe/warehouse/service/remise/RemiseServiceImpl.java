@@ -3,22 +3,20 @@ package com.kobe.warehouse.service.remise;
 import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.enumeration.CodeGrilleRemise;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.repository.GrilleRemiseRepository;
-import com.kobe.warehouse.repository.RemiseClientRepository;
 import com.kobe.warehouse.repository.RemiseProduitRepository;
 import com.kobe.warehouse.repository.RemiseRepository;
 import com.kobe.warehouse.service.dto.CodeRemiseDTO;
 import com.kobe.warehouse.service.dto.GrilleRemiseDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
-import com.kobe.warehouse.service.dto.RemiseClientDTO;
 import com.kobe.warehouse.service.dto.RemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseProduitDTO;
 import com.kobe.warehouse.service.dto.RemiseProduitsDTO;
 import com.kobe.warehouse.service.dto.TypeRemise;
+import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.ProduitService;
 import java.util.Arrays;
 import java.util.List;
@@ -35,19 +33,16 @@ public class RemiseServiceImpl implements RemiseService {
 
     private final RemiseRepository remiseRepository;
     private final RemiseProduitRepository remiseProduitRepository;
-    private final RemiseClientRepository remiseClientRepository;
     private final GrilleRemiseRepository grilleRemiseRepository;
     private final ProduitService produitService;
 
     public RemiseServiceImpl(
             RemiseRepository remiseRepository,
             RemiseProduitRepository remiseProduitRepository,
-            RemiseClientRepository remiseClientRepository,
             GrilleRemiseRepository grilleRemiseRepository,
             ProduitService produitService) {
         this.remiseRepository = remiseRepository;
         this.remiseProduitRepository = remiseProduitRepository;
-        this.remiseClientRepository = remiseClientRepository;
         this.grilleRemiseRepository = grilleRemiseRepository;
 
         this.produitService = produitService;
@@ -84,10 +79,6 @@ public class RemiseServiceImpl implements RemiseService {
     public List<RemiseDTO> findAll(TypeRemise typeRemise) {
         if (typeRemise == TypeRemise.PRODUIT) {
             return this.remiseProduitRepository.findAll().stream()
-                    .map(this::toDTO)
-                    .toList();
-        } else if (typeRemise == TypeRemise.CLIENT) {
-            return this.remiseClientRepository.findAll().stream()
                     .map(this::toDTO)
                     .toList();
         }
@@ -146,11 +137,12 @@ public class RemiseServiceImpl implements RemiseService {
         });
     }
 
+    /** Seule la remise produit existe : la remise client, héritage jamais exercé, a été retirée. */
     private Remise toEntity(RemiseDTO remiseDTO) {
         if (remiseDTO instanceof RemiseProduitDTO) {
             return toEntity(remiseDTO, new RemiseProduit());
         }
-        return toEntity((RemiseClientDTO) remiseDTO, new RemiseClient());
+        throw new GenericError("Seule une remise produit peut être enregistrée.");
     }
 
     private Remise toEntity(RemiseDTO remiseDTO, RemiseProduit remise) {
@@ -177,21 +169,10 @@ public class RemiseServiceImpl implements RemiseService {
                 .toList();
     }
 
-    private Remise toEntity(RemiseClientDTO remiseDTO, RemiseClient remise) {
-        remise.setRemiseValue(remiseDTO.getRemiseValue());
-        remise.setValeur(remiseDTO.getValeur());
-        remise.setEnable(remiseDTO.isEnable());
-        if (remiseDTO.getId() != null) {
-            remise.setId(remiseDTO.getId());
-        }
-        return remise;
-    }
-
     private RemiseDTO toDTO(Remise remise) {
-        if (remise instanceof RemiseProduit) {
-            return new RemiseProduitDTO((RemiseProduit) remise);
-        } else {
-            return new RemiseClientDTO((RemiseClient) remise);
+        if (remise instanceof RemiseProduit remiseProduit) {
+            return new RemiseProduitDTO(remiseProduit);
         }
+        throw new GenericError("Remise inconnue : " + (remise == null ? null : remise.getId()));
     }
 }

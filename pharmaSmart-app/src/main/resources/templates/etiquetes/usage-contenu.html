@@ -20,6 +20,28 @@
         </tr>
       </th:block>
 
+      <!-- Étiquette de rayon d'une promotion : ce que la cliente doit voir de loin, c'est le
+           bandeau et le prix remisé ; le prix barré, sur la même ligne, dit de combien elle
+           économise, la date jusqu'à quand. Quatre rangées seulement, pour tenir sur le plus petit
+           rouleau (30 × 20 mm) ; pas de code-article : en rayon, personne ne le lit. -->
+      <th:block th:if="${type.name() == 'PROMO'}">
+        <tr>
+          <td class="bandeau-promo">PROMO</td>
+        </tr>
+        <tr>
+          <td class="une-ligne" th:text="${itm.libelle}"></td>
+        </tr>
+        <tr>
+          <td class="une-ligne centre">
+            <span class="prix-avant" th:if="${itm.prixAvant != null}" th:text="${itm.prixAvant}"></span>
+            <span class="prix-promo" th:text="${itm.prix}"></span>
+          </td>
+        </tr>
+        <tr th:if="${itm.mention != null}">
+          <td class="une-ligne intitule centre mention-promo" th:text="${itm.mention}"></td>
+        </tr>
+      </th:block>
+
       <th:block th:if="${type.name() == 'POSOLOGIE'}">
         <tr th:if="${itm.patient != null}">
           <td class="une-ligne" th:text="${itm.patient}"></td>

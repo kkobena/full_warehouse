@@ -15,7 +15,6 @@ import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OptionPrixProduit;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.RepartitionTiersPayantParTva;
 import com.kobe.warehouse.domain.SaleId;
@@ -870,9 +869,8 @@ class ThirdPartySaleServiceImplTest {
         // Given
         UpdateSaleInfo updateInfo = new UpdateSaleInfo(new SaleId(1L, testDate), 1);
 
-        RemiseClient remise = new RemiseClient();
+        RemiseProduit remise = new RemiseProduit();
         remise.setId(1);
-        remise.setRemiseValue(10.0f);
 
         lenient().when(thirdPartySaleRepository.getReferenceById(any())).thenReturn(testSale);
         lenient().when(remiseRepository.findById(1)).thenReturn(Optional.of(remise));
@@ -893,7 +891,7 @@ class ThirdPartySaleServiceImplTest {
 
     @Test
     void testProcessDiscount_WithRemiseProduit() {
-        // Given - RemiseProduit instead of RemiseClient
+        // Given
         RemiseProduit remiseProduit = new RemiseProduit();
         remiseProduit.setId(1);
         remiseProduit.setValeur("15"); // 15% discount on product
@@ -920,14 +918,12 @@ class ThirdPartySaleServiceImplTest {
     @Test
     void testProcessDiscount_RemovesExistingRemise() {
         // Given - Sale already has a remise that should be removed
-        RemiseClient existingRemise = new RemiseClient();
+        RemiseProduit existingRemise = new RemiseProduit();
         existingRemise.setId(99);
-        existingRemise.setRemiseValue(5.0f);
         testSale.setRemise(existingRemise);
 
-        RemiseClient newRemise = new RemiseClient();
+        RemiseProduit newRemise = new RemiseProduit();
         newRemise.setId(2);
-        newRemise.setRemiseValue(10.0f);
 
         UpdateSaleInfo updateInfo = new UpdateSaleInfo(new SaleId(1L, testDate), 2);
 
@@ -2002,9 +1998,9 @@ class ThirdPartySaleServiceImplTest {
         dto.setId(1);
         dto.setNumBon("BON001");
 
-        RemiseClient remiseClient = new RemiseClient();
-        testSale.setRemise(remiseClient);
-        testSale.setNatureVente(NatureVente.ASSURANCE);
+        // Une remise produit ne s'applique pas à une vente assurance : la vente est un carnet.
+        testSale.setRemise(new RemiseProduit());
+        testSale.setNatureVente(NatureVente.CARNET);
         testSale.setSalesAmount(2000);
         testSale.setDiscountAmount(0);
 
@@ -2101,7 +2097,7 @@ class ThirdPartySaleServiceImplTest {
 
     @Test
     void removesDiscountAndRecomputesAmounts() {
-        testSale.setRemise(new RemiseClient());
+        testSale.setRemise(new RemiseProduit());
         when(thirdPartySaleRepository.getReferenceById(testSale.getId())).thenReturn(testSale);
 
         thirdPartySaleService.removeDiscount(testSale.getId());

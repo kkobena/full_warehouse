@@ -369,8 +369,7 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
     }
   }
 
-  protected onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
-    const saleId = this.facade.currentSale()?.id;
+  protected onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' }): void {
     if (event.action === 'delete') {
       this.facade.removeItemFromSale(event.line.saleLineId as SaleLineId);
       /*  this.authorizationService
@@ -381,15 +380,6 @@ export class VenteDepotComponent implements OnInit, ProductSearchHost {
               this.facade.removeItemFromSale(event.line.saleLineId as SaleLineId);
             }
           });*/
-    } else if (event.action === 'discount') {
-      this.authorizationService
-        .requestDiscountAuthorization(saleId)
-        .pipe(take(1))
-        .subscribe(authorized => {
-          if (authorized) {
-            this.productSearchComponent()?.getFocus();
-          }
-        });
     }
   }
 

@@ -37,6 +37,7 @@ import { ProduitDetailFormModalComponent } from '../../ui/detail-form-modal/prod
 import { ProduitDeconditionModalComponent } from '../../ui/decondition-modal/produit-decondition-modal.component';
 import { NotificationService } from 'app/shared/services/notification.service';
 import { ProduitsFavorisApiService } from '../../data-access/services/produits-favoris-api.service';
+import { PromotionsEnVigueurService } from '../../../promotion/data-access/services/promotions-en-vigueur.service';
 import { FavorisComptoirModalComponent } from '../../ui/favoris-comptoir-modal/favoris-comptoir-modal.component';
 import { ErrorService } from 'app/shared/error.service';
 import { ListPrixReferenceComponent } from '../../ui/prix-reference/list-prix-reference/list-prix-reference.component';
@@ -135,10 +136,13 @@ export class ProduitHomeComponent implements OnInit {
   private readonly favorisApi = inject(ProduitsFavorisApiService);
   /** Identifiants des produits épinglés à la grille du comptoir (menu d'une ligne : ajouter ou retirer). */
   protected readonly favorisIds = signal<ReadonlySet<number>>(new Set<number>());
+  private readonly promotionsEnVigueur = inject(PromotionsEnVigueurService);
+  protected readonly promotions = this.promotionsEnVigueur.parProduit;
 
   ngOnInit(): void {
     this.loadReferentiels();
     this.loadFavoris();
+    this.promotionsEnVigueur.charger();
 
     // Récupérer l'état de navigation (produit créé/modifié)
     const navState = history.state as { highlightId?: number; highlightCip?: string };

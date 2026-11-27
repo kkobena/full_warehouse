@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgbNavModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonComponent, NavTabsComponent } from 'app/shared/ui';
+import { BadgePromoComponent } from '../../../promotion/ui/badge-promo/badge-promo.component';
+import { IPromotionArticle } from '../../../promotion/models/promotion.model';
 import { IProduit } from 'app/shared/model/produit.model';
 import { EtaProduitComponent } from 'app/shared/eta-produit/eta-produit.component';
 import { ILotProduit, ProductsApiService } from '../../data-access/services/products-api.service';
@@ -41,11 +43,14 @@ import { ProduitGeneriquesTabComponent } from '../produit-generiques-tab/produit
     ProduitRayonsTabComponent,
     ProduitCodesAliasTabComponent,
     ProduitGeneriquesTabComponent,
+    BadgePromoComponent,
   ],
 })
 export class ProduitDetailPanelComponent {
   readonly produit = input.required<IProduit>();
   readonly canEdit = input<boolean>(true);
+  /** La promotion du jour sur cet article, s'il en a une. */
+  readonly promotion = input<IPromotionArticle | undefined>(undefined);
 
   readonly closePanel = output();
   readonly editRequested = output<IProduit>();

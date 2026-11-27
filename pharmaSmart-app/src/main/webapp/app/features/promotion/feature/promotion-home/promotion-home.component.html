@@ -1,0 +1,347 @@
+<app-page-layout ariaLabel="Promotions" class="pharma-smart-content" density="compact">
+  <app-toolbar [compact]="true" icon="pi pi-tags" ngProjectAs="[pageHeader]" title="Promotions">
+    <ng-container ngProjectAs="[toolbarFilters]">
+      <div class="pharma-toolbar-filters">
+        <app-pill-selector (selectionChange)="onFiltre()" [(ngModel)]="filtre" [items]="filtreOptions" />
+        <div class="pharma-compact-search">
+          <app-icon-field icon="pi pi-search">
+            <input (keyup.enter)="onSearch()" [(ngModel)]="saisie" class="form-control" placeholder="Rechercher un libellé ou un code…" />
+          </app-icon-field>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container ngProjectAs="[toolbarActions]">
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
+          @if (peutCreer()) {
+            <app-button (clicked)="creer()" [raised]="true" icon="pi pi-plus" label="Nouvelle promotion" severity="primary" />
+          }
+        </div>
+      </div>
+    </ng-container>
+  </app-toolbar>
+
+  <app-card>
+    <app-hint [visible]="!panelOpen()" ngProjectAs="[pageGuidance]" storageKey="promotion-home">
+      Une promotion se crée en brouillon. Une fois validée, elle s'applique seule aux ventes au comptant entre ses dates : la caissière n'a
+      rien à saisir.
+    </app-hint>
+
+    <!-- Split : la liste à gauche, les articles de la promotion sélectionnée à droite. -->
+    <div [class.panel-open]="panelOpen()" class="split-container">
+      <div class="list-column">
+        <app-data-table
+          (selectionChange)="onSelection($any($event))"
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+          [rows]="15"
+          [selection]="selection()"
+          [stripedRows]="true"
+          [value]="promotions()"
+          class="p-datatable-sm"
+          dataKey="id"
+          emptyMessage="Aucune promotion pour ce filtre."
+          selectionMode="single"
+          size="small"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 8rem">Code</th>
+              <th>Libellé</th>
+              <th class="col-secondaire" style="width: 10rem">Mécanique</th>
+              <th class="col-secondaire" style="width: 13rem">Période</th>
+              <th class="text-center col-secondaire" style="width: 6rem">Articles</th>
+              <th class="text-center" style="width: 7rem">État</th>
+              <th style="width: 12rem; text-align: center">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template #body let-promo>
+            <tr [appSelectableRow]="promo">
+              <td>
+                <span class="pharma-code">{{ promo.code }}</span>
+              </td>
+              <td>
+                <span class="pharma-entity-name">{{ promo.libelle }}</span>
+                @if (promo.alertes?.length) {
+                  <i
+                    [attr.aria-label]="promo.alertes.join(' ')"
+                    [ngbTooltip]="promo.alertes.join(' ')"
+                    class="pi pi-exclamation-triangle text-warning ms-2"
+                    role="img"
+                  ></i>
+                }
+                @if (conditions(promo); as cond) {
+                  <div class="promo-conditions">{{ cond }}</div>
+                }
+              </td>
+              <td class="col-secondaire">
+                <span class="promo-mecanique">{{ mecanique(promo) }}</span>
+              </td>
+              <td class="small col-secondaire">{{ promo.dateDebut | date: 'dd/MM/yyyy' }} → {{ promo.dateFin | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-center col-secondaire">{{ promo.nombreProduits | number }}</td>
+              <td class="text-center">
+                <app-badge [label]="libelleEtat(promo.etat)" [severity]="severiteEtat(promo.etat)" />
+              </td>
+              <td style="text-align: right">
+                <div class="btn-group">
+                  <app-button
+                    (clicked)="voirDetail(promo, $event)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-eye"
+                    ariaLabel="Voir les articles"
+                    ngbTooltip="Voir les articles"
+                    severity="info"
+                    size="small"
+                  />
+                  @if (peutModifier() && estModifiable(promo)) {
+                    <app-button
+                      (clicked)="modifier(promo, $event)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-pencil"
+                      ariaLabel="Modifier"
+                      ngbTooltip="Modifier"
+                      severity="primary"
+                      size="small"
+                    />
+                  }
+                  @if (peutModifier() && estValidable(promo)) {
+                    <app-button
+                      (clicked)="valider(promo, $event)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-check-circle"
+                      ariaLabel="Valider : elle s'appliquera au comptoir"
+                      ngbTooltip="Valider : elle s'appliquera au comptoir"
+                      severity="success"
+                      size="small"
+                    />
+                  }
+                  @if (estEtiquetable(promo)) {
+                    <app-button
+                      (clicked)="imprimerEtiquettes(promo, $event)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-tag"
+                      ariaLabel="Étiquettes de rayon"
+                      ngbTooltip="Étiquettes de rayon"
+                      severity="secondary"
+                      size="small"
+                    />
+                  }
+                  @if (peutModifier() && promo.statut === 'VALIDEE' && promo.etat !== 'TERMINEE') {
+                    <app-button
+                      (clicked)="suspendre(promo, $event)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-pause-circle"
+                      ariaLabel="Suspendre"
+                      ngbTooltip="Suspendre"
+                      severity="warn"
+                      size="small"
+                    />
+                  }
+                  @if (peutAnnuler() && promo.statut !== 'ANNULEE') {
+                    <app-button
+                      (clicked)="annuler(promo, $event)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-ban"
+                      ariaLabel="Annuler (définitif)"
+                      ngbTooltip="Annuler (définitif)"
+                      severity="danger"
+                      size="small"
+                    />
+                  }
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </div>
+
+      @if (panelOpen()) {
+        <div class="detail-column">
+          <div class="detail-panel">
+            <div class="panel-header">
+              <div class="panel-title-block">
+                <div class="panel-libelle"><i class="pi pi-tags me-1"></i>{{ selection()!.libelle }}</div>
+                <div class="panel-meta">
+                  <app-badge [label]="libelleEtat(selection()!.etat)" [severity]="severiteEtat(selection()!.etat)" />
+                  <span class="pharma-badge pharma-badge-info">{{ mecanique(selection()!) }}</span>
+                  <span class="small text-muted"
+                    >du {{ selection()!.dateDebut | date: 'dd/MM/yyyy' }} au {{ selection()!.dateFin | date: 'dd/MM/yyyy' }}</span
+                  >
+                  @if (selection()!.quantiteMaxTotale; as plafond) {
+                    <span class="small text-muted">{{ selection()!.unitesRemisees }} / {{ plafond }} unités remisées</span>
+                  }
+                  @if (selection()!.codeBarrePack; as code) {
+                    <span class="small text-muted" ngbTooltip="Imprimé sur l'emballage : au scan, le comptoir ajoute les articles du pack"
+                      >Code du pack <span class="pharma-code">{{ code }}</span></span
+                    >
+                  }
+                </div>
+              </div>
+              <div class="panel-actions">
+                @if (estEtiquetable(selection()!)) {
+                  <app-button
+                    (clicked)="imprimerEtiquettes(selection()!)"
+                    [outlined]="true"
+                    icon="pi pi-tag"
+                    label="Étiquettes"
+                    severity="secondary"
+                    size="small"
+                  />
+                }
+                <app-button
+                  (clicked)="fermerDetail()"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-times"
+                  ariaLabel="Fermer"
+                  ngbTooltip="Fermer"
+                  severity="secondary"
+                  size="small"
+                />
+              </div>
+            </div>
+
+            <app-detail-grid>
+              @if (bilan() || chargementBilan()) {
+                <app-detail-section
+                  [accent]="'emerald'"
+                  [layout]="'block'"
+                  [loading]="chargementBilan()"
+                  [skeletonRows]="4"
+                  [width]="'full'"
+                  header="Bilan"
+                  icon="pi pi-chart-bar"
+                  storageKey="promotion.detail.bilan"
+                >
+                  @if (bilan(); as b) {
+                    <div class="bilan-entete">
+                      <span class="small text-muted"
+                        >Du {{ b.debut | date: 'dd/MM/yyyy' }} au {{ b.fin | date: 'dd/MM/yyyy' }}, comparé au
+                        {{ b.debutAvant | date: 'dd/MM/yyyy' }} – {{ b.finAvant | date: 'dd/MM/yyyy' }} (même durée, juste avant)</span
+                      >
+                      @if (peutExporter()) {
+                        <app-button
+                          (clicked)="exporterBilan(selection()!)"
+                          [outlined]="true"
+                          icon="pi pi-file-excel"
+                          label="Exporter"
+                          severity="secondary"
+                          size="small"
+                        />
+                      }
+                    </div>
+                    <div class="bilan-kpis">
+                      <div class="bilan-kpi">
+                        <span class="bilan-kpi-label">Coût de l'opération</span>
+                        <span class="bilan-kpi-valeur text-danger">{{ b.remise | devise }}</span>
+                        <span class="bilan-kpi-detail">{{ b.unitesRemisees | number }} unités remisées</span>
+                      </div>
+                      <div class="bilan-kpi">
+                        <span class="bilan-kpi-label">Ventes en promotion</span>
+                        <span class="bilan-kpi-valeur">{{ b.tickets | number }} tickets</span>
+                        <span class="bilan-kpi-detail">{{ b.clients | number }} clients identifiés</span>
+                      </div>
+                      <div class="bilan-kpi">
+                        <span class="bilan-kpi-label">Unités vendues des articles</span>
+                        <span class="bilan-kpi-valeur">{{ b.pendant.unites | number }}</span>
+                        <span class="bilan-kpi-detail"
+                          >{{ variation(b.avant.unites, b.pendant.unites) }} (avant : {{ b.avant.unites | number }})</span
+                        >
+                      </div>
+                      <div class="bilan-kpi">
+                        <span class="bilan-kpi-label">Chiffre d'affaires net</span>
+                        <span class="bilan-kpi-valeur">{{ b.pendant.chiffreAffaires | devise }}</span>
+                        <span class="bilan-kpi-detail"
+                          >{{ variation(b.avant.chiffreAffaires, b.pendant.chiffreAffaires) }} (avant :
+                          {{ b.avant.chiffreAffaires | devise }})</span
+                        >
+                      </div>
+                      <div class="bilan-kpi">
+                        <span class="bilan-kpi-label">Marge</span>
+                        <span [class.text-danger]="b.pendant.marge < b.avant.marge" class="bilan-kpi-valeur">{{
+                          b.pendant.marge | devise
+                        }}</span>
+                        <span class="bilan-kpi-detail"
+                          >{{ variation(b.avant.marge, b.pendant.marge) }} (avant : {{ b.avant.marge | devise }})</span
+                        >
+                      </div>
+                    </div>
+                    <small class="field-hint"
+                      >Ventes clôturées et non annulées du magasin. Unités, chiffre d'affaires et marge portent sur les articles de
+                      l'opération, toutes ventes confondues ; la marge déduit le coût d'achat enregistré à la vente.</small
+                    >
+                  }
+                </app-detail-section>
+              }
+              <app-detail-section
+                [accent]="'blue'"
+                [count]="detail()?.produits?.length ?? 0"
+                [layout]="'block'"
+                [loading]="chargementDetail()"
+                [skeletonRows]="6"
+                [width]="'full'"
+                header="Articles en promotion"
+                icon="pi pi-box"
+                storageKey="promotion.detail.produits"
+              >
+                <app-data-table
+                  [loading]="chargementDetail()"
+                  [scrollable]="true"
+                  [value]="detail()?.produits ?? []"
+                  emptyMessage="Aucun article."
+                  scrollHeight="calc(100vh - 24rem)"
+                  size="small"
+                >
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>Article</th>
+                      <th style="width: 8rem">CIP</th>
+                      <th class="text-end" style="width: 8rem">Prix</th>
+                      <th class="text-end" style="width: 8rem">En promotion</th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template #body let-produit>
+                    <tr>
+                      <td>
+                        <span class="pharma-entity-name">{{ produit.libelle }}</span>
+                        @if (produit.prixAdministre) {
+                          <app-badge class="ms-2" label="Prix administré" severity="warn" />
+                        }
+                      </td>
+                      <td>
+                        @if (produit.codeCip) {
+                          <span class="pharma-code">{{ produit.codeCip }}</span>
+                        } @else {
+                          <span class="text-muted small">—</span>
+                        }
+                      </td>
+                      <td class="text-end">
+                        <span class="prix-barre">{{ produit.prixReference | devise }}</span>
+                      </td>
+                      <td class="text-end">
+                        <span [class.prix-perte]="produit.aPerte" class="prix-promo">{{ produit.prixApresPromo | devise }}</span>
+                        @if (produit.aPerte) {
+                          <i class="pi pi-exclamation-triangle text-warning ms-1" ngbTooltip="Vendu au prix d'achat ou en dessous"></i>
+                        }
+                      </td>
+                    </tr>
+                  </ng-template>
+                </app-data-table>
+              </app-detail-section>
+            </app-detail-grid>
+          </div>
+        </div>
+      }
+    </div>
+  </app-card>
+</app-page-layout>

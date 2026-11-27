@@ -80,6 +80,18 @@ class TicketNonRembourseBuilderTest {
         assertEquals(180, tva.getFirst().getAmount());
     }
 
+    @Test
+    void tva_portesurLeNetDesLignesRemiseDeduite() {
+        // 11 800 TTC remisé de 1 180 par une promotion : 10 620 payés, dont 1 620 de TVA.
+        SaleLineDTO promue = ligne(11_800, true);
+        promue.setTaxValue(18);
+        promue.setDiscountAmount(1_180);
+
+        var tva = TicketNonRembourseBuilder.calculerTva(List.of(promue));
+
+        assertEquals(1_620, tva.getFirst().getAmount());
+    }
+
     private PaymentDTO reglement(String code, int paye, int verse) {
         PaymentDTO p = new PaymentDTO();
         p.setPaymentMode(new PaymentModeDTO().setCode(code));

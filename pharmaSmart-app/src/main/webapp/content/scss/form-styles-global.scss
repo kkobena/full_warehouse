@@ -182,7 +182,9 @@
     // Ensure form controls take full width
     // `.form-check-input` en est exclu : une case ou un radio a une taille fixe (1em),
     // et Bootstrap arrondit le radio a 50 % — etire sur toute la largeur, il devient ovale.
-    input:not(.form-check-input) {
+    // Le champ d'un `.input-group` aussi (selecteur de date, champ + bouton) : a 100 %, il
+    // pousse son bouton a la ligne ; c'est le flex du groupe qui doit le dimensionner.
+    input:not(.form-check-input, .input-group > .form-control) {
       width: 100%;
     }
 

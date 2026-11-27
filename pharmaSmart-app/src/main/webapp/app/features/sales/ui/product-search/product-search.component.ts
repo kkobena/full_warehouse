@@ -66,6 +66,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   productScanned = output<ProduitSearch>();
   onKeyEnter = output<boolean>();
   onBarcodeScanned = output<string>();
+  /** Un code scanné qui ne désigne aucun article : peut-être l'étiquette d'un pack. */
+  codeInconnu = output<string>();
 
   // State
   produits = signal<ProduitSearch[]>([]);
@@ -450,6 +452,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
           this.selectProduit.set(null);
           this.produits.set([]);
           this.isScanning.set(false);
+          this.codeInconnu.emit(barcode);
         }
       });
   }

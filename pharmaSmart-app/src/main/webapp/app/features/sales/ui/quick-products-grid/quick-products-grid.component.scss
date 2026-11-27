@@ -137,6 +137,17 @@
   color: var(--comptoir-accent-dark, var(--pharma-text));
   font-size: 0.75rem;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+// Prix barré, puis le prix qu'un clic fait payer.
+.tuile-prix-avant {
+  color: var(--pharma-text-muted);
+  font-weight: 400;
+}
+
+.tuile--promo {
+  border-left-color: #ea580c;
 }
 
 // Un produit en rupture reste cliquable : l'ajout ouvre la proposition d'équivalents (rupture → substituts).

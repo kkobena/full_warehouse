@@ -36,6 +36,10 @@ public class ThirdPartySales extends Sales implements Serializable {
     @Column(name = "montant_non_rembourse", nullable = false)
     private int montantNonRembourse;
 
+    /** Remise (promotion) des lignes non remboursées : le patient paie {@code montantNonRembourse} moins elle. */
+    @Column(name = "remise_non_rembourse", nullable = false)
+    private int remiseNonRembourse;
+
     @ColumnDefault("false")
     @Column(name = "has_price_option")
     private boolean hasPriceOption;
@@ -82,6 +86,15 @@ public class ThirdPartySales extends Sales implements Serializable {
         return this;
     }
 
+    public int getRemiseNonRembourse() {
+        return remiseNonRembourse;
+    }
+
+    public ThirdPartySales setRemiseNonRembourse(int remiseNonRembourse) {
+        this.remiseNonRembourse = remiseNonRembourse;
+        return this;
+    }
+
     /** Montant de la vente sur lequel le tiers payant est sollicité : hors lignes non remboursées. */
     public int getMontantVenteRembourse() {
         return Objects.requireNonNullElse(getSalesAmount(), 0) - montantNonRembourse;
@@ -89,7 +102,8 @@ public class ThirdPartySales extends Sales implements Serializable {
 
     /** Part du patient sur la seule partie remboursable : ce que le tiers payant a besoin de voir sur la facture. */
     public int getPartAssureRembourse() {
-        return Math.max(Objects.requireNonNullElse(partAssure, 0) - montantNonRembourse, 0);
+        // La part du patient comprend les lignes non remboursées NETTES de leur promotion.
+        return Math.max(Objects.requireNonNullElse(partAssure, 0) - (montantNonRembourse - remiseNonRembourse), 0);
     }
 
     public Integer getPartTiersPayant() {

@@ -209,6 +209,7 @@ public class SalesManagerImpl implements SalesManager {
         computeDepotAmountToPaid(venteDepot);
         saleAmountCalculator.computeSaleLazyAmountOnRemovingItem(venteDepot, saleLine);
         saleAmountCalculator.computeTvaAmountOnRemovingItem(venteDepot, saleLine);
+        saleAmountCalculator.arrondirMontantCaisse(venteDepot);
     }
 
     private void upddateDepotSaleAmounts(VenteDepot venteDepot) {

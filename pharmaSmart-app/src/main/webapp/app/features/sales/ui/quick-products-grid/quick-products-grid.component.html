@@ -18,6 +18,7 @@
             <button
               (click)="choisir(produit)"
               [attr.aria-label]="libelleAccessible(produit)"
+              [class.tuile--promo]="!!promotion(produit)"
               [class.tuile--rupture]="enRupture(produit)"
               [disabled]="disabled()"
               class="tuile"
@@ -25,9 +26,17 @@
             >
               <span class="tuile-libelle">{{ produit.libelle }}</span>
               <span class="tuile-pied">
-                <span class="tuile-prix">{{ produit.regularUnitPrice | devise }}</span>
+                @if (prixRemise(produit); as remise) {
+                  <span class="tuile-prix"
+                    ><s class="tuile-prix-avant">{{ prixSansDevise(produit.regularUnitPrice) }}</s> {{ remise | devise }}</span
+                  >
+                } @else {
+                  <span class="tuile-prix">{{ produit.regularUnitPrice | devise }}</span>
+                }
                 @if (enRupture(produit)) {
                   <span class="tuile-etat">Rupture</span>
+                } @else if (promotion(produit); as promo) {
+                  <app-badge-promo [article]="promo" />
                 }
               </span>
             </button>

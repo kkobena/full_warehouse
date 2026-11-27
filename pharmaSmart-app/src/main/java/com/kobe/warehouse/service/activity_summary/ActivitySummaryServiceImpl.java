@@ -95,7 +95,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         // TODO si gestion de ug
         var caRecord = new ChiffreAffaireRecord(
                 nonNull(chiffreAffaire) ? chiffreAffaire.montantTtc() : BigDecimal.ZERO,
-                nonNull(chiffreAffaire) ? chiffreAffaire.getMontantTva() : BigDecimal.ZERO,
+                nonNull(chiffreAffaire) ? chiffreAffaire.montantTva() : BigDecimal.ZERO,
                 nonNull(chiffreAffaire) ? chiffreAffaire.montantHt() : BigDecimal.ZERO,
                 nonNull(chiffreAffaire) ? chiffreAffaire.montantRemise() : BigDecimal.ZERO,
                 nonNull(chiffreAffaire) ? chiffreAffaire.montantNet() : BigDecimal.ZERO,

@@ -62,6 +62,33 @@ public class CsvExportService {
         return createCsvReport(title, headers, data, row -> row);
     }
 
+    /** Un tableau d'un CSV à plusieurs tableaux : son intitulé, ses en-têtes, ses lignes déjà mises en texte. */
+    public record SectionCsv(String titre, String[] entetes, List<String[]> lignes) {}
+
+    /**
+     * Crée un CSV qui enchaîne plusieurs tableaux — une synthèse et ses détails, par exemple. Même
+     * présentation que {@link #createCsvReport(String, String[], List, Function)} : titre, date
+     * d'export, séparateur point-virgule ; chaque tableau suit une ligne vide et son intitulé.
+     */
+    public byte[] createCsvReport(String title, List<SectionCsv> sections) throws IOException {
+        StringWriter writer = new StringWriter();
+        CSVFormat csvFormat =
+                CSVFormat.Builder.create(CSVFormat.EXCEL).setDelimiter(';').get();
+        try (CSVPrinter csvPrinter = new CSVPrinter(writer, csvFormat)) {
+            csvPrinter.printRecord(title);
+            csvPrinter.printRecord("Généré le: " + LocalDateTime.now().format(DATETIME_FORMATTER));
+            for (SectionCsv section : sections) {
+                csvPrinter.println();
+                csvPrinter.printRecord(section.titre());
+                csvPrinter.printRecord((Object[]) section.entetes());
+                for (String[] ligne : section.lignes()) {
+                    csvPrinter.printRecord((Object[]) ligne);
+                }
+            }
+        }
+        return writer.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
     /**
      * Ajoute le BOM UTF-8 pour Excel Windows
      */

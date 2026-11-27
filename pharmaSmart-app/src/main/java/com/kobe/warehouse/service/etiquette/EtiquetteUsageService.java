@@ -3,7 +3,9 @@ package com.kobe.warehouse.service.etiquette;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.enumeration.FormatEtiquette;
 import com.kobe.warehouse.domain.enumeration.ResolutionEtiquette;
+import com.kobe.warehouse.service.dto.EtiquetteDTO;
 import com.kobe.warehouse.service.dto.etiquette.EtiquettePreparationDTO;
+import java.util.List;
 
 /**
  * Les trois usages qui ne sont pas l'étiquette d'une boîte : la réglette de gondole, la posologie
@@ -27,6 +29,22 @@ public interface EtiquetteUsageService {
 
     String genererZplPosologie(
             Integer ordonnanceId, Integer ligneId, int qty, FormatEtiquette format, ResolutionEtiquette resolution);
+
+    /**
+     * Étiquettes de rayon d'une promotion, déjà construites par le module promotion : ce service
+     * ne fait que les poser sur la planche ou le rouleau.
+     */
+    byte[] imprimerPromotion(List<EtiquetteDTO> etiquettes, int startAt, FormatEtiquette format);
+
+    String genererZplPromotion(List<EtiquetteDTO> etiquettes, FormatEtiquette format, ResolutionEtiquette resolution);
+
+    /**
+     * Étiquettes à coller sur l'emballage d'un pack : libellé, prix et code-barres du pack, rendus en
+     * réglette.
+     */
+    byte[] imprimerPack(List<EtiquetteDTO> etiquettes, int startAt, FormatEtiquette format);
+
+    String genererZplPack(List<EtiquetteDTO> etiquettes, FormatEtiquette format, ResolutionEtiquette resolution);
 
     /** Préparation magistrale, saisie à l'impression : rien n'est conservé. */
     byte[] imprimerPreparation(EtiquettePreparationDTO saisie, int qty, int startAt, FormatEtiquette format);

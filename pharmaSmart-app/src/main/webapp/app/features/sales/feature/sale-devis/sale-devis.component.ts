@@ -368,7 +368,7 @@ export class SaleDevisComponent implements OnInit, AfterViewInit, ProductSearchH
     this.selectedLineId.set(line.id || null);
   }
 
-  onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
+  onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' }): void {
     const saleId = this.currentSale()?.id;
     const saleType = this.selectedSaleType();
     if (this.authorizationService.canDeleteProduct()) {

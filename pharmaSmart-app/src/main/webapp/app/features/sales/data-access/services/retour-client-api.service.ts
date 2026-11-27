@@ -21,9 +21,33 @@ export interface ISaleLineForRetour {
   statutLegal?: StatutLegal;
   retourInterdit?: boolean;
   thermosensible?: boolean;
+  /** Pour toute la quantité vendue ; une ligne en promotion, remise déduite. */
   montantRemboursableClient?: number;
   montantTp?: number;
+  /** Une ligne en promotion se retourne en entier ou pas du tout. */
+  promotionId?: number | null;
+  promotionLibelle?: string | null;
+  /** Un pack se retourne avec tous ses articles. */
+  pack?: boolean;
+  /** Pourquoi la ligne en promotion ne se retourne pas (vente à crédit, cumul) : annuler la vente et la ressaisir. */
+  motifRefus?: string | null;
   quantiteRetour?: number;
+}
+
+/** Ni interdite par son statut légal, ni refusée parce qu'en promotion. */
+export function estRetournable(l: ISaleLineForRetour): boolean {
+  return !l.retourInterdit && !l.motifRefus;
+}
+
+/** Ce que rend la quantité retournée : le montant remboursable vaut pour toute la quantité vendue. */
+export function montantRetour(l: ISaleLineForRetour): number {
+  const vendue = l.quantitySold ?? 0;
+  const retour = l.quantiteRetour ?? 0;
+  if (!vendue || !retour) {
+    return 0;
+  }
+  const ligne = l.montantRemboursableClient ?? (l.netUnitPrice ?? 0) * vendue;
+  return Math.round((ligne * retour) / vendue);
 }
 
 export interface ISaleForRetour {

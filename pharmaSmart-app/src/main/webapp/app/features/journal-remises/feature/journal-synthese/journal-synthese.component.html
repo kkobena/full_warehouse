@@ -1,0 +1,224 @@
+<!-- ── Toolbar : titre, période et filtres, export ─────────────────────────── -->
+<app-toolbar [code]="navCode()" [compact]="true" icon="pi pi-chart-bar" title="Synthèse">
+  <ng-container ngProjectAs="[toolbarFilters]">
+    <app-journal-filtres idPrefixe="journal-synthese" />
+  </ng-container>
+
+  <ng-container ngProjectAs="[toolbarActions]">
+    <div class="pharma-toolbar-actions">
+      <div class="pharma-button-group">
+        <app-button (clicked)="afficher()" [disabled]="chargement()" icon="pi pi-search" label="Afficher" severity="info" />
+        @if (peutExporter()) {
+          <app-split-button
+            (clicked)="telechargement.telecharger('PDF', null, filtres.demande())"
+            [disabled]="telechargement.enCours()"
+            [items]="formats"
+            icon="pi pi-file-export"
+            label="Exporter"
+            severity="warn"
+          />
+        }
+      </div>
+    </div>
+  </ng-container>
+</app-toolbar>
+
+<app-hint storageKey="journal-remises-synthese">
+  Ce que les remises ont coûté sur la période, et ce que les unités gratuites du fournisseur ont rapporté. L'export porte la synthèse et les
+  trois journaux.
+</app-hint>
+
+<!-- ── Indicateurs ─────────────────────────────────────────────────────────── -->
+<app-kpi-strip [loading]="chargement()" [skeletonCount]="4" stripClass="mb-2">
+  <app-kpi-item
+    [accent]="'danger'"
+    [value]="synthese()?.remiseTotale | number: '1.0-0'"
+    icon="pi pi-percentage"
+    iconClass="text-danger"
+    label="Remises accordées"
+    info="Promotions et remises produit réunies, TTC. Une ligne qui cumule les deux ne compte qu'une fois : chaque part dans sa colonne."
+    suffix="F"
+    valueClass="text-danger"
+  />
+  <app-kpi-item
+    [accent]="'primary'"
+    [value]="synthese()?.promotions?.remise | number: '1.0-0'"
+    icon="pi pi-tags"
+    iconClass="text-primary"
+    label="Par les promotions"
+    info="Part de la remise due aux promotions, unités offertes des offres N+M comprises."
+    suffix="F"
+    valueClass="text-primary"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ synthese()?.promotions?.tickets | number }} ticket(s)</ng-container>
+  </app-kpi-item>
+  <app-kpi-item
+    [accent]="'secondary'"
+    [value]="synthese()?.remisesProduit?.remise | number: '1.0-0'"
+    icon="pi pi-percentage"
+    iconClass="text-secondary"
+    label="Par les remises produit"
+    info="Part de la remise due aux grilles de remise des produits, seules ou cumulées à une promotion."
+    suffix="F"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ synthese()?.remisesProduit?.tickets | number }} ticket(s)</ng-container>
+  </app-kpi-item>
+  <app-kpi-item
+    [accent]="'success'"
+    [value]="synthese()?.ug?.marge | number: '1.0-0'"
+    icon="pi pi-gift"
+    iconClass="text-success"
+    label="Marge des UG vendues"
+    info="HT net des unités gratuites du fournisseur vendues : elles n'ont rien coûté, tout leur prix est marge."
+    suffix="F"
+    valueClass="text-success"
+  >
+    <ng-container ngProjectAs="[kpiSub]">{{ synthese()?.ug?.unites | number }} UG vendue(s)</ng-container>
+  </app-kpi-item>
+</app-kpi-strip>
+
+@if (synthese(); as s) {
+  <div class="row g-2">
+    <!-- ── Remises par nature ──────────────────────────────────────────────── -->
+    <div class="col-12 col-xl-6">
+      <app-card header="Remises accordées" icon="pi pi-percentage" [withHeader]="true">
+        <table class="table table-sm table-striped mb-0">
+          <thead>
+            <tr class="pharma-table-head">
+              <th>Nature</th>
+              <th class="text-end">Lignes</th>
+              <th class="text-end">Tickets</th>
+              <th class="text-end">Brut</th>
+              <th class="text-end">Remise</th>
+              <th class="text-end">Net</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Promotions</td>
+              <td class="text-end">{{ s.promotions.lignes | number }}</td>
+              <td class="text-end">{{ s.promotions.tickets | number }}</td>
+              <td class="text-end">{{ s.promotions.montantBrut | number: '1.0-0' }}</td>
+              <td class="text-end text-danger">{{ s.promotions.remise | number: '1.0-0' }}</td>
+              <td class="text-end">{{ s.promotions.montantNet | number: '1.0-0' }}</td>
+            </tr>
+            <tr>
+              <td>Remises produit</td>
+              <td class="text-end">{{ s.remisesProduit.lignes | number }}</td>
+              <td class="text-end">{{ s.remisesProduit.tickets | number }}</td>
+              <td class="text-end">{{ s.remisesProduit.montantBrut | number: '1.0-0' }}</td>
+              <td class="text-end text-danger">{{ s.remisesProduit.remise | number: '1.0-0' }}</td>
+              <td class="text-end">{{ s.remisesProduit.montantNet | number: '1.0-0' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="fw-semibold">
+              <td colspan="4">Total</td>
+              <td class="text-end text-danger">{{ s.remiseTotale | number: '1.0-0' }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </app-card>
+    </div>
+
+    <!-- ── UG vendues ──────────────────────────────────────────────────────── -->
+    <div class="col-12 col-xl-6">
+      <app-card header="UG vendues" icon="pi pi-gift" [withHeader]="true">
+        <table class="table table-sm mb-0">
+          <tbody>
+            <tr>
+              <td>Unités gratuites vendues</td>
+              <td class="text-end">{{ s.ug.unites | number }} sur {{ s.ug.tickets | number }} ticket(s)</td>
+            </tr>
+            <tr>
+              <td>Valeur au tarif</td>
+              <td class="text-end">{{ s.ug.valeur | number: '1.0-0' }} F</td>
+            </tr>
+            <tr>
+              <td>Dont remise</td>
+              <td class="text-end text-danger">{{ s.ug.remise | number: '1.0-0' }} F</td>
+            </tr>
+            <tr>
+              <td>HT net, soit la marge des UG</td>
+              <td class="text-end text-success fw-semibold">{{ s.ug.marge | number: '1.0-0' }} F</td>
+            </tr>
+            <tr>
+              <td>Coût d'achat évité</td>
+              <td class="text-end">{{ s.ug.coutEvite | number: '1.0-0' }} F</td>
+            </tr>
+            <tr>
+              <td>Marge des lignes, comme les états la comptent</td>
+              <td class="text-end">{{ s.ug.margeComptabilisee | number: '1.0-0' }} F</td>
+            </tr>
+            <tr>
+              <td>Marge réelle des lignes</td>
+              <td class="text-end">{{ s.ug.margeReelle | number: '1.0-0' }} F</td>
+            </tr>
+          </tbody>
+        </table>
+        @if (ecartMarge() > 0) {
+          <div class="alert alert-warning py-2 small mt-2 mb-0">
+            <i class="pi pi-exclamation-triangle me-1"></i>
+            Les états de marge comptent le coût d'achat des UG : ils sous-estiment la marge de
+            <strong>{{ ecartMarge() | number: '1.0-0' }} F</strong> sur la période. Défaut connu, en cours de correction.
+          </div>
+        }
+      </app-card>
+    </div>
+
+    <!-- ── Par promotion ───────────────────────────────────────────────────── -->
+    <div class="col-12 col-xl-7">
+      <app-card header="Par promotion" icon="pi pi-tags" [withHeader]="true">
+        <app-data-table [stripedRows]="true" [value]="s.parPromotion" emptyMessage="Aucune promotion appliquée sur la période" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Promotion</th>
+              <th style="width: 9rem">Mécanique</th>
+              <th class="text-end" style="width: 5rem">Tickets</th>
+              <th class="text-end" style="width: 6rem">Unités</th>
+              <th class="text-end" style="width: 6rem">Offertes</th>
+              <th class="text-end" style="width: 8rem">Remise</th>
+              <th class="text-end" style="width: 8rem">Net</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-p>
+            <tr>
+              <td>{{ p.libelle }}</td>
+              <td class="small text-muted">{{ mecanique(p.type) }}</td>
+              <td class="text-end">{{ p.tickets | number }}</td>
+              <td class="text-end">{{ p.unitesRemisees | number }}</td>
+              <td class="text-end">{{ p.unitesOffertes | number }}</td>
+              <td class="text-end text-danger">{{ p.remise | number: '1.0-0' }}</td>
+              <td class="text-end">{{ p.montantNet | number: '1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+
+    <!-- ── Par grille ──────────────────────────────────────────────────────── -->
+    <div class="col-12 col-xl-5">
+      <app-card header="Par grille de remise" icon="pi pi-percentage" [withHeader]="true">
+        <app-data-table [stripedRows]="true" [value]="s.parGrille" emptyMessage="Aucune remise produit sur la période" size="small">
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Grille</th>
+              <th class="text-end" style="width: 5rem">Tickets</th>
+              <th class="text-end" style="width: 8rem">Remise</th>
+              <th class="text-end" style="width: 8rem">Net</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-g>
+            <tr>
+              <td>{{ g.grille }}</td>
+              <td class="text-end">{{ g.tickets | number }}</td>
+              <td class="text-end text-danger">{{ g.remise | number: '1.0-0' }}</td>
+              <td class="text-end">{{ g.montantNet | number: '1.0-0' }}</td>
+            </tr>
+          </ng-template>
+        </app-data-table>
+      </app-card>
+    </div>
+  </div>
+}

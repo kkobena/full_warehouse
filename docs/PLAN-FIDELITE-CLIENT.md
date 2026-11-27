@@ -33,8 +33,8 @@ Aucune notion de fidélité n'existe (ni entité, ni table, ni écran). Le socle
 | `app_configuration` (modèle `V2.1.30`, `INSERT … ON CONFLICT DO NOTHING`) | barème, durée, plafond, activation |
 
 **À ne pas réutiliser** :
-- `RemiseClient` / `GrilleRemise` : **à décommissionner**, plus utilisés. Pas de « palier » bâti dessus. Son décommissionnement est un chantier à part,
-  hors de ce plan.
+- `RemiseClient` : **retirée** le 2026-11-27 (migration V2.1.66). Pas de « palier » bâti dessus. (`GrilleRemise`, elle,
+  porte les taux de la remise produit et reste.)
 - Vente simplifiée (`SimplifiedSaleServiceImpl`) : **à décommissionner**, aucune accroche fidélité.
 
 ### Points d'accroche dans le code
@@ -55,7 +55,7 @@ Toute clôture ou tout retour en arrière sur une vente doit passer par le servi
 
 | | Question | Décision / piste |
 |---|---|---|
-| **F1** | Quel mécanisme : points, palier ou bon d'achat ? | Piste : **points** convertis en **remise** à l'encaissement. Le palier ne s'appuiera pas sur `RemiseClient` (décommissionnée). *À valider.* |
+| **F1** | Quel mécanisme : points, palier ou bon d'achat ? | Piste : **points** convertis en **remise** à l'encaissement. Le palier ne s'appuiera pas sur `RemiseClient` (retirée). *À valider.* |
 | **F2** | Sur quoi gagne-t-on des points ? | À valider (§1.1). Pistes : ne compter que la **part client** ; exclure produits remboursés, stupéfiants (`statutLegal`), produits non remisables (`CodeRemise.NONE`). *À valider.* |
 | **F3** | Quel barème ? | Taux d'acquisition (points pour 1 000 F) et valeur d'usage (F par point), **réglables** dans `app_configuration`. *À chiffrer.* |
 | **F4** | Quand les points expirent-ils ? | Une durée (par exemple 12 mois après le gain), ou jamais. *À valider.* |
@@ -156,4 +156,4 @@ Total : **environ 12,5 jours**, hors délai de l'avis réglementaire, dont 4 pou
 - Partage de points entre officines d'un même groupe.
 - Offres ciblées et campagnes (le plan sert le socle ; `mv_customer_rfm` permettra d'y venir).
 - Vente simplifiée et ventes dépôt.
-- Décommissionnement de `RemiseClient` / `GrilleRemise` et de la vente simplifiée (chantiers distincts).
+- Décommissionnement de la vente simplifiée (chantier distinct ; `RemiseClient` est retirée).

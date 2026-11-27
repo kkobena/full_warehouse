@@ -107,6 +107,25 @@ class TaxeServiceIntegrationTest extends AbstractFinancialTransactionIntegration
             assertThat(etat.getMontantTaxe()).isEqualTo(etat.getMontantTtc() - etat.getMontantHt());
         }
 
+        /**
+         * Une remise accordée sort de la base imposable : 10 × 1 180 TTC remisés de 1 180, soit
+         * 10 620 payés, portent 9 000 HT et 1 620 de TVA — et non 10 000 HT et 1 800 de TVA. La base
+         * d'essai est partagée : on mesure ce que la vente ajoute à l'état.
+         */
+        @Test
+        @DisplayName("la taxe porte sur le net, remise déduite")
+        void taxeSurLeNet() {
+            TaxeWrapperDTO avant = service.fetchTaxe(parametre(), false);
+
+            venteEncaissee(aujourdHui(), produit(unique("CREME"), 1_180, 18), 10, 1_180, "CASH");
+
+            TaxeWrapperDTO apres = service.fetchTaxe(parametre(), false);
+            long tvaAvant = avant == null ? 0 : avant.getMontantTaxe();
+            long htAvant = avant == null ? 0 : avant.getMontantHt();
+            assertThat(apres.getMontantTaxe() - tvaAvant).isEqualTo(1_620L);
+            assertThat(apres.getMontantHt() - htAvant).isEqualTo(9_000L);
+        }
+
         @Test
         @DisplayName("le coût d'achat des produits vendus est repris")
         void coutDAchat() {

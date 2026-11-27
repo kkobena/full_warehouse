@@ -5,7 +5,6 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUserNames;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.Poste;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -112,8 +111,6 @@ public class ThirdPartySaleDTO extends SaleDTO {
         if (Objects.nonNull(thirdPartySales.getRemise())) {
             if (thirdPartySales.getRemise() instanceof RemiseProduit remiseProduit) {
                 builder.remise = new RemiseProduitDTO(remiseProduit);
-            } else {
-                builder.remise = new RemiseClientDTO((RemiseClient) thirdPartySales.getRemise());
             }
         }
         // --- champs ThirdPartySaleDTO ---

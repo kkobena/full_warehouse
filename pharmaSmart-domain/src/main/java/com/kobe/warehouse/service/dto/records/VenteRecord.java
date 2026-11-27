@@ -25,7 +25,8 @@ public record VenteRecord(
         Long saleCount,
         String type,
         SalesStatut statut,
-        String group) {
+        String group,
+        Integer montantTva) {
     /**
      * Marge brute de la periode : le net vendu moins le cout d'achat des lignes.
      *
@@ -43,8 +44,12 @@ public record VenteRecord(
         return 0;
     }
 
+    /** La TVA rendue par la synthèse, sur le net des lignes ; à défaut, TTC − HT (ancien calcul). */
     @JsonProperty("taxAmount")
     public Integer taxAmount() {
+        if (nonNull(montantTva)) {
+            return montantTva;
+        }
         if (nonNull(montantHt) && nonNull(salesAmount)) {
             return BigDecimal.valueOf(salesAmount)
                     .subtract(BigDecimal.valueOf(montantHt))

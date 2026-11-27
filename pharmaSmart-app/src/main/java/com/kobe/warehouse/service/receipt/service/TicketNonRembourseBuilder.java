@@ -6,9 +6,11 @@ import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.TvaEmbeded;
+import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -63,7 +65,7 @@ public final class TicketNonRembourseBuilder {
         return new Reglements(assurance, nonRembourse);
     }
 
-    /** TVA par taux, calculée comme à l'enregistrement de la vente. */
+    /** TVA par taux, calculée comme à l'enregistrement de la vente : sur le net de chaque ligne, remise déduite. */
     public static List<TvaEmbeded> calculerTva(List<SaleLineDTO> lignes) {
         TreeMap<Integer, Integer> parTaux = new TreeMap<>();
         for (SaleLineDTO ligne : lignes) {
@@ -71,8 +73,8 @@ public final class TicketNonRembourseBuilder {
             if (taux == null || taux <= 0) {
                 continue;
             }
-            int ht = (int) Math.ceil(ligne.getSalesAmount() / (1 + taux / 100.0));
-            parTaux.merge(taux, ligne.getSalesAmount() - ht, Integer::sum);
+            int net = ligne.getSalesAmount() - Objects.requireNonNullElse(ligne.getDiscountAmount(), 0);
+            parTaux.merge(taux, net - SaleAmountCalculator.montantHt(net, taux), Integer::sum);
         }
         return parTaux.entrySet().stream()
                 .map(e -> new TvaEmbeded().setTva(e.getKey()).setAmount(e.getValue()))
@@ -92,6 +94,11 @@ public final class TicketNonRembourseBuilder {
         return copie;
     }
 
+    /** La remise d'une ligne — sur une vente assurance, celle d'une promotion. */
+    static int remise(SaleLineDTO ligne) {
+        return ligne.getDiscountAmount() == null ? 0 : ligne.getDiscountAmount();
+    }
+
     static List<SaleLineDTO> listerLignesNonRemboursees(ThirdPartySaleDTO vente) {
         return vente.getSalesLines().stream()
                 .filter(SaleLineDTO::isNonRembourse)
@@ -103,7 +110,10 @@ public final class TicketNonRembourseBuilder {
         if (lignes.isEmpty()) {
             return Optional.empty();
         }
-        int total = lignes.stream().mapToInt(SaleLineDTO::getSalesAmount).sum();
+        int brut = lignes.stream().mapToInt(SaleLineDTO::getSalesAmount).sum();
+        int remise = lignes.stream().mapToInt(TicketNonRembourseBuilder::remise).sum();
+        // Le patient paie ces lignes en entier, promotion déduite : c'est ce net qui est réglé.
+        int total = brut - remise;
         CashSaleDTO ticket = new CashSaleDTO();
         ticket.setNumberTransaction(vente.getNumberTransaction());
         ticket.setCassier(vente.getCassier());
@@ -113,10 +123,10 @@ public final class TicketNonRembourseBuilder {
         ticket.setCreatedAt(vente.getCreatedAt());
         ticket.setUpdatedAt(vente.getUpdatedAt());
         ticket.setSalesLines(new ArrayList<>(lignes));
-        ticket.setSalesAmount(total);
+        ticket.setSalesAmount(brut);
         ticket.setNetAmount(total);
         ticket.setAmountToBePaid(total);
-        ticket.setDiscountAmount(0);
+        ticket.setDiscountAmount(remise);
         ticket.setRestToPay(0);
         ticket.setPayments(repartirReglements(vente.getPayments(), total).ticketNonRembourse());
         ticket.setTvaEmbededs(calculerTva(lignes));

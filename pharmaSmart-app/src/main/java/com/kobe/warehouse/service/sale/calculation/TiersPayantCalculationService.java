@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -174,6 +175,13 @@ public class TiersPayantCalculationService {
         boolean hasOptionPrix = !saleItem.getPrixAssurances().isEmpty();
         BigDecimal calculationBaseUni = referencePriceOpt.orElse(itemShare.getPharmacyPrice());
         BigDecimal calculationBase = calculationBaseUni.multiply(new BigDecimal(saleItem.getQuantity()));
+        // Un carnet est une vente au comptant dont le règlement est différé : l'organisme paie ce que
+        // le client aurait payé, remise de la ligne (grille, promotion) déduite.
+        if (natureVente == NatureVente.CARNET) {
+            calculationBase = calculationBase
+                    .subtract(Objects.requireNonNullElse(saleItem.getDiscountAmount(), BigDecimal.ZERO))
+                    .max(BigDecimal.ZERO);
+        }
 
         if (referencePriceOpt.isPresent()) {
             itemShare.setCalculationBasePrice(calculationBaseUni.intValue());
@@ -409,9 +417,8 @@ public class TiersPayantCalculationService {
                 yield patientPart.max(BigDecimal.ZERO);
             }
             case CARNET -> {
-                // For CARNET: discount applies to third-party amount
-                // Net amount = total - discount
-                // Patient pays: net - third-party
+                // Carnet : la part de l'organisme est déjà calculée sur le montant remisé ; le client paie
+                // le reste du net (rien à 100 %).
                 BigDecimal netAmount = totalSaleAmount.subtract(discountAmount).setScale(SCALE_MONEY, ROUNDING_MODE);
                 BigDecimal patientPart = netAmount.subtract(totalTiersPayant).setScale(SCALE_MONEY, ROUNDING_MODE);
                 yield patientPart.max(BigDecimal.ZERO);

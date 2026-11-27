@@ -29,6 +29,18 @@ public class SaleLineDTO {
 
     private Integer discountAmount;
 
+    /**
+     * Taux de remise de la ligne, en fraction (0,10 pour 10 %), comme {@code sales_line.taux_remise}.
+     * La FNE déclare la remise par ce taux, pas par le montant : une ligne qui ne le porte pas est
+     * déclarée sans remise.
+     */
+    private Float tauxRemise;
+
+    /** Promotion posée par le moteur sur la ligne, et son libellé figé à la vente ; nuls sinon. */
+    private Long promotionId;
+
+    private String promotionLibelle;
+
     private Integer salesAmount;
 
     private Integer htAmount;
@@ -91,6 +103,9 @@ public class SaleLineDTO {
         discountUnitPrice = salesLine.getDiscountUnitPrice();
         netUnitPrice = salesLine.getNetUnitPrice();
         discountAmount = salesLine.getDiscountAmount();
+        tauxRemise = salesLine.getTauxRemise();
+        promotionId = salesLine.getPromotionId();
+        promotionLibelle = salesLine.getPromotionLibelle();
         salesAmount = salesLine.getSalesAmount();
         costAmount = salesLine.getCostAmount();
         createdAt = salesLine.getCreatedAt();
@@ -206,6 +221,30 @@ public class SaleLineDTO {
 
     public void setDiscountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;
+    }
+
+    public Float getTauxRemise() {
+        return tauxRemise;
+    }
+
+    public void setTauxRemise(Float tauxRemise) {
+        this.tauxRemise = tauxRemise;
+    }
+
+    public Long getPromotionId() {
+        return promotionId;
+    }
+
+    public void setPromotionId(Long promotionId) {
+        this.promotionId = promotionId;
+    }
+
+    public String getPromotionLibelle() {
+        return promotionLibelle;
+    }
+
+    public void setPromotionLibelle(String promotionLibelle) {
+        this.promotionLibelle = promotionLibelle;
     }
 
     public Integer getSalesAmount() {

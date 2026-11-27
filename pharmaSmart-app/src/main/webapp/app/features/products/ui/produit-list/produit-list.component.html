@@ -115,6 +115,9 @@
         @if (produit.estProduitGarde) {
           <span class="badge-garde ms-1" ngbTooltip="Produit de garde">G</span>
         }
+        @if (promotions().get(produit.id!); as promo) {
+          <app-badge-promo [article]="promo" class="ms-1" />
+        }
       </td>
       <td class="text-end">
         <app-badge [label]="produit.totalQuantity ?? 0 | number" [rounded]="true" [severity]="stockSeverity(produit)" />

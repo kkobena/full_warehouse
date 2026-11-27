@@ -1,7 +1,10 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { ProduitSearch } from '../../../../shared/model';
 import { ProduitsFavorisApiService } from '../../../products/data-access/services/produits-favoris-api.service';
+import { PromotionsEnVigueurService } from '../../../promotion/data-access/services/promotions-en-vigueur.service';
+import { IPromotionArticle } from '../../../promotion/models/promotion.model';
 import { QuickProductsGridComponent } from './quick-products-grid.component';
 
 /** Grille des favoris du comptoir : une tuile par produit épinglé, un clic ajoute le produit au panier. */
@@ -9,6 +12,25 @@ describe('QuickProductsGridComponent', () => {
   let fixture: ComponentFixture<QuickProductsGridComponent>;
   let composant: QuickProductsGridComponent;
   const api = { lister: jest.fn() };
+  const parProduit = signal<ReadonlyMap<number, IPromotionArticle>>(new Map());
+  const promotions = {
+    parProduit,
+    charger: jest.fn(),
+    pour: (id: number | null | undefined): IPromotionArticle | undefined => (id == null ? undefined : parProduit().get(id)),
+  };
+  const providers = [
+    { provide: ProduitsFavorisApiService, useValue: api },
+    { provide: PromotionsEnVigueurService, useValue: promotions },
+  ];
+  const promo = (produitId: number, prixApresPromo: number, quantiteMin = 1): IPromotionArticle => ({
+    produitId,
+    promotionId: 9,
+    libelle: 'Opération été',
+    prixReference: 1500,
+    prixApresPromo,
+    dateFin: '2026-12-31',
+    quantiteMin,
+  });
 
   const produit = (id: number, libelle: string, totalQuantity: number, regularUnitPrice = 1500) =>
     ({ id, libelle, totalQuantity, regularUnitPrice }) as ProduitSearch;
@@ -27,9 +49,10 @@ describe('QuickProductsGridComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    parProduit.set(new Map());
     TestBed.configureTestingModule({
       imports: [QuickProductsGridComponent],
-      providers: [{ provide: ProduitsFavorisApiService, useValue: api }],
+      providers,
     });
   });
 
@@ -117,9 +140,56 @@ describe('QuickProductsGridComponent', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [QuickProductsGridComponent],
-      providers: [{ provide: ProduitsFavorisApiService, useValue: api }],
+      providers,
     });
     creer([produit(1, 'MASQUE', 40)]);
     expect(basculeur()?.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  describe('articles en promotion', () => {
+    const prixAvant = (t: HTMLElement): string | undefined => t.querySelector('.tuile-prix-avant')?.textContent ?? undefined;
+
+    it('barre le prix normal, affiche le prix remisé et la pastille PROMO', () => {
+      parProduit.set(new Map([[1, promo(1, 1200)]]));
+      creer([produit(1, 'CREME SOLAIRE', 40), produit(2, 'GANTS', 10)]);
+      const [enPromo, normal] = tuiles();
+
+      expect(enPromo.classList.contains('tuile--promo')).toBe(true);
+      expect(prixAvant(enPromo)).toMatch(/1\s?500/);
+      expect(enPromo.querySelector('.tuile-prix')?.textContent).toMatch(/1\s?200/);
+      expect(enPromo.querySelector('app-badge-promo')).not.toBeNull();
+      expect(enPromo.getAttribute('aria-label')).toContain('en promotion à 1200 francs au lieu de 1500');
+
+      expect(normal.classList.contains('tuile--promo')).toBe(false);
+      expect(normal.querySelector('app-badge-promo')).toBeNull();
+    });
+
+    it("« dès 3 » : un clic n'ajoute qu'une unité, la tuile garde donc le prix normal et la seule pastille", () => {
+      parProduit.set(new Map([[1, promo(1, 1200, 3)]]));
+      creer([produit(1, 'CREME SOLAIRE', 40)]);
+      const [tuile] = tuiles();
+
+      expect(prixAvant(tuile)).toBeUndefined();
+      expect(tuile.querySelector('.tuile-prix')?.textContent).toMatch(/1\s?500/);
+      expect(tuile.querySelector('app-badge-promo')).not.toBeNull();
+    });
+
+    it('en rupture, « Rupture » prend la place de la pastille', () => {
+      parProduit.set(new Map([[1, promo(1, 1200)]]));
+      creer([produit(1, 'CREME SOLAIRE', 0)]);
+      const [tuile] = tuiles();
+
+      expect(tuile.querySelector('.tuile-etat')?.textContent).toContain('Rupture');
+      expect(tuile.querySelector('app-badge-promo')).toBeNull();
+    });
+
+    it('relit les promotions avec la grille : une promotion validée en journée apparaît sans recharger la page', () => {
+      creer([produit(1, 'MASQUE', 40)]);
+      expect(promotions.charger).toHaveBeenCalledTimes(1);
+
+      composant.recharger();
+
+      expect(promotions.charger).toHaveBeenCalledTimes(2);
+    });
   });
 });

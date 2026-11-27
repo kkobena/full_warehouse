@@ -110,7 +110,7 @@
           </thead>
           <tbody>
             @for (line of selectedLines(); track line.salesLineId) {
-              <tr [class.row-forbidden]="line.retourInterdit" [class.row-thermosensible]="line.thermosensible && !line.retourInterdit">
+              <tr [class.row-forbidden]="!estRetournable(line)" [class.row-thermosensible]="line.thermosensible && !line.retourInterdit">
                 <td>
                   {{ line.produitLibelle }}
                   @if (line.retourInterdit) {
@@ -119,6 +119,14 @@
                     <span class="badge bg-warning text-white ms-1" style="font-size: 0.65rem" title="Ne sera pas remis en stock">
                       <i class="pi pi-exclamation-triangle"></i> Thermosensible
                     </span>
+                  }
+                  @if (line.promotionLibelle) {
+                    <span class="badge bg-success ms-1" style="font-size: 0.65rem">
+                      <i class="pi pi-tag"></i> {{ line.pack ? 'Pack' : 'Promo' }} : {{ line.promotionLibelle }}
+                    </span>
+                  }
+                  @if (line.motifRefus) {
+                    <div class="small text-danger">{{ line.motifRefus }}</div>
                   }
                 </td>
                 <td>
@@ -132,7 +140,18 @@
                   }
                 </td>
                 <td>
-                  @if (!line.retourInterdit) {
+                  @if (line.retourInterdit) {
+                    <span class="text-danger small"><i class="pi pi-lock me-1"></i>Interdit</span>
+                  } @else if (line.motifRefus) {
+                    <span class="text-danger small"><i class="pi pi-lock me-1"></i>Non repris</span>
+                  } @else if (line.promotionId) {
+                    <!-- En promotion : la ligne en entier, ou rien ; un pack, avec tous ses articles. -->
+                    <app-checkbox
+                      [ngModel]="(line.quantiteRetour ?? 0) > 0"
+                      (ngModelChange)="retournerEnEntier(line, $event)"
+                      [label]="line.pack ? 'Tout le pack' : 'Toute la ligne (' + line.quantitySold + ')'"
+                    />
+                  } @else {
                     <app-input-number
                       [ngModel]="line.quantiteRetour"
                       (ngModelChange)="updateQty(line.salesLineId, $event)"
@@ -141,12 +160,10 @@
                       [showButtons]="true"
                       [step]="1"
                     />
-                  } @else {
-                    <span class="text-danger small"><i class="pi pi-lock me-1"></i>Interdit</span>
                   }
                 </td>
                 <td>
-                  @if (!line.retourInterdit && (line.quantiteRetour ?? 0) > 0) {
+                  @if (estRetournable(line) && (line.quantiteRetour ?? 0) > 0) {
                     <div class="etat-checks">
                       <div class="d-flex align-items-center gap-1">
                         <app-checkbox
@@ -175,8 +192,8 @@
                   }
                 </td>
                 <td class="text-end retour-amount">
-                  @if (!line.retourInterdit) {
-                    {{ (line.quantiteRetour ?? 0) * (line.montantRemboursableClient ?? line.netUnitPrice ?? 0) | devise }}
+                  @if (estRetournable(line)) {
+                    {{ montantRetour(line) | devise }}
                   } @else {
                     <span class="text-muted">—</span>
                   }

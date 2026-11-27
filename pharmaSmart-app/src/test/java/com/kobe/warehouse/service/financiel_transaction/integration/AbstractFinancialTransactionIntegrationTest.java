@@ -59,7 +59,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
  * l'état.
  */
 @Testcontainers(disabledWithoutDocker = true)
-abstract class AbstractFinancialTransactionIntegrationTest {
+public abstract class AbstractFinancialTransactionIntegrationTest {
 
     protected static final int MAGASIN_ID = 1;
     protected static final int STORAGE_RAYON_ID = 1;

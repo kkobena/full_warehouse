@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
-import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
@@ -32,6 +31,7 @@ import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.ordonnance.OrdonnanceObligatoireService;
+import com.kobe.warehouse.service.promotion.MoteurPromotionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -65,6 +65,7 @@ public abstract class SaleCommonService {
     private final AppConfigurationService appConfigurationService;
     private LimiteCreditService limiteCreditService;
     private OrdonnanceObligatoireService ordonnanceObligatoireService;
+    private MoteurPromotionService moteurPromotionService;
 
     public SaleCommonService(
             ReferenceService referenceService,
@@ -103,6 +104,12 @@ public abstract class SaleCommonService {
     @Autowired
     public void setOrdonnanceObligatoireService(OrdonnanceObligatoireService ordonnanceObligatoireService) {
         this.ordonnanceObligatoireService = ordonnanceObligatoireService;
+    }
+
+    /** Même raison que la limite de crédit ; absent, aucune promotion n'est appliquée. */
+    @Autowired
+    public void setMoteurPromotionService(MoteurPromotionService moteurPromotionService) {
+        this.moteurPromotionService = moteurPromotionService;
     }
 
     /** Produit sur ordonnance : la clôture exige une ordonnance ou un prescripteur. */
@@ -179,11 +186,11 @@ public abstract class SaleCommonService {
                     .forEach((k, v) -> {
                         ObjectNode json = objectMapper.createObjectNode();
 
+                        // Sur le net de la ligne, remise déduite : c'est ce que la cliente paie.
                         int totalTva = 0;
                         for (SalesLine item : v) {
-                            Double valeurTva = 1 + (Double.valueOf(k) / 100);
-                            int htAmont = (int) Math.ceil(item.getSalesAmount() / valeurTva);
-                            totalTva += (item.getSalesAmount() - htAmont);
+                            int net = SaleAmountCalculator.montantNet(item);
+                            totalTva += net - SaleAmountCalculator.montantHt(net, k);
                         }
                         json.put("tva", k);
                         json.put("amount", totalTva);
@@ -349,19 +356,47 @@ public abstract class SaleCommonService {
         saleAmountCalculator.computeCashSaleAmountToPaid(c);
     }
 
+    /**
+     * Recalcul complet d'une vente au comptant, rappelé à chaque mutation du panier. Les promotions
+     * s'effacent avant le calcul des montants et se reposent après la remise de grille : une ligne que
+     * la grille remise n'en reçoit pas.
+     */
     public void upddateCashSaleAmounts(CashSale c) {
+        if (moteurPromotionService != null) {
+            moteurPromotionService.effacer(c);
+        }
         computeSaleEagerAmount(c);
         this.proccessDiscount(c);
+        if (moteurPromotionService != null && moteurPromotionService.appliquer(c)) {
+            saleAmountCalculator.processDiscountCommonAmounts(c);
+        }
+        // Les promotions effacées ou reposées ont changé les remises des lignes : la TVA les suit.
+        saleAmountCalculator.computeTva(c);
         computeCashSaleAmountToPaid(c);
         arrondirMontantCaisse(c);
     }
 
     public void upddateCashSaleAmountsOnRemovingItem(CashSale c, SalesLine saleLine) {
+        // Les promotions se recalculent aussi au retrait : un pack amputé d'un article, un panier
+        // repassé sous son seuil ne remisent plus ; et la remise produit, refaite ci-dessous, effacerait
+        // sinon celles des lignes restantes.
+        if (moteurPromotionService != null) {
+            moteurPromotionService.effacer(c);
+        }
         computeSaleEagerAmountOnRemovingItem(c, saleLine);
         this.proccessDiscount(c);
+        if (moteurPromotionService != null) {
+            moteurPromotionService.appliquer(c);
+        }
+        // La remise de la vente se refait sur les lignes restantes : sans quoi celle d'une ligne
+        // retirée (promotion comprise) y resterait.
+        saleAmountCalculator.processDiscountCommonAmounts(c);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
         computeTvaAmountOnRemovingItem(c, saleLine);
+        // Même arrondi de caisse qu'après un ajout ou une modification : sans lui, le montant à
+        // payer affiché après un retrait n'est plus un multiple de 5.
+        arrondirMontantCaisse(c);
     }
 
     public void removeRemise(Sales sales) {
@@ -372,8 +407,12 @@ public abstract class SaleCommonService {
         sales.setRestToPay(sales.getSalesAmount());
         sales.getSalesLines().forEach(salesLine -> {
             salesLine.setDiscountAmount(0);
+            // Le taux aussi : la FNE déclare la remise par le taux, un taux resté sur une ligne
+            // sans remise la déclarerait remisée.
+            salesLine.setTauxRemise(0f);
             getSaleLineService(sales).saveSalesLine(salesLine);
         });
+        saleAmountCalculator.computeTva(sales);
     }
 
     public void applyRemiseProduit(Sales sales, RemiseProduit remiseProduit) {
@@ -383,15 +422,27 @@ public abstract class SaleCommonService {
         }
     }
 
-    public void applyRemiseClient(Sales sales, RemiseClient remiseClient) {
-        if (remiseClient != null) {
-            sales.setRemise(remiseClient);
-            saleAmountCalculator.proccessDiscount(sales);
-        }
-    }
-
     public void proccessDiscount(Sales sales) {
         saleAmountCalculator.proccessDiscount(sales);
+    }
+
+    /**
+     * Les promotions s'effacent, la remise de la vente se refait, puis les promotions se reposent :
+     * l'ordre du comptant, pour une vente à crédit. Le montant de la vente suit la somme des remises
+     * des lignes dès qu'une promotion est posée.
+     */
+    protected void appliquerRemisesEtPromotions(Sales vente) {
+        if (moteurPromotionService != null) {
+            moteurPromotionService.effacer(vente);
+        }
+        this.proccessDiscount(vente);
+        if (moteurPromotionService != null && moteurPromotionService.appliquer(vente)) {
+            saleAmountCalculator.processDiscountCommonAmounts(vente);
+            if (!(vente instanceof CashSale)) {
+                vente.setNetAmount(vente.getSalesAmount() - vente.getDiscountAmount());
+            }
+        }
+        saleAmountCalculator.computeTva(vente);
     }
 
     protected void displayMonnaie(Integer monnaie) {

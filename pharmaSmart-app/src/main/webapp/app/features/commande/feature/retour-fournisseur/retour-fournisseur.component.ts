@@ -1,25 +1,39 @@
-import { Component, DestroyRef, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { HttpResponse } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { NotificationService } from 'app/shared/services/notification.service';
-import { NgbConfirmDialogService } from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
-import { IRetourBon } from 'app/shared/model/retour-bon.model';
-import { IRetourBonGroupe } from 'app/shared/model/retour-bon-groupe.model';
-import { IAvoirFournisseur } from 'app/shared/model/avoir-fournisseur.model';
-import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
-import { NGB_DATE_TO_ISO } from 'app/shared/util/warehouse-util';
-import { RetourBonService } from '../../../../entities/commande/retour_fournisseur/retour-bon.service';
-import { SupplierResponseModalComponent } from '../../../../entities/commande/retour_fournisseur/supplier-response-modal.component';
-import { showCommonModal } from '../../../../entities/sales/selling-home/sale-helper';
-import { AvoirEncoursComponent } from './avoir-encours/avoir-encours.component';
-import { AvoirFournisseurService } from '../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service';
-import { BlobDownloadService } from '../../../../shared/services/blob-download.service';
-import { NgbDateStruct, NgbNavModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {CommonModule} from '@angular/common';
+import {HttpResponse} from '@angular/common/http';
+import {FormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
+import {NgbDateStruct, NgbModal, NgbNavModule, NgbTooltip} from '@ng-bootstrap/ng-bootstrap';
+import {NotificationService} from 'app/shared/services/notification.service';
+import {
+  NgbConfirmDialogService
+} from 'app/shared/dialog/ngb-confirm-dialog/ngb-confirm-dialog.directive';
+import {IRetourBon} from 'app/shared/model/retour-bon.model';
+import {IRetourBonGroupe} from 'app/shared/model/retour-bon-groupe.model';
+import {IAvoirFournisseur} from 'app/shared/model/avoir-fournisseur.model';
+import {RetourBonStatut} from 'app/shared/model/enumerations/retour-bon-statut.model';
+import {ITEMS_PER_PAGE} from 'app/shared/constants/pagination.constants';
+import {NGB_DATE_TO_ISO} from 'app/shared/util/warehouse-util';
+import {
+  RetourBonService
+} from '../../../../entities/commande/retour_fournisseur/retour-bon.service';
+import {
+  SupplierResponseModalComponent
+} from '../../../../entities/commande/retour_fournisseur/supplier-response-modal.component';
+import {showCommonModal} from '../../../../entities/sales/selling-home/sale-helper';
+import {AvoirEncoursComponent} from './avoir-encours/avoir-encours.component';
+import {
+  AvoirFournisseurService
+} from '../../../../entities/commande/retour_fournisseur/avoir-fournisseur.service';
+import {BlobDownloadService} from '../../../../shared/services/blob-download.service';
 import {
   ActionBarComponent,
   AppSplitButtonItem,
@@ -32,10 +46,11 @@ import {
   SelectComponent,
   SplitButtonComponent,
 } from '../../../../shared/ui';
-import { PharmaDatePickerComponent } from '../../../../shared/date-picker/pharma-date-picker.component';
-import { DevisePipe } from 'app/shared/utils/devise';
-import { CardComponent } from 'app/shared/ui';
-import AppComponent from '../../../../app.component';
+import {
+  PharmaDatePickerComponent
+} from '../../../../shared/date-picker/pharma-date-picker.component';
+import {DevisePipe} from 'app/shared/utils/devise';
+import {CardComponent} from 'app/shared/ui';
 
 export type RetourTab = 'EN_ATTENTE' | 'HISTORIQUE' | 'AVOIRS' | 'GROUPE';
 
@@ -62,7 +77,7 @@ export type RetourTab = 'EN_ATTENTE' | 'HISTORIQUE' | 'AVOIRS' | 'GROUPE';
     SelectComponent,
     SplitButtonComponent,
     DevisePipe,
-    AppComponent,
+
   ],
 })
 export class AppRetourFournisseurComponent implements OnInit {
@@ -79,9 +94,9 @@ export class AppRetourFournisseurComponent implements OnInit {
 
   /** Options de filtre selon l'onglet actif */
   protected readonly enAttenteStatutOptions = [
-    { label: 'En attente de réponse', value: RetourBonStatut.VALIDATED },
-    { label: 'En cours de traitement', value: RetourBonStatut.PROCESSING },
-    { label: 'Partiellement accepté', value: RetourBonStatut.PARTIALLY_ACCEPTED },
+    {label: 'En attente de réponse', value: RetourBonStatut.VALIDATED},
+    {label: 'En cours de traitement', value: RetourBonStatut.PROCESSING},
+    {label: 'Partiellement accepté', value: RetourBonStatut.PARTIALLY_ACCEPTED},
   ];
 
   protected retourBons = signal<IRetourBon[]>([]);
@@ -92,15 +107,6 @@ export class AppRetourFournisseurComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = signal<number>(0);
   protected readonly RetourBonStatut = RetourBonStatut;
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly downloadDocumentService = inject(BlobDownloadService);
-  private readonly retourBonService = inject(RetourBonService);
-  private readonly avoirFournisseurService = inject(AvoirFournisseurService);
-  private readonly notificationService = inject(NotificationService);
-  private readonly confirmDialog = inject(NgbConfirmDialogService);
-  private readonly modalService = inject(NgbModal);
-  private readonly router = inject(Router);
-
   protected exportMenus: AppSplitButtonItem[] = [
     {
       label: 'Excel',
@@ -113,6 +119,14 @@ export class AppRetourFournisseurComponent implements OnInit {
       command: () => this.exportRetourBons('csv'),
     },
   ];
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly downloadDocumentService = inject(BlobDownloadService);
+  private readonly retourBonService = inject(RetourBonService);
+  private readonly avoirFournisseurService = inject(AvoirFournisseurService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly confirmDialog = inject(NgbConfirmDialogService);
+  private readonly modalService = inject(NgbModal);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.loadBadges();
@@ -286,29 +300,22 @@ export class AppRetourFournisseurComponent implements OnInit {
     return retourBon.retourBonItems?.reduce((sum, item) => sum + (item.acceptedQty || 0), 0) || 0;
   }
 
-  private onSuccess(data: IRetourBon[] | null, headers: any): void {
-    this.totalRecords.set(Number(headers.get('X-Total-Count')));
-    this.retourBons.set(data || []);
-  }
-
-  private onError(): void {
-    this.notificationService.error('Erreur lors du chargement des retours');
-  }
-
   protected loadBadges(): void {
     this.retourBonService
       .countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countEnAttente.set(count),
-        error() {},
+        error() {
+        },
       });
     this.avoirFournisseurService
       .countEnAttente()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: count => this.countAvoirs.set(count),
-        error() {},
+        error() {
+        },
       });
   }
 
@@ -430,5 +437,14 @@ export class AppRetourFournisseurComponent implements OnInit {
           this.notificationService.error("Erreur lors de l'export des retours fournisseur.", 'Erreur');
         },
       });
+  }
+
+  private onSuccess(data: IRetourBon[] | null, headers: any): void {
+    this.totalRecords.set(Number(headers.get('X-Total-Count')));
+    this.retourBons.set(data || []);
+  }
+
+  private onError(): void {
+    this.notificationService.error('Erreur lors du chargement des retours');
   }
 }

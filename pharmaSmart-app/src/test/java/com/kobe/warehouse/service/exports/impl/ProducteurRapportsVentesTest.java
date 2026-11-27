@@ -4,7 +4,11 @@ import static org.mockito.Mockito.verify;
 
 import com.kobe.warehouse.domain.enumeration.FiltreExport;
 import com.kobe.warehouse.domain.enumeration.FormatExport;
+import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.RapportExport;
+import com.kobe.warehouse.service.remise.JournalRemisesService;
+import com.kobe.warehouse.service.remise.dto.JournalRemisesFiltre;
+import com.kobe.warehouse.service.remise.dto.NatureJournal;
 import com.kobe.warehouse.service.report.MargeReportService;
 import com.kobe.warehouse.service.report.excel.DashboardCAPExcelCsvExportService;
 import com.kobe.warehouse.service.report.pdf.ComparativePdfReportService;
@@ -13,6 +17,7 @@ import com.kobe.warehouse.service.report.pdf.DashboardCAPdfExportService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +47,9 @@ class ProducteurRapportsVentesTest {
 
     @Mock
     private CustomerSegmentationPdfReportService customerSegmentationPdfReportService;
+
+    @Mock
+    private JournalRemisesService journalRemisesService;
 
     @InjectMocks
     private ProducteurRapportsVentes ventes;
@@ -108,5 +116,36 @@ class ProducteurRapportsVentesTest {
         ventes.produire(RapportExport.SEGMENTATION_CLIENTS, FormatExport.PDF, null, null, Map.of());
 
         verify(customerSegmentationPdfReportService).export();
+    }
+
+    @Test
+    @DisplayName("journal des remises : sans partie choisie, la synthèse et les trois journaux")
+    void journalRemisesComplet() {
+        ventes.produire(RapportExport.JOURNAL_REMISES, FormatExport.PDF, DU, AU, Map.of());
+
+        verify(journalRemisesService).exporter(FormatExport.PDF, null, JournalRemisesFiltre.periode(DU, AU));
+    }
+
+    @Test
+    @DisplayName("journal des remises : la partie et les filtres retenus partent tels quels, au type du service")
+    void journalRemisesRegle() {
+        ventes.produire(
+                RapportExport.JOURNAL_REMISES,
+                FormatExport.XLSX,
+                DU,
+                AU,
+                Map.of(
+                        FiltreExport.JOURNAL, List.of("UG"),
+                        FiltreExport.NATURE_VENTE, List.of("ASSURANCE"),
+                        FiltreExport.CAISSIER, List.of("7"),
+                        FiltreExport.VENDEUR, List.of("8"),
+                        FiltreExport.PROMOTION, List.of("42")));
+
+        verify(journalRemisesService)
+                .exporter(
+                        FormatExport.XLSX,
+                        NatureJournal.UG,
+                        new JournalRemisesFiltre(
+                                DU, AU, Set.of(7), Set.of(8), Set.of(NatureVente.ASSURANCE), Set.of(42L), null, null));
     }
 }

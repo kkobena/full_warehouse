@@ -16,6 +16,7 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.*;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
+import com.kobe.warehouse.service.promotion.MoteurPromotionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.calculation.SaleAmountCalculator;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
@@ -119,18 +120,21 @@ class SaleCommonServiceTest {
         sale.setHtAmount(1_500);
         sale.setTaxAmount(500);
         taxed.setSalesAmount(1_200);
+        // La ligne a quitté la vente avant le recalcul (SalesManagerImpl.removeSalesLine).
+        sale.getSalesLines().remove(taxed);
         service.computeSaleEagerAmountOnRemovingItem(sale, taxed);
         service.computeSaleLazyAmountOnRemovingItem(sale, taxed);
         service.computeTvaAmountOnRemovingItem(sale, taxed);
         assertEquals(800, sale.getSalesAmount());
         assertEquals(300, sale.getCostAmount());
-        assertEquals(500, sale.getHtAmount());
-        assertEquals(300, sale.getTaxAmount());
+        // HT et TVA se refont sur les lignes restantes : il n'en reste aucune.
+        assertEquals(0, sale.getHtAmount());
+        assertEquals(0, sale.getTaxAmount());
 
         SalesLine untaxed = line(1, 400, 50, 0);
         untaxed.setSalesAmount(400);
         service.computeTvaAmountOnRemovingItem(sale, untaxed);
-        assertEquals(100, sale.getHtAmount());
+        assertEquals(0, sale.getHtAmount());
         assertEquals(10, service.roundedAmount(10));
         assertEquals(10, service.roundedAmount(12));
         assertEquals(15, service.roundedAmount(13));
@@ -303,6 +307,51 @@ class SaleCommonServiceTest {
         depot.setSalesLines(Set.of(line(1, 100, 10, 0)));
         service.removeRemise(depot);
         verify(saleLineServiceFactory).getService(TypeVente.VenteDepot);
+    }
+
+    @Test
+    void cashRecalculationErasesThenReappliesPromotionsAndRoundsTheTotal() {
+        MoteurPromotionService moteur = org.mockito.Mockito.mock(MoteurPromotionService.class);
+        service.setMoteurPromotionService(moteur);
+        CashSale sale = cashSale();
+        SalesLine promue = line(1, 1_000, 10, 0);
+        promue.setSalesAmount(1_000);
+        promue.setDiscountAmount(333); // reste d'un recalcul précédent, effacé par le moteur
+        sale.setSalesLines(new HashSet<>(Set.of(promue)));
+        org.mockito.Mockito.doAnswer(i -> {
+                    promue.setDiscountAmount(0);
+                    return null;
+                })
+                .when(moteur)
+                .effacer(sale);
+        when(moteur.appliquer(sale)).thenAnswer(i -> {
+            promue.setDiscountAmount(102);
+            return true;
+        });
+
+        service.upddateCashSaleAmounts(sale);
+
+        org.mockito.InOrder ordre = org.mockito.Mockito.inOrder(moteur);
+        ordre.verify(moteur).effacer(sale);
+        ordre.verify(moteur).appliquer(sale);
+        assertEquals(102, sale.getDiscountAmount());
+        assertEquals(898, sale.getNetAmount());
+        assertEquals(900, sale.getAmountToBePaid());
+    }
+
+    @Test
+    void removingRemiseClearsLineRateForFne() {
+        CashSale sale = cashSale();
+        SalesLine remisee = line(1, 1_000, 10, 0);
+        remisee.setDiscountAmount(100);
+        remisee.setTauxRemise(0.10f);
+        sale.setSalesLines(Set.of(remisee));
+        sale.setRemise(new RemiseProduit());
+
+        service.removeRemise(sale);
+
+        assertEquals(0, remisee.getDiscountAmount());
+        assertEquals(0f, remisee.getTauxRemise());
     }
 
     @Test

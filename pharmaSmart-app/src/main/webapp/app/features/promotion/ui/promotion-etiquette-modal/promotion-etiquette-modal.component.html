@@ -1,0 +1,140 @@
+<div class="modal-header">
+  <h5 class="modal-title"><i class="pi pi-tag me-2"></i>{{ estPack() ? 'Étiquettes du pack' : 'Étiquettes de rayon' }}</h5>
+  <button (click)="cancel()" aria-label="Fermer" class="btn-close" type="button"></button>
+</div>
+
+<div [formGroup]="form" class="modal-body">
+  <app-card [variant]="'form'">
+    @if (estPack() && promotion(); as promo) {
+      <div class="et-promo-info mb-3">
+        <div class="fw-semibold">{{ promo.libelle }}</div>
+        <div class="small text-muted">
+          À coller sur l'emballage du pack : son libellé, son prix et son code-barres. Au comptoir, le scanner ajoute alors tous ses
+          articles d'un coup.
+        </div>
+      </div>
+      <ul class="et-apercu mb-3">
+        <li>
+          <span class="et-libelle">{{ promo.libelle }}</span>
+          <span class="et-prix">{{ promo.valeur ?? 0 | devise }}</span>
+          <span class="pharma-code">{{ promo.codeBarrePack }}</span>
+        </li>
+      </ul>
+    } @else if (promotion(); as promo) {
+      <div class="et-promo-info mb-3">
+        <div class="fw-semibold">{{ promo.libelle }}</div>
+        <div class="small text-muted">
+          {{ articles().length }} article(s) remisé(s) — une étiquette « PROMO » par article : prix barré, prix remisé et date de fin.
+        </div>
+        @if (articles().length < promo.produits.length) {
+          <div class="small text-muted">Les articles que la promotion ne remise pas n'ont pas d'étiquette.</div>
+        }
+      </div>
+
+      <ul class="et-apercu mb-3">
+        @for (article of articles(); track article.produitId) {
+          <li>
+            <span class="et-libelle">{{ article.libelle }}</span>
+            <span class="et-prix-avant">{{ article.prixReference | devise }}</span>
+            <span class="et-prix">{{ article.prixApresPromo | devise }}</span>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (formats().length) {
+      <div class="mb-3">
+        <label class="form-label et-label" for="promoEtiquetteFormat">Format de planche</label>
+        <app-select
+          (selectionChange)="onFormatChange($event)"
+          [items]="formats()"
+          appendTo="body"
+          bindLabel="libelle"
+          bindValue="code"
+          formControlName="formatCode"
+          groupBy="supportLibelle"
+          inputId="promoEtiquetteFormat"
+          placeholder="Sélectionner un format"
+        />
+        @if (formatChoisi(); as f) {
+          <small class="text-muted et-aide">
+            @if (estRouleau()) {
+              {{ f.reference }} — une étiquette par page, {{ f.largeurMm }} × {{ f.hauteurMm }} mm
+            } @else {
+              {{ f.reference }} — {{ f.colonnes }} × {{ f.rangees }}, {{ f.capacite }} étiquettes par planche
+            }
+          </small>
+        }
+      </div>
+    }
+
+    @if (zplPossible()) {
+      <div class="mb-3">
+        <span class="form-label et-label d-block">Chemin d'impression</span>
+        <app-pill-selector
+          (selectionChange)="onModeChange($event)"
+          [items]="modeOptions"
+          ariaLabel="Chemin d'impression"
+          formControlName="modeImpression"
+        />
+      </div>
+      @if (estZpl()) {
+        <div class="row g-3 mb-3">
+          <div class="col-7">
+            <label class="form-label et-label" for="promoEtiquetteImprimante">Imprimante</label>
+            <app-select
+              [items]="imprimantes()"
+              appendTo="body"
+              bindLabel="name"
+              bindValue="name"
+              formControlName="imprimante"
+              inputId="promoEtiquetteImprimante"
+              placeholder="Imprimante d'étiquettes"
+            />
+          </div>
+          <div class="col-5">
+            <label class="form-label et-label" for="promoEtiquetteResolution">Résolution</label>
+            <app-select
+              [items]="resolutions"
+              appendTo="body"
+              bindLabel="libelle"
+              bindValue="code"
+              formControlName="resolution"
+              inputId="promoEtiquetteResolution"
+            />
+          </div>
+        </div>
+      }
+    }
+
+    <div class="row g-3">
+      <div [class]="estRouleau() ? 'col-12' : 'col-6'">
+        <label class="form-label et-label" for="promoEtiquetteQty"
+          >{{ estPack() ? 'Nombre de packs' : 'Étiquettes par article' }} <span class="text-danger">*</span></label
+        >
+        <app-input-number [max]="qtyMax()" [min]="1" [showButtons]="true" formControlName="qty" inputId="promoEtiquetteQty" />
+        <small class="text-muted et-aide">{{ total() }} étiquette(s) en tout</small>
+      </div>
+      @if (!estRouleau()) {
+        <div class="col-6">
+          <label class="form-label et-label" for="promoEtiquetteStartAt">Position de départ</label>
+          <app-input-number [max]="capacite()" [min]="1" [showButtons]="true" formControlName="startAt" inputId="promoEtiquetteStartAt" />
+          <small class="text-muted et-aide">Case de 1 à {{ capacite() }}</small>
+        </div>
+      }
+    </div>
+  </app-card>
+</div>
+
+<div class="modal-footer">
+  <app-button (clicked)="cancel()" [disabled]="loading()" [outlined]="true" label="Annuler" severity="secondary" size="small" />
+  <app-button
+    (clicked)="onPrint()"
+    [disabled]="!peutImprimer()"
+    [icon]="estZpl() ? 'pi pi-print' : 'pi pi-download'"
+    [label]="estZpl() ? 'Envoyer à l’imprimante' : 'Imprimer'"
+    [loading]="loading()"
+    severity="warn"
+    size="small"
+  />
+</div>

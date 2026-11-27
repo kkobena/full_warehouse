@@ -6,6 +6,8 @@ import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle, NgbTo
 import { AppTableLazyLoadEvent, BadgeComponent, CheckboxComponent, DataTableComponent } from 'app/shared/ui';
 import { IProduit } from 'app/shared/model/produit.model';
 import { EtaProduitComponent } from 'app/shared/eta-produit/eta-produit.component';
+import { BadgePromoComponent } from '../../../promotion/ui/badge-promo/badge-promo.component';
+import { IPromotionArticle } from '../../../promotion/models/promotion.model';
 
 export type ProduitMenuAction =
   | 'view'
@@ -49,6 +51,7 @@ interface MenuEntry {
     NgbDropdownItem,
     NgbTooltip,
     EtaProduitComponent,
+    BadgePromoComponent,
   ],
 })
 export class ProduitListComponent {
@@ -63,6 +66,8 @@ export class ProduitListComponent {
   readonly canEdit = input<boolean>(true);
   /** Produits épinglés à la grille du comptoir : l'état de la case « Favori » de chaque ligne. */
   readonly favorisIds = input<ReadonlySet<number>>(new Set<number>());
+  /** Articles en promotion aujourd'hui dans le magasin : la pastille « PROMO » à côté du libellé. */
+  readonly promotions = input<ReadonlyMap<number, IPromotionArticle>>(new Map());
   readonly canDelete = input<boolean>(true);
 
   readonly produitSelected = output<IProduit>();

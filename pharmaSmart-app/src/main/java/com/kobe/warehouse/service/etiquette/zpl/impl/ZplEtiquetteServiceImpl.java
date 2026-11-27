@@ -72,6 +72,9 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
     /** Le code d'une réglette est une vérification, pas une information : il reste discret. */
     private static final double HAUTEUR_CODE_DISCRET_MM = 2.2;
 
+    /** Étiquette promo : écart entre le prix barré et le prix remisé, posés sur la même ligne. */
+    private static final double ESPACE_PRIX_MM = 1.5;
+
     /** Au-delà, un texte d'ordonnance déborderait : l'imprimante coupe le bloc. */
     private static final int LIGNES_MAX_BLOC = 4;
 
@@ -105,6 +108,7 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
             case REGLETTE -> ecrireReglette(flux, etiquette, format, dpi);
             case POSOLOGIE -> ecrirePosologie(flux, etiquette, format, dpi);
             case PREPARATION -> ecrirePreparation(flux, etiquette, format, dpi);
+            case PROMO -> ecrirePromo(flux, etiquette, format, dpi);
             default -> ecrireEtiquetteArticle(flux, etiquette, format, dpi);
         }
         flux.append("^XZ\n");
@@ -138,6 +142,50 @@ public class ZplEtiquetteServiceImpl implements ZplEtiquetteService {
             // en clair plutôt que d'encombrer la réglette d'un symbole 2D.
             ecrireLigne(flux, etiquette.getCode(), MARGE_MM, y, HAUTEUR_CODE_DISCRET_MM, dpi);
         }
+    }
+
+    /**
+     * Étiquette de rayon d'une promotion : bandeau « PROMO » en blanc sur noir, libellé, prix de
+     * référence barré et prix remisé en gros sur la même ligne, puis la date de fin ; pas de code-
+     * article, que personne ne lit en rayon. ZPL n'a pas de texte barré : le trait est un
+     * {@code ^GB} tiré à mi-hauteur, sur la largeur estimée du texte.
+     */
+    private void ecrirePromo(StringBuilder flux, EtiquetteDTO etiquette, FormatEtiquette format, int dpi) {
+        double largeurMm = format.getLargeurMm() - 2 * MARGE_MM;
+        double hauteurBandeauMm = HAUTEUR_TEXTE_MM + 2 * INTERLIGNE_MM;
+        int hauteurBandeau = convertirEnDots(hauteurBandeauMm, dpi);
+        int hauteurTexte = convertirEnDots(HAUTEUR_TEXTE_MM, dpi);
+        // Le pavé noir plein, puis le texte en inversion (^FR) par-dessus : blanc sur noir.
+        flux.append("^FO").append(convertirEnDots(MARGE_MM, dpi)).append(',').append(convertirEnDots(MARGE_MM, dpi));
+        flux.append("^GB").append(convertirEnDots(largeurMm, dpi)).append(',').append(hauteurBandeau);
+        flux.append(',').append(hauteurBandeau).append("^FS\n");
+        flux.append("^FO").append(convertirEnDots(MARGE_MM, dpi)).append(',');
+        flux.append(convertirEnDots(MARGE_MM + INTERLIGNE_MM, dpi));
+        flux.append("^A0N,").append(hauteurTexte).append(',').append(hauteurTexte);
+        flux.append("^FB").append(convertirEnDots(largeurMm, dpi)).append(",1,0,C,0^FR^FDPROMO^FS\n");
+
+        double y = MARGE_MM + hauteurBandeauMm + INTERLIGNE_MM;
+        y = ecrireLigne(flux, etiquette.getLibelle(), MARGE_MM, y, HAUTEUR_TEXTE_MM, dpi);
+        // Prix barré et prix remisé sur la même ligne, alignés en bas : de quoi tenir sur 30 × 20 mm.
+        double x = MARGE_MM;
+        if (StringUtils.hasText(etiquette.getPrixAvant())) {
+            double yPrixAvant = y + HAUTEUR_PRIX_GONDOLE_MM - HAUTEUR_TEXTE_MM;
+            double longueurMm = etiquette.getPrixAvant().length() * LARGEUR_CARACTERE * HAUTEUR_TEXTE_MM;
+            ecrireLigne(flux, etiquette.getPrixAvant(), x, yPrixAvant, HAUTEUR_TEXTE_MM, dpi);
+            flux.append("^FO").append(convertirEnDots(x, dpi)).append(',');
+            flux.append(convertirEnDots(yPrixAvant + HAUTEUR_TEXTE_MM / 2, dpi));
+            flux.append("^GB").append(convertirEnDots(longueurMm, dpi)).append(",2,2^FS\n");
+            x += longueurMm + ESPACE_PRIX_MM;
+        }
+        // L'imprimante ne rogne rien : sur un rouleau étroit, le prix rapetisse pour tenir dans la
+        // largeur restante plutôt que de sortir de l'étiquette.
+        double hauteurPrix = HAUTEUR_PRIX_GONDOLE_MM;
+        if (StringUtils.hasText(etiquette.getPrix())) {
+            double dispoMm = format.getLargeurMm() - MARGE_MM - x;
+            hauteurPrix = Math.min(hauteurPrix, dispoMm / (etiquette.getPrix().length() * LARGEUR_CARACTERE));
+        }
+        y = ecrireLigne(flux, etiquette.getPrix(), x, y, hauteurPrix, dpi);
+        ecrireLigne(flux, etiquette.getMention(), MARGE_MM, y, HAUTEUR_CODE_DISCRET_MM, dpi);
     }
 
     /** Posologie remise au patient : ni prix, ni code-barres — c'est une consigne de prise. */

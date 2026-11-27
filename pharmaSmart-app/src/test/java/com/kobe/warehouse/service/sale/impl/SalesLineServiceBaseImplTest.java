@@ -609,6 +609,86 @@ class SalesLineServiceBaseImplTest {
     }
 
     @Test
+    void resetsDiscountAndRateWhenNoGridCoversTheLine() {
+        SalesLine line = completeLine();
+        line.setDiscountAmount(150);
+        line.setTauxRemise(0.15f);
+        RemiseProduit remise = new RemiseProduit();
+        GrilleRemise otherGrid = new GrilleRemise();
+        otherGrid.setCode(CodeRemise.CODE_0.getCodeVo());
+        otherGrid.setTauxRemise(0.15f);
+        remise.setGrilles(List.of(otherGrid));
+        CashSale sale = new CashSale();
+        sale.setRemise(remise);
+        line.setSales(sale);
+        line.getProduit().setCodeRemise(CodeRemise.CODE_0);
+
+        salesLineService.processProductDiscount(line);
+
+        assertEquals(0, line.getDiscountAmount());
+        assertEquals(0f, line.getTauxRemise());
+    }
+
+    @Test
+    void resetsDiscountWhenSaleHasNoRemiseInsteadOfFailing() {
+        SalesLine line = completeLine();
+        line.setDiscountAmount(150);
+        line.setTauxRemise(0.15f);
+        line.setSales(new CashSale());
+
+        salesLineService.processProductDiscount(line);
+
+        assertEquals(0, line.getDiscountAmount());
+        assertEquals(0f, line.getTauxRemise());
+    }
+
+    @Test
+    void reappliesDiscountIdempotentlyOnRecomputation() {
+        SalesLine line = completeLine();
+        RemiseProduit remise = new RemiseProduit();
+        GrilleRemise grid = new GrilleRemise();
+        grid.setCode(CodeRemise.CODE_0.getCodeVno());
+        grid.setTauxRemise(0.10f);
+        remise.setGrilles(List.of(grid));
+        CashSale sale = new CashSale();
+        sale.setRemise(remise);
+        line.setSales(sale);
+        line.getProduit().setCodeRemise(CodeRemise.CODE_0);
+        line.setSalesAmount(1_000);
+
+        salesLineService.processProductDiscount(line);
+        salesLineService.processProductDiscount(line);
+        assertEquals(100, line.getDiscountAmount());
+
+        line.setSalesAmount(3_000);
+        salesLineService.processProductDiscount(line);
+        assertEquals(300, line.getDiscountAmount());
+    }
+
+    @Test
+    void importedLineCarriesItsDiscountRate() {
+        SaleLineDTO withRate = basicDto(3, 600);
+        withRate.setTauxRemise(0.10f);
+        withRate.setDiscountAmount(180);
+        withRate.setSalesAmount(1_800);
+        assertEquals(0.10f, SalesLineServiceImpl.tauxRemiseImporte(withRate));
+
+        SaleLineDTO withoutRate = basicDto(3, 600);
+        withoutRate.setDiscountAmount(180);
+        withoutRate.setSalesAmount(1_800);
+        assertEquals(0.10f, SalesLineServiceImpl.tauxRemiseImporte(withoutRate), 1e-6);
+
+        SaleLineDTO noDiscount = basicDto(3, 600);
+        noDiscount.setSalesAmount(1_800);
+        assertEquals(0f, SalesLineServiceImpl.tauxRemiseImporte(noDiscount));
+
+        SaleLineDTO noAmount = basicDto(3, 600);
+        noAmount.setDiscountAmount(180);
+        noAmount.setSalesAmount(0);
+        assertEquals(0f, SalesLineServiceImpl.tauxRemiseImporte(noAmount));
+    }
+
+    @Test
     void allocatesScannedLotFirstThenRemainingQuantityByFefo() {
         SalesLine line = completeLine();
         line.setQuantitySold(5);

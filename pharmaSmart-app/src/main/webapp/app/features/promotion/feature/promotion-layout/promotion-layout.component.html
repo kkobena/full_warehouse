@@ -1,0 +1,45 @@
+<app-nav-sidebar
+  (collapsedChange)="menuReplie.set($event)"
+  [collapsed]="menuReplie()"
+  [collapsible]="true"
+  [nav]="nav"
+  contentColumnClass="col-lg-9 col-xl-10 col-md-8 col-sm-7 pharma-smart-content p-1"
+  icon="pi pi-tags"
+  menuColumnClass="col-lg-3 col-xl-2 col-md-4 col-sm-5"
+  title="Promotions"
+>
+  <div
+    #nav="ngbNav"
+    (activeIdChange)="active.set($event)"
+    [activeId]="active()"
+    class="nav flex-column nav-pills"
+    ngbNav
+    orientation="vertical"
+  >
+    @if (showListe()) {
+      <ng-container ngbNavItem="liste">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="promotions.liste" fallbackIcon="pi pi-tags" fallbackLabel="Promotions" />
+        </a>
+        <ng-template ngbNavContent>
+          <app-promotion-home />
+        </ng-template>
+      </ng-container>
+    }
+
+    @if (showJournal()) {
+      <ng-container ngbNavItem="journal">
+        <a class="pharma-nav-vertical-link" ngbNavLink>
+          <app-nav-section-link code="promotions.journal" fallbackIcon="pi pi-list" fallbackLabel="Journal" />
+        </a>
+        <ng-template ngbNavContent>
+          @defer (on immediate) {
+            <app-journal-remises-lignes nature="PROMOTIONS" navCode="promotions.journal" />
+          } @loading {
+            <app-skeleton height="240px" width="100%" />
+          }
+        </ng-template>
+      </ng-container>
+    }
+  </div>
+</app-nav-sidebar>

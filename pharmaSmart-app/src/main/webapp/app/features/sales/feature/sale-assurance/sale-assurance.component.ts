@@ -523,15 +523,7 @@ export class SaleAssuranceComponent implements OnInit, AfterViewInit, ProductSea
     }
   }
 
-  onLineDiscountChanged(event: { line: ISalesLine; newDiscount: number }): void {
-    if (event.line && event.line.id) {
-      this.facade.updateSalesLine(event.line.id, {
-        regularUnitPrice: event.line.regularUnitPrice! * (1 - event.newDiscount / 100),
-      });
-    }
-  }
-
-  onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
+  onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' }): void {
     const saleId = this.currentSale()?.id;
     const saleType = this.selectedSaleType();
     if (this.authorizationService.canDeleteProduct()) {

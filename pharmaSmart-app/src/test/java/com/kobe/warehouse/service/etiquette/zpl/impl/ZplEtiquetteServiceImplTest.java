@@ -273,6 +273,64 @@ class ZplEtiquetteServiceImplTest {
         }
 
         @Test
+        @DisplayName("l'etiquette promo porte le bandeau inverse, le prix barre, le prix remise et la date de fin")
+        void promo() {
+            EtiquetteDTO promo = new EtiquetteDTO()
+                    .setCode("3020611")
+                    .setLibelle("ACIDUM PHOSPHORICUM")
+                    .setPrixAvant("4 495")
+                    .setPrix("3 596 CFA")
+                    .setMention("Jusqu'au 31/12/2026")
+                    .setPrint(true);
+            String zpl = rendre(
+                    List.of(promo), TypeEtiquette.PROMO, FormatEtiquette.ROULEAU_58X40, ResolutionEtiquette.DPI_203);
+
+            int hauteurPrix = (int) Math.round(6.0 * 203 / 25.4);
+            assertThat(zpl).contains("^FR^FDPROMO^FS");
+            assertThat(zpl).contains("^FD4 495^FS");
+            assertThat(zpl).contains("^A0N," + hauteurPrix + "," + hauteurPrix + "^FD3 596 CFA^FS");
+            assertThat(zpl).contains("^FDJusqu'au 31/12/2026^FS");
+            // Le pave du bandeau et le trait du prix barre : deux ^GB, et pas de code-barres.
+            assertThat(compter(zpl, "^GB")).isEqualTo(2);
+            assertThat(zpl).doesNotContain("^B3").doesNotContain("^BX");
+            // Pas de code-article : en rayon, personne ne le lit.
+            assertThat(zpl).doesNotContain("^FD3020611^FS");
+        }
+
+        @Test
+        @DisplayName("l'etiquette promo tient sur le plus petit rouleau, 30 x 20 mm")
+        void promoSurPetitRouleau() {
+            EtiquetteDTO promo = new EtiquetteDTO()
+                    .setLibelle("ACIDUM PHOSPHORICUM COMPOSE")
+                    .setPrixAvant("4 495")
+                    .setPrix("3 596 CFA")
+                    .setMention("Jusqu'au 31/12/2026")
+                    .setPrint(true);
+            String zpl = rendre(
+                    List.of(promo), TypeEtiquette.PROMO, FormatEtiquette.ROULEAU_30X20, ResolutionEtiquette.DPI_203);
+
+            int hauteurEtiquette = (int) Math.round(20.0 * 203 / 25.4);
+            // Chaque champ commence au-dessus du bas de l'etiquette, hauteur de sa police comprise.
+            java.util.regex.Matcher champ = java.util.regex.Pattern.compile("\\^FO\\d+,(\\d+)\\^A0N,(\\d+),")
+                    .matcher(zpl);
+            int champs = 0;
+            while (champ.find()) {
+                champs++;
+                assertThat(Integer.parseInt(champ.group(1)) + Integer.parseInt(champ.group(2)))
+                        .isLessThanOrEqualTo(hauteurEtiquette);
+            }
+            assertThat(champs).isEqualTo(5);
+
+            // Le prix remise, a droite du prix barre, ne sort pas de l'etiquette par la droite.
+            java.util.regex.Matcher prix = java.util.regex.Pattern.compile(
+                            "\\^FO(\\d+),\\d+\\^A0N,(\\d+),\\d+\\^FD3 596 CFA\\^FS")
+                    .matcher(zpl);
+            assertThat(prix.find()).isTrue();
+            double largeurEstimee = "3 596 CFA".length() * 0.55 * Integer.parseInt(prix.group(2));
+            assertThat(Integer.parseInt(prix.group(1)) + largeurEstimee).isLessThanOrEqualTo(30.0 * 203 / 25.4);
+        }
+
+        @Test
         @DisplayName("la reglette garde le code en clair quand le Code 39 ne tient pas")
         void regletteSansCode39() {
             String zpl = rendre(

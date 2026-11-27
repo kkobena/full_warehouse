@@ -22,6 +22,18 @@ public enum SourceOptionsExport {
     MAGASIN(TypeValeurFiltre.ENTIER),
     UTILISATEUR(TypeValeurFiltre.ENTIER),
     MODE_PAIEMENT(TypeValeurFiltre.TEXTE),
+    /** Les promotions qui ont pu s'appliquer au comptoir : tout sauf les brouillons. */
+    PROMOTION(TypeValeurFiltre.ENTIER_LONG),
+    /**
+     * La partie du journal des remises à éditer ; sans choix, la synthèse et les trois journaux. Écrit comme l'attend
+     * {@code NatureJournal}, que le domaine ne voit pas.
+     */
+    JOURNAL_REMISES(
+            TypeValeurFiltre.TEXTE,
+            List.of(
+                    new OptionFiltreDTO("PROMOTIONS", "Promotions"),
+                    new OptionFiltreDTO("REMISES", "Remises produit"),
+                    new OptionFiltreDTO("UG", "UG vendues"))),
     NATURE_VENTE(
             NatureVente.class,
             List.of(
@@ -154,6 +166,7 @@ public enum SourceOptionsExport {
     public Object convertir(String valeur) {
         return switch (type) {
             case ENTIER -> Integer.valueOf(valeur);
+            case ENTIER_LONG -> Long.valueOf(valeur);
             case TEXTE -> valeur;
             case ENUM -> Enum.valueOf((Class) classe, valeur);
         };

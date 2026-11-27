@@ -227,6 +227,14 @@ public class TableauPharmacienDTO {
         return this;
     }
 
+    /**
+     * La TVA collectée, telle que l'état la calcule : sur le net de chaque ligne, remise déduite.
+     * L'état ne rendait pas la taxe : elle restait à zéro dans le tableau.
+     */
+    public void setMontantTva(long montantTva) {
+        this.montantTaxe = montantTva;
+    }
+
     public long getNombreVente() {
         return nombreVente;
     }

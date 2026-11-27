@@ -68,7 +68,6 @@ export class CustomerCarnetComponent implements OnInit, OnDestroy {
     adresse: [],
     sexe: [],
     datNaiss: [],
-    remiseId: [],
   });
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);

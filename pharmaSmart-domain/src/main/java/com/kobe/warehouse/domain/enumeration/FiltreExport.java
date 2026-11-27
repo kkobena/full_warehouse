@@ -45,6 +45,7 @@ public enum FiltreExport {
             true,
             "t.mouvementType IN :typesMouvement",
             "typesMouvement"),
+    PROMOTION("Promotion", SourceOptionsExport.PROMOTION, true, "l.promotionId IN :promotions", "promotions"),
     SEXE("Sexe", SourceOptionsExport.SEXE, true, "c.sexe IN :sexes", "sexes"),
     STATUT_CLIENT(
             "Statut du client", SourceOptionsExport.STATUT_CLIENT, true, "c.status IN :statutsClient", "statutsClient"),
@@ -66,7 +67,9 @@ public enum FiltreExport {
     DECOUPAGE_COMPARATIF("Comparer par", SourceOptionsExport.DECOUPAGE_COMPARATIF, false),
     TYPE_FACTURE("Type de facture", SourceOptionsExport.TYPE_FACTURE, false),
     DECOUPAGE_TABLEAU("Découpage", SourceOptionsExport.DECOUPAGE_TABLEAU, false),
-    GROUPEMENT_TVA("Regroupement", SourceOptionsExport.GROUPEMENT_TVA, false);
+    GROUPEMENT_TVA("Regroupement", SourceOptionsExport.GROUPEMENT_TVA, false),
+    /** La partie du journal des remises ; sans choix, la synthèse et les trois journaux. */
+    JOURNAL("Journal", SourceOptionsExport.JOURNAL_REMISES, false);
 
     private final String libelle;
     private final SourceOptionsExport source;

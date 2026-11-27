@@ -95,6 +95,18 @@ class ActivitySummaryServiceImplTest {
     class ChiffreDAffaires {
 
         @Test
+        @DisplayName("la TVA rendue par la fonction stockée, calculée sur le net, est reprise telle quelle")
+        void tvaRendueParLaFonction() {
+            donneChiffreAffaire("""
+                {"montantTtc":1000000,"montantHt":900000,"montantRemise":50000,"montantTva":49999,
+                 "montantDiffere":0,"montantTp":0,"montantAchat":0,"montantRemiseUg":0,"payments":[]}
+                """);
+
+            assertThat(service.getChiffreAffaire(DEBUT, FIN).chiffreAffaire().montantTva())
+                    .isEqualByComparingTo("49999");
+        }
+
+        @Test
         @DisplayName("les montants de la fonction stockée sont repris et les dérivés calculés")
         void montantsEtDerives() {
             donneChiffreAffaire("""
@@ -107,8 +119,8 @@ class ActivitySummaryServiceImplTest {
             assertThat(ca.montantTtc()).isEqualByComparingTo("1000000");
             assertThat(ca.montantHt()).isEqualByComparingTo("900000");
             assertThat(ca.montantRemise()).isEqualByComparingTo("50000");
-            // La TVA est l'écart entre le TTC et le HT, le net le TTC diminué de la remise.
-            assertThat(ca.montantTva()).isEqualByComparingTo("100000");
+            // Sans TVA rendue, elle se déduit du net (TTC moins remise) et du HT, calculé sur le net.
+            assertThat(ca.montantTva()).isEqualByComparingTo("50000");
             assertThat(ca.montantNet()).isEqualByComparingTo("950000");
             // Le crédit réunit le tiers payant et le différé ; la marge est le HT moins l'achat.
             assertThat(ca.montantCredit()).isEqualByComparingTo("100000");

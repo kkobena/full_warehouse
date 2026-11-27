@@ -152,7 +152,6 @@ export class SalesFacade {
   updateLinePrice = this.productFacade.updateLinePrice.bind(this.productFacade);
   recalculerLigne = this.productFacade.recalculerLigne.bind(this.productFacade);
   updateLineNonRembourse = this.productFacade.updateLineNonRembourse.bind(this.productFacade);
-  applyLineDiscount = this.productFacade.applyLineDiscount.bind(this.productFacade);
   updateRemise = this.productFacade.updateRemise.bind(this.productFacade);
 
   // ============================================

@@ -50,6 +50,32 @@ enum RequeteExport {
         """,
             "s.saleDate BETWEEN :du AND :au AND s.statut = :statut AND s.canceled = false AND s.categorieChiffreAffaire IN :categories",
             "ORDER BY s.saleDate, s.numberTransaction"),
+    /**
+     * La part de la promotion suit la règle du journal des remises : une ligne promue d'avant la colonne {@code remisePromotion}
+     * impute toute sa remise à la promotion.
+     */
+    LIGNES_REMISEES(ExportDonnees.LIGNES_REMISEES, "s", """
+        SELECT s.saleDate, s.numberTransaction, fp.codeCip, p.libelle, fam.libelle,
+               l.quantityRequested, coalesce(l.quantityUg, 0), l.regularUnitPrice, l.salesAmount,
+               CASE WHEN l.promotionId IS NULL THEN 0 WHEN l.remisePromotion <> 0 THEN l.remisePromotion
+                    ELSE coalesce(l.discountAmount, 0) END,
+               l.promotionLibelle,
+               coalesce(l.discountAmount, 0) - CASE WHEN l.promotionId IS NULL THEN 0 WHEN l.remisePromotion <> 0
+                    THEN l.remisePromotion ELSE coalesce(l.discountAmount, 0) END,
+               coalesce(l.discountAmount, 0), coalesce(l.quantityUg, 0) * l.regularUnitPrice, l.costAmount
+        """, """
+        FROM SalesLine l
+        JOIN l.sales s
+        JOIN l.produit p
+        LEFT JOIN p.famille fam
+        LEFT JOIN p.fournisseurProduitPrincipal fp
+        LEFT JOIN s.seller vend
+        LEFT JOIN s.caissier caiss
+        LEFT JOIN s.magasin mag
+        """, """
+        s.saleDate BETWEEN :du AND :au AND s.statut = :statut AND s.canceled = false AND s.categorieChiffreAffaire IN :categories
+        AND (l.promotionId IS NOT NULL OR coalesce(l.discountAmount, 0) <> 0 OR coalesce(l.quantityUg, 0) > 0)
+        """, "ORDER BY s.saleDate, s.numberTransaction"),
     ENCAISSEMENTS(
             ExportDonnees.ENCAISSEMENTS,
             "",

@@ -1,0 +1,58 @@
+@use 'app/shared/scss/modal-theme' as *;
+
+:host {
+  @include modal-theme;
+}
+
+.et-promo-info {
+  padding: 0.6rem 0.75rem;
+  background: var(--pharma-surface-alt);
+  border-radius: 6px;
+  border-left: 3px solid var(--bs-success);
+}
+
+.et-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.et-aide {
+  font-size: 0.7rem;
+}
+
+// Aperçu de ce que portera chaque étiquette : le prix barré, puis le prix payé.
+.et-apercu {
+  max-height: 10rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+
+  li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid var(--pharma-border);
+  }
+}
+
+.et-libelle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.et-prix-avant {
+  color: var(--pharma-text-muted);
+  text-decoration: line-through;
+}
+
+.et-prix {
+  font-weight: 600;
+  color: var(--bs-success);
+}

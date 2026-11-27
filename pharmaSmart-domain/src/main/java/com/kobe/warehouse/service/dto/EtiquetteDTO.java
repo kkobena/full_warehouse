@@ -40,6 +40,9 @@ public class EtiquetteDTO {
     /** Mention d'usage : « à usage externe », « tenir hors de portée des enfants »… */
     private String mention;
 
+    /** Étiquette promo : le prix de référence, imprimé barré au-dessus du prix remisé ({@link #prix}). */
+    private String prixAvant;
+
     public EtiquetteDTO() {}
 
     public EtiquetteDTO(
@@ -194,6 +197,15 @@ public class EtiquetteDTO {
 
     public EtiquetteDTO setMention(String mention) {
         this.mention = mention;
+        return this;
+    }
+
+    public String getPrixAvant() {
+        return prixAvant;
+    }
+
+    public EtiquetteDTO setPrixAvant(String prixAvant) {
+        this.prixAvant = prixAvant;
         return this;
     }
 }

@@ -1,3 +1,4 @@
+import { PackComptoirService } from '../../data-access/services/pack-comptoir.service';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -132,6 +133,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
   private readonly confirmDialog = inject(NgbConfirmDialogService);
   private authorizationService = inject(AuthorizationService);
   private notificationService = inject(NotificationService);
+  private readonly packComptoir = inject(PackComptoirService);
   private readonly ficheClient = inject(FicheClientPanelService);
   private readonly ordonnancePanel = inject(OrdonnancePanelService);
   private customerDisplay = inject(CustomerDisplayService);
@@ -348,6 +350,24 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     this.productHandling.onProductScanned(product, codeScan);
   }
 
+  /** Scanné dans le champ produit sans désigner d'article : si c'est un pack, ses articles s'ajoutent. */
+  onCodeInconnu(code: string): void {
+    if (this.isPresale()) {
+      return;
+    }
+    this.packComptoir.chercher(code).subscribe(pack => {
+      if (pack) {
+        this.productSearchComponent()?.reset();
+        this.packComptoir.ajouter(pack, (produit, quantite) => this.ajouterArticleDePack(produit, quantite));
+      }
+    });
+  }
+
+  /** Un article d'un pack scanné, à sa quantité dans le pack : le circuit ordinaire, contrôles compris. */
+  ajouterArticleDePack(product: ProduitSearch, quantite: number): void {
+    this.productHandling.addProductToSale(product, quantite);
+  }
+
   /**
    *  Gestion Enter dans champ produit vide
    * Si vente en cours → ouvre modal paiement avec focus sur CASH
@@ -408,7 +428,7 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
     // Focus géré via souscription à lineRemovedSuccess$
   }
 
-  onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' | 'discount' }): void {
+  onAuthorizationRequired(event: { line: ISalesLine; action: 'delete' }): void {
     const saleId = this.currentSale()?.id;
     const saleType = this.selectedSaleType();
 
@@ -425,26 +445,11 @@ export class SaleCreationComponent implements OnInit, ProductSearchHost {
             }
           });
       }
-    } else if (event.action === 'discount') {
-      this.authorizationService
-        .requestDiscountAuthorization(saleId, saleType)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(authorized => {
-          if (authorized) {
-            // TODO: Ouvrir modal de saisie remise
-          }
-        });
     }
   }
 
   onLineSelected(line: ISalesLine): void {
     this.selectedLineId.set(line.id || null);
-  }
-
-  onLineDiscountChanged(data: { line: ISalesLine; newDiscount: number }): void {
-    if (data.line.id) {
-      this.facade.applyLineDiscount(data.line.id, data.newDiscount);
-    }
   }
 
   onLinePriceChanged(data: { line: ISalesLine; newPrice: number }): void {

@@ -86,6 +86,7 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         if (isNull(output)) {
             thirdPartySales.setPartTiersPayant(0);
             thirdPartySales.setMontantNonRembourse(0);
+            thirdPartySales.setRemiseNonRembourse(0);
             thirdPartySales.setPartAssure(0);
             thirdPartySales.setAmountToBePaid(0);
             return null;
@@ -96,6 +97,10 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
         thirdPartySales.setMontantNonRembourse(thirdPartySales.getSalesLines().stream()
                 .filter(SalesLine::isNonRembourse)
                 .mapToInt(SalesLine::getSalesAmount)
+                .sum());
+        thirdPartySales.setRemiseNonRembourse(thirdPartySales.getSalesLines().stream()
+                .filter(SalesLine::isNonRembourse)
+                .mapToInt(l -> Objects.requireNonNullElse(l.getDiscountAmount(), 0))
                 .sum());
         thirdPartySales.setPartAssure(totalPatientShare);
         thirdPartySales.setAmountToBePaid(saleAmountCalculator.roundedAmount(totalPatientShare));
@@ -243,6 +248,9 @@ public class ThirdPartyCalculationManagerImpl implements ThirdPartyCalculationMa
                     si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
                     si.setQuantity(sl.getQuantityRequested());
                     si.setNonRembourse(sl.isNonRembourse());
+                    // La remise de la ligne (grille, promotion) : sans elle, la part du patient se calculait
+                    // sur le prix plein, et une remise ne baissait jamais ce qu'il paie.
+                    si.setDiscountAmount(BigDecimal.valueOf(Objects.requireNonNullElse(sl.getDiscountAmount(), 0)));
                     si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
 
                     // Extract TVA rate from product

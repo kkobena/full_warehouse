@@ -225,10 +225,10 @@ class TiersPayantCalculationServiceTest {
 
         assertNotNull(result);
         assertEquals(new BigDecimal("100"), result.getDiscountAmount());
-        // For CARNET: net = 1000 - 100 = 900
-        // TP pays 80% of 1000 = 800
-        // Patient pays: 900 - 800 = 100
-        assertEquals(new BigDecimal("100"), result.getTotalPatientShare());
+        // Carnet = comptant à règlement différé : l'organisme paie 80 % du net (900), soit 720,
+        // et le client le reste du net, 180.
+        assertEquals(new BigDecimal("720"), result.getTotalTiersPayant());
+        assertEquals(new BigDecimal("180"), result.getTotalPatientShare());
     }
 
     /**
@@ -1376,17 +1376,16 @@ class TiersPayantCalculationServiceTest {
 
         assertNotNull(result);
 
-        // TP1: 65% of 1755 = 1140.75 → 1141
-        assertEquals(new BigDecimal("1141"), findLineById(result, 1).getMontant());
-        // TP2: 15% of 1755 = 263.25 → 263
-        assertEquals(new BigDecimal("263"), findLineById(result, 2).getMontant());
-        // TP3: 10% of 1755 = 175.5 → 176
-        assertEquals(new BigDecimal("176"), findLineById(result, 3).getMontant());
+        // Les parts se calculent sur le net remisé : 1 755 - 105 = 1 650.
+        // TP1: 65 % de 1 650 = 1 072,5 → 1 073
+        assertEquals(new BigDecimal("1073"), findLineById(result, 1).getMontant());
+        // TP2: 15 % de 1 650 = 247,5 → 248
+        assertEquals(new BigDecimal("248"), findLineById(result, 2).getMontant());
+        // TP3: 10 % de 1 650 = 165
+        assertEquals(new BigDecimal("165"), findLineById(result, 3).getMontant());
 
-        // For CARNET: net = 1755 - 105 = 1650
-        // TPs pay: 1141 + 263 + 176 = 1580
-        // Patient: 1650 - 1580 = 70
-        assertEquals(new BigDecimal("70"), result.getTotalPatientShare());
+        // Client : 1 650 - (1 073 + 248 + 165) = 164
+        assertEquals(new BigDecimal("164"), result.getTotalPatientShare());
     }
 
     // Helper methods
